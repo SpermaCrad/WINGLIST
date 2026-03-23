@@ -2050,6 +2050,8 @@
             display: none;
             padding: 12px 12px 10px;
             border-top: 1px solid rgba(111, 203, 255, 0.12);
+            max-height: calc(100vh - 315px);
+            overflow-y: auto;
         }
 
         .contracts-widget.expanded .contracts-content {
@@ -2140,6 +2142,10 @@
             background: linear-gradient(145deg, #2fbe65, #24864a);
             color: #fff;
             box-shadow: 0 4px 12px rgba(26, 127, 60, 0.26);
+            position: sticky;
+            top: 0;
+            z-index: 3;
+            margin-bottom: 10px;
         }
 
         .contracts-mini-btn:hover,
@@ -2587,10 +2593,10 @@
                 <div class="contracts-selected" id="contractsSelected"></div>
                 <div class="contracts-actions-row">
                     <button type="button" class="contracts-mini-btn" onclick="clearContractSelection()">Сбросить выбор</button>
-                    <button type="button" class="contracts-mini-btn" onclick="selectContractCheapest()">Добить дешёвым</button>
+                    <button type="button" class="contracts-mini-btn" onclick="selectContractCheapest()">Добавить дешёвые</button>
                 </div>
-                <div class="contracts-inventory" id="contractsInventory"></div>
                 <button type="button" class="contracts-submit-btn" id="contractsSubmitButton" onclick="executeContract()">Заключить контракт</button>
+                <div class="contracts-inventory" id="contractsInventory"></div>
                 <div class="contracts-status info" id="contractsStatus">Каталог готов. Выбери предметы и начинай алхимию.</div>
                 <div class="contracts-note">При аресте инвентаря СПО контракты тоже замораживаются.</div>
             </div>
@@ -2884,7 +2890,8 @@
         let userAvatar = null; // Хранит base64 данные аватара
         
         const GAME_DATA_KEY = 'caseGameData';
-        const GAME_DATA_VERSION = 3;
+        const GAME_DATA_VERSION = 4;
+        const HEALTH_WARNING_ACK_KEY = 'caseGameHealthWarningAck';
         const MOBILE_BREAKPOINT = 768;
         const LONG_PRESS_MS = 500;
         const MAX_AVATAR_FILE_BYTES = 5 * 1024 * 1024;
@@ -3026,8 +3033,10 @@
                     ? gameData.winglistItems.map((item, index) => sanitizeInventoryItem(item, index)).filter(Boolean).map(({ _index, ...item }) => item)
                     : [],
                 bonusHintShown: sanitizeBool(gameData.bonusHintShown),
-                warningMessageShown: sanitizeBool(gameData.warningMessageShown),
+                warningMessageShown: sanitizeBool(gameData.warningMessageShown) || localStorage.getItem(HEALTH_WARNING_ACK_KEY) === '1',
                 soundEnabled: sanitizeBool(gameData.soundEnabled, true),
+                nextCaseCashbackActive: sanitizeBool(gameData.nextCaseCashbackActive),
+                luckySpinCharges: sanitizeInt(gameData.luckySpinCharges, 0, 0, 99),
                 devModeActive: sanitizeBool(gameData.devModeActive),
                 bugWarningClosed: sanitizeBool(gameData.bugWarningClosed),
                 socialRating: sanitizeNumber(gameData.socialRating, 100, 0, 100),
@@ -4756,6 +4765,10 @@
                 window.currentAnimationTimer = null;
                 console.log('💥 ТЕКУЩИЙ ТАЙМЕР АНИМАЦИИ ОТМЕНЁН!');
             }
+            if (window.currentHighlightTimer) {
+                clearTimeout(window.currentHighlightTimer);
+                window.currentHighlightTimer = null;
+            }
             
             // Останавливаем текущую анимацию и сразу переходим к результату
             const rouletteStrip = document.getElementById('rouletteStrip');
@@ -5359,6 +5372,11 @@ ${(() => {
             // 🛡️ ВКЛЮЧАЕМ ЗАЩИТУ РУЛЕТКИ
             rouletteProtection = true;
             console.log('🔒 РУЛЕТКА ПОЛНОСТЬЮ ЗАБЛОКИРОВАНА! Выход только после получения дропа!');
+
+            // 🆔 НОВАЯ СЕССИЯ РУЛЕТКИ — нужна, чтобы старые таймеры не вмешивались в новое открытие
+            const currentRouletteSessionId = ++rouletteSessionId;
+            window.currentRouletteSessionId = currentRouletteSessionId;
+            console.log(`🎰 Запущена сессия рулетки #${currentRouletteSessionId}`);
             
             // 🚫 БЛОКИРУЕМ ESC И ДРУГИЕ СПОСОБЫ ЗАКРЫТИЯ
             blockRouletteEscape();
@@ -5438,6 +5456,21 @@ ${(() => {
                     adjustedItems = [...items]; // Резервный способ
                 }
                 
+                const luckySpinActive = isMainDrop && luckySpinCharges > 0;
+                if (luckySpinActive) {
+                    adjustedItems.forEach(item => {
+                        if (!item || typeof item.value !== 'number' || typeof item.chance !== 'number') return;
+                        if (item.value >= currentCasePrice * 1.05) {
+                            item.chance *= 2.35;
+                        } else if (item.value >= currentCasePrice * 0.85) {
+                            item.chance *= 1.45;
+                        } else {
+                            item.chance *= 0.42;
+                        }
+                    });
+                    console.log(`🍀 LUCKY: усилены шансы на хорошие дропы для кейса за ${currentCasePrice} ꙮ`);
+                }
+
                 // 🔥 СИСТЕМА "РЕЗИНОВОЙ ЭКОНОМИКИ"
                 const playerInProfit = economyBalance > 200; // Игрок сильно в плюсе
                 const playerInLoss = economyBalance < -300;  // Игрок сильно в минусе
@@ -5621,6 +5654,11 @@ ${(() => {
             
             console.log(`🎯 РЕАЛЬНЫЙ ВЫИГРЫШ: ${actualWinningItem.name} (${actualWinningItem.value} ꙮ, шанс ${actualWinningItem.chance}%)`);
 
+            if (luckySpinCharges > 0) {
+                luckySpinCharges = Math.max(0, luckySpinCharges - 1);
+                console.log(`🍀 LUCKY израсходован. Осталось зарядов: ${luckySpinCharges}`);
+            }
+
             if (activeForcedDrop) {
                 forcedNextDrop = null;
                 updateForcedDropIndicator();
@@ -5717,6 +5755,10 @@ ${(() => {
 
             // Улучшенная анимация рулетки
             setTimeout(() => {
+                if (currentRouletteSessionId !== rouletteSessionId) {
+                    console.log('🧹 Старая сессия рулетки пропущена до старта анимации');
+                    return;
+                }
                 // ОСТАНАВЛИВАЕМСЯ ТОЧНО НА 15-м элементе (где размещён реальный выигрыш)
                 const stopIndex = 15; // Фиксированная остановка на выигрышном элементе!
                 const itemWidth = 150; // Ширина одного элемента
@@ -5738,7 +5780,10 @@ ${(() => {
                 console.log(`🎰 Рулетка: остановка ТОЧНО на элементе 15 - ${actualWinningItem.name}`);
                 
                 // Выделяем выигрышный элемент во время анимации
-                setTimeout(() => {
+                const highlightTimerId = setTimeout(() => {
+                    if (currentRouletteSessionId !== rouletteSessionId) {
+                        return;
+                    }
                     const winningElement = rouletteStrip.children[15]; // Всегда 15-й элемент!
                     if (winningElement) {
                         winningElement.style.transform = 'scale(1.1)';
@@ -5746,9 +5791,14 @@ ${(() => {
                         winningElement.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.8)';
                     }
                 }, 7700); // Выделяем за 0.5 сек до окончания анимации
+                window.currentHighlightTimer = highlightTimerId;
                 
                 // 💥 КРИТИЧЕСКИ ВАЖНО: СОХРАНЯЕМ ID ТАЙМЕРА ДЛЯ ВОЗМОЖНОЙ ОТМЕНЫ!
                 const animationTimerId = setTimeout(() => {
+                    if (currentRouletteSessionId !== rouletteSessionId) {
+                        console.log('🧹 Старая сессия рулетки не показывает результат');
+                        return;
+                    }
                     // 🚫 ДОПОЛНИТЕЛЬНАЯ ПРОВЕРКА: НЕ ПОКАЗЫВАЕМ ЕСЛИ УЖЕ БЫЛА БЫСТРАЯ ПРОКРУТКА
                     if (!fastSpinActive && currentItem === null) { 
                         console.log('🎯 ОБЫЧНАЯ АНИМАЦИЯ ЗАВЕРШЕНА - показываем результат');
@@ -6047,7 +6097,18 @@ ${(() => {
             
             // 🛡️ ОТКЛЮЧАЕМ ЗАЩИТУ РУЛЕТКИ
             rouletteProtection = false;
+            // Инвалидируем текущую сессию, чтобы любые старые таймеры больше не вмешивались
+            rouletteSessionId++;
+            window.currentRouletteSessionId = rouletteSessionId;
             unblockRouletteEscape();
+            if (window.currentAnimationTimer) {
+                clearTimeout(window.currentAnimationTimer);
+                window.currentAnimationTimer = null;
+            }
+            if (window.currentHighlightTimer) {
+                clearTimeout(window.currentHighlightTimer);
+                window.currentHighlightTimer = null;
+            }
             
             // ⚡ КРИТИЧЕСКИ ВАЖНО: НЕ СБРАСЫВАЕМ fastSpinActive ЗДЕСЬ!
             // Он должен сбрасываться только при выборе действия (keepItem/sellItem)
@@ -6336,23 +6397,34 @@ ${(() => {
             document.getElementById('profileMenuModal').classList.remove('active');
         }
 
-        function saveProfile() {
-            const nicknameInput = document.getElementById('nicknameInput');
-            const newNickname = nicknameInput.value.trim();
-            
-            if (newNickname.length > 0) {
-                userNickname = newNickname;
-                saveGameData(); // Save to localStorage
-                closeProfileMenu();
-                
-                // 🔥 НЕ ОЧИЩАЕМ промокод при сохранении профиля!
-                console.log('✅ Профиль сохранён, промокод остался в поле');
-            } else {
-                alert('Введите корректный никнейм!');
+function saveProfile() {
+    const nicknameInput = document.getElementById('nicknameInput');
+    const promocodeInput = document.getElementById('promocodeInput');
+    const newNickname = nicknameInput.value.trim();
+    const pendingPromocode = promocodeInput ? promocodeInput.value.trim() : '';
+
+    if (newNickname.length > 0) {
+        userNickname = newNickname;
+        saveGameData();
+
+        if (pendingPromocode) {
+            const promoApplied = activatePromocode({ autoCloseOnSuccess: true, triggeredBySave: true });
+            if (!promoApplied) {
+                showPromoToast('⚠️ Ник сохранён, но промокод не сработал.', 'warning');
+                console.log('⚠️ Профиль сохранён, но промокод не активирован — оставляем меню открытым');
             }
+        } else {
+            showPromoToast('✅ Профиль сохранён.', 'success');
+            closeProfileMenu();
         }
 
-        // Close profile menu on background click
+        console.log('✅ Профиль сохранён' + (pendingPromocode ? ' и промокод обработан' : ''));
+    } else {
+        alert('Введите корректный никнейм!');
+    }
+}
+
+// Close profile menu on background click
         document.getElementById('profileMenuModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeProfileMenu();
@@ -7072,187 +7144,394 @@ ${(() => {
         }
 
 
-        function activatePromocode() {
-            const promocodeInput = document.getElementById('promocodeInput');
-            const promocodeMessage = document.getElementById('promocodeMessage');
-            const promocode = promocodeInput.value.trim().toUpperCase();
-            
-            if (!promocode) {
-                showPromocodeMessage('Введите промокод!', 'error');
-                return;
-            }
-            
-            // Check if promocode was already used
-            if (usedPromocodes.includes(promocode)) {
-                showPromocodeMessage('Промокод уже был использован!', 'error');
-                return;
-            }
-            
-            // Available promocodes
-            const promocodes = {
-                'GLISTOK': {
-                    bonus: 500,
-                    description: '+500 ꙮ на баланс'
-                },
-                'MEOFEN': {
-                    bonus: 300,
-                    description: '+300 ꙮ на баланс'
-                },
-                'IVA STUDIO': {
-                    bonus: 1000,
-                    description: '+1000 ꙮ на баланс'
-                },
-                'BONUS': {
-                    bonus: 200,
-                    description: '+200 ꙮ на баланс'
-                },
-                'START': {
-                    bonus: 100,
-                    description: '+100 ꙮ на баланс'
-                },
-                'GLIST': {
-                    bonus: 0,
-                    description: 'Особый промокод - СКРИМЕР',
-                    special: 'jumpscare'
-                },
-                'GOSHA': {
-                    bonus: 7000,
-                    description: '+7000 ꙮ на баланс + списание долгов',
-                    special: 'debt_forgiveness'
-                },
-                'RAZRAB': {
-                    bonus: 0,
-                    description: 'Режим разработчика активирован',
-                    special: 'dev_mode'
-                }
-            };
-            
-            console.log(`🔍 Проверяем промокод: "${promocode}"`);
-            console.log('📋 Доступные промокоды:', Object.keys(promocodes));
-            console.log('🚫 Использованные промокоды:', usedPromocodes);
-            
-            // Проверяем промокод в разных регистрах
-            let foundPromocode = null;
-            let foundKey = null;
-            
-            for (const [key, value] of Object.entries(promocodes)) {
-                if (key.toUpperCase() === promocode.toUpperCase()) {
-                    foundPromocode = value;
-                    foundKey = key;
-                    break;
-                }
-            }
-            
-            if (foundPromocode) {
-                const promoData = foundPromocode;
-                console.log(`✅ Промокод найден: ${promocode}`, promoData);
-                
-                // Special handling for GLIST promocode
-                if (promoData.special === 'jumpscare') {
-                    console.log('👻 GLIST промокод активирован - запускаем скример!');
-                    
-                    // Пытаемся заранее разблокировать аудио, пока пользователь только что нажал кнопку
-                    primeScreamerAudio();
-                    
-                    // Сначала показываем сообщение
-                    showPromocodeMessage('😈 GLIST активирован! ГОТОВЬСЯ...', 'success');
-                    promocodeInput.value = '';
-                    
-                    // Добавляем в использованные
-                    usedPromocodes.push(foundKey);
-                    saveGameData();
-                    
-                    // Через секунду закрываем меню и сразу запускаем выезд Глиста.
-                    // Сам звук сработает ещё через 1 секунду внутри executeJumpscare,
-                    // чтобы совпасть с моментом, когда он уже вылез на экран.
-                    setTimeout(() => {
-                        closeProfileMenu();
-                        executeJumpscare();
-                    }, 1000);
-                    
-                    return;
-                }
-                
-                // Special handling for RAZRAB promocode
-                if (promoData.special === 'dev_mode') {
-                    console.log('🛠️ RAZRAB промокод активирован - включаем режим разработчика!');
-                    
-                    devModeActive = true;
-                    showPromocodeMessage('🛠️ Режим разработчика активирован!', 'success');
-                    
-                    usedPromocodes.push(foundKey);
-                    saveGameData();
-                    promocodeInput.value = '';
-                    
-                    // Панель разработчика не показываем автоматически — для записи держим её скрытой
-                    closeDevPanel();
-                    
-                    console.log('🛠️ Режим разработчика активирован! Доступны читерские функции');
-                    return;
-                }
-                
-                // Special handling for GOSHA promocode
-                if (promoData.special === 'debt_forgiveness') {
-                    console.log('🎉 GOSHA промокод активирован - списание долгов!');
-                    
-                    // Добавляем деньги
-                    balance += promoData.bonus;
-                    
-                    // Списываем долги
-                    const oldDebt = debtAmount;
-                    hasDebt = false;
-                    debtCasesLeft = 0;
-                    debtAmount = 500;
-                    isBlocked = false;
-                    
-                    // Восстанавливаем социальный рейтинг
-                    socialRating = Math.min(100, socialRating + 25);
-                    
-                    showPromocodeMessage(`✅ GOSHA активирован! +${promoData.bonus} ꙮ + списание долгов + рейтинг восстановлен!`, 'success');
-                    
-                    usedPromocodes.push(foundKey);
-                    updateBalance();
-                    updateDebtStatus();
-            initializeSupportChat();
-                    hideBlockBanner();
-                    saveGameData();
-                    promocodeInput.value = '';
-                    
-                    console.log(`🎁 Промокод GOSHA активирован: +${promoData.bonus} ꙮ, долг списан, рейтинг восстановлен`);
-                    return;
-                }
-                
-                // Regular promocode handling
-                balance += promoData.bonus;
-                showPromocodeMessage(`✅ Промокод активирован! ${promoData.description}`, 'success');
-                
-                usedPromocodes.push(foundKey);
-                updateBalance(); // Это автоматически скроет подсказку BONUS если баланс > 0
-                saveGameData();
-                promocodeInput.value = ''; // Очищаем ТОЛЬКО после успешной активации!
-                
-                console.log(`🎁 Промокод "${promocode}" активирован: +${promoData.bonus} ꙮ`);
-            } else {
-                console.log(`❌ Промокод "${promocode}" не найден!`);
-                showPromocodeMessage('❌ Неверный промокод!', 'error');
-            }
+function triggerMiniGlistPromoMessage() {
+    const promoReplies = [
+        'Мини Глист подключился и сообщил, что твой запрос уже отправлен нахуй в профильный отдел.',
+        'Мини Глист в сети 🐛: проблема зарегистрирована и нежно послана нахуй.',
+        'Мини Глист пишет: спасибо за обращение, иди нахуй по ускоренному тарифу.',
+        'Мини Глист: мы всё поняли. Решение уже выехало, но свернуло нахуй.'
+    ];
+
+    supportCurrentAgent = ['glist1', 'glist2', 'glist3'][Math.floor(Math.random() * 3)];
+    initializeSupportChat();
+    toggleSupportChat(true);
+    addSupportMessage('agent', promoReplies[Math.floor(Math.random() * promoReplies.length)]);
+    saveGameData();
+}
+
+function activatePromocode(options = {}) {
+    const promocodeInput = document.getElementById('promocodeInput');
+    const promocode = promocodeInput.value.trim().toUpperCase();
+    const autoCloseOnSuccess = Boolean(options.autoCloseOnSuccess);
+
+    if (!promocode) {
+        showPromocodeMessage('Введите промокод!', 'error');
+        return false;
+    }
+
+    const promocodes = {
+        'GLISTOK': { bonus: 500, description: '+500 ꙮ на баланс' },
+        'MEOFEN': { bonus: 300, description: '+300 ꙮ на баланс' },
+        'IVA STUDIO': { bonus: 15000, description: '+15000 ꙮ + снятие долга + 2 LUCKY + CASEBACK + рейтинг 100', special: 'iva_studio_ultimate' },
+        'BONUS': { bonus: 200, description: '+200 ꙮ на баланс' },
+        'START': { bonus: 100, description: '+100 ꙮ на баланс' },
+        'GLIST': { bonus: 0, description: 'Особый промокод - СКРИМЕР', special: 'jumpscare' },
+        'GOSHA': { bonus: 7000, description: '+7000 ꙮ на баланс + списание долгов', special: 'debt_forgiveness' },
+        'RAZRAB': { bonus: 0, description: 'Режим разработчика активирован', special: 'dev_mode' },
+        'PROTOKOL': { bonus: 404, description: '+404 ꙮ по протоколу СПО' },
+        'GOSDOLG': { bonus: 3000, description: '+3000 ꙮ, но оформляется льготный госдолг', special: 'state_debt' },
+        'SPO': { bonus: 666, description: '+666 ꙮ от СПО' },
+        'MINIGLIST': { bonus: 0, description: 'Мини Глист выходит на связь', special: 'mini_glist' },
+        'BANNED': { bonus: 50, description: 'Фейковый бан и +50 ꙮ', special: 'fake_ban' },
+        'CASEBACK': { bonus: 0, description: 'Следующий кейс полностью вернёт свою стоимость', special: 'caseback' },
+        'LUCKY': { bonus: 0, description: 'Следующее открытие заметно бустит шансы на дорогие дропы, но без гарантии легендарки', special: 'lucky_spin' },
+        'ERROR500': { bonus: 133, description: 'Фейковая системная ошибка СПО и +133 ꙮ', special: 'fake_error' },
+        'AMNISTIA': { bonus: 0, description: 'Полная амнистия по долгам без денег', special: 'amnesty' },
+        'OTKUP': { bonus: 0, description: 'Половина долга срезана, блокировка снята', special: 'otkup' },
+        'POKAYANIE': { bonus: 0, description: 'СПО даёт ещё один шанс после покаяния', special: 'pokayanie_promo' },
+        'SERIYA3': { bonus: 333, description: '+333 ꙮ в честь 3-й серии' },
+        'ZRITEL': { bonus: 250, description: '+250 ꙮ зрительского бонуса' },
+        'SPERMACRAD': { bonus: 777, description: '+777 ꙮ на баланс' }
+    };
+
+    if (usedPromocodes.includes(promocode)) {
+        showPromocodeMessage('Промокод уже был использован!', 'error');
+        return false;
+    }
+
+    let foundPromocode = null;
+    let foundKey = null;
+    for (const [key, value] of Object.entries(promocodes)) {
+        if (key.toUpperCase() === promocode.toUpperCase()) {
+            foundPromocode = value;
+            foundKey = key;
+            break;
         }
-        
+    }
+
+    if (!foundPromocode || !foundKey) {
+        showPromocodeMessage('❌ Неверный промокод!', 'error');
+        return false;
+    }
+
+    const promoData = foundPromocode;
+    const markUsed = () => {
+        usedPromocodes.push(foundKey);
+        saveGameData();
+    };
+    const finishPromo = (closeMenu = autoCloseOnSuccess) => {
+        promocodeInput.value = '';
+        if (closeMenu) {
+            closeProfileMenu();
+        }
+    };
+
+    if (promoData.special === 'jumpscare') {
+        primeScreamerAudio();
+        showPromocodeMessage('😈 GLIST активирован! ГОТОВЬСЯ...', 'success');
+        markUsed();
+        setTimeout(() => {
+            closeProfileMenu();
+            executeJumpscare();
+        }, 1000);
+        finishPromo(false);
+        return true;
+    }
+
+    if (promoData.special === 'dev_mode') {
+        devModeActive = true;
+        showPromocodeMessage('🛠️ Режим разработчика активирован!', 'success');
+        markUsed();
+        closeDevPanel();
+        finishPromo();
+        return true;
+    }
+
+    if (promoData.special === 'debt_forgiveness') {
+        balance += promoData.bonus;
+        hasDebt = false;
+        debtCasesLeft = 0;
+        debtAmount = 500;
+        isBlocked = false;
+        socialRating = Math.min(100, socialRating + 25);
+        updateBalance();
+        updateDebtStatus();
+        hideBlockBanner();
+        showPromocodeMessage(`✅ GOSHA активирован! +${promoData.bonus} ꙮ + списание долгов + рейтинг восстановлен!`, 'success');
+        markUsed();
+        finishPromo();
+        return true;
+    }
+
+    if (promoData.special === 'iva_studio_ultimate') {
+        balance += promoData.bonus;
+        hasDebt = false;
+        debtCasesLeft = 0;
+        debtAmount = 500;
+        isBlocked = false;
+        socialRating = 100;
+        luckySpinCharges = Math.min(99, luckySpinCharges + 2);
+        nextCaseCashbackActive = true;
+        updateBalance();
+        updateDebtStatus();
+        hideBlockBanner();
+        showPromocodeMessage('🔥 IVA STUDIO активирован! +15000 ꙮ, долги сняты, рейтинг 100, 2x LUCKY и CASEBACK готовы!', 'success');
+        markUsed();
+        finishPromo();
+        return true;
+    }
+
+    if (promoData.special === 'amnesty') {
+        hasDebt = false;
+        debtCasesLeft = 0;
+        debtAmount = 500;
+        isBlocked = false;
+        socialRating = Math.min(100, socialRating + 15);
+        updateDebtStatus();
+        hideBlockBanner();
+        showPromocodeMessage('📜 AMNISTIA активирована! Все долги прощены, блокировка снята.', 'success');
+        markUsed();
+        finishPromo();
+        return true;
+    }
+
+    if (promoData.special === 'otkup') {
+        if (hasDebt || isBlocked) {
+            debtAmount = Math.max(100, Math.ceil(debtAmount * 0.5));
+            debtCasesLeft = debtCasesLeft > 0 ? Math.max(1, Math.ceil(debtCasesLeft * 0.5)) : 4;
+            isBlocked = false;
+            socialRating = Math.min(100, socialRating + 8);
+            updateDebtStatus();
+            hideBlockBanner();
+            showPromocodeMessage(`💸 OTKUP активирован! Остаток долга: ${debtAmount} ꙮ, кейсов до списания: ${debtCasesLeft}.`, 'success');
+        } else {
+            balance += 200;
+            updateBalance();
+            showPromocodeMessage('💸 OTKUP без активного долга дал только +200 ꙮ.', 'success');
+        }
+        markUsed();
+        finishPromo();
+        return true;
+    }
+
+    if (promoData.special === 'pokayanie_promo') {
+        socialRating = Math.min(100, socialRating + 18);
+        if (hasDebt) {
+            if (isBlocked) {
+                isBlocked = false;
+                debtCasesLeft = Math.max(4, debtCasesLeft || 0);
+            } else {
+                debtCasesLeft = Math.max(1, debtCasesLeft - 3);
+            }
+            updateDebtStatus();
+            hideBlockBanner();
+            showPromocodeMessage(`🙏 POKAYANIE активирован! Рейтинг вырос, долг ослаблен. Осталось кейсов: ${debtCasesLeft}.`, 'success');
+        } else {
+            balance += 111;
+            updateBalance();
+            showPromocodeMessage('🙏 POKAYANIE активирован! Долга нет, поэтому просто +111 ꙮ и немного милости.', 'success');
+        }
+        markUsed();
+        finishPromo();
+        return true;
+    }
+
+    if (promoData.special === 'state_debt') {
+        balance += promoData.bonus;
+        if (!hasDebt) {
+            hasDebt = true;
+            debtAmount = 2500;
+            debtCasesLeft = 8;
+            socialRating = Math.max(0, socialRating - 7);
+            isBlocked = false;
+            showPromocodeMessage('🏛️ GOSDOLG активирован! +3000 ꙮ, но теперь висит льготный долг 2500 ꙮ.', 'success');
+        } else {
+            showPromocodeMessage('🏛️ GOSDOLG активирован! +3000 ꙮ, но второй долг уже не одобрили.', 'success');
+        }
+        updateBalance();
+        updateDebtStatus();
+        markUsed();
+        finishPromo();
+        return true;
+    }
+
+    if (promoData.special === 'mini_glist') {
+        triggerMiniGlistPromoMessage();
+        showPromocodeMessage('🐛 MINIGLIST активирован! Поддержка уже что-то мерзкое пишет.', 'success');
+        markUsed();
+        finishPromo();
+        return true;
+    }
+
+    if (promoData.special === 'fake_ban') {
+        showPromocodeMessage('⛔ BANNED: аккаунт временно заблокирован...', 'error');
+        markUsed();
+        setTimeout(() => {
+            balance += promoData.bonus;
+            updateBalance();
+            showPromocodeMessage('😌 Ладно, это был рофл. Держи +50 ꙮ.', 'success');
+            saveGameData();
+        }, 1300);
+        finishPromo();
+        return true;
+    }
+
+    if (promoData.special === 'caseback') {
+        nextCaseCashbackActive = true;
+        showPromocodeMessage('🔁 CASEBACK активирован! Следующий кейс вернёт свою стоимость.', 'success');
+        markUsed();
+        finishPromo();
+        return true;
+    }
+
+    if (promoData.special === 'lucky_spin') {
+        luckySpinCharges = Math.min(99, luckySpinCharges + 1);
+        showPromocodeMessage(`🍀 LUCKY активирован! На следующее открытие дорогие дропы бустятся заметно сильнее, но это не гарантия легендарки. Зарядов: ${luckySpinCharges}.`, 'success');
+        markUsed();
+        finishPromo();
+        return true;
+    }
+
+    if (promoData.special === 'fake_error') {
+        showPromocodeMessage('💥 ERROR 500: ядро СПО не найдено. Паника... отмена паники. Это был рофл.', 'error');
+        markUsed();
+        setTimeout(() => {
+            balance += promoData.bonus;
+            updateBalance();
+            showPromocodeMessage(`🧪 ERROR500 завершён. Компенсация за моральный ущерб: +${promoData.bonus} ꙮ.`, 'success');
+            saveGameData();
+        }, 1200);
+        finishPromo();
+        return true;
+    }
+
+    balance += promoData.bonus;
+    updateBalance();
+    showPromocodeMessage(`✅ Промокод активирован! ${promoData.description}`, 'success');
+    markUsed();
+    finishPromo();
+    return true;
+}
+
+function getPromoToastContainer() {
+            let container = document.getElementById('promo-toast-container');
+
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'promo-toast-container';
+                container.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    left: 20px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 12px;
+                    z-index: 10009;
+                    pointer-events: none;
+                    width: min(360px, calc(100vw - 24px));
+                `;
+                document.body.appendChild(container);
+            }
+
+            return container;
+        }
+
+        function showPromoToast(message, type = 'info') {
+            const container = getPromoToastContainer();
+            const toastEl = document.createElement('div');
+
+            const background = type === 'success'
+                ? 'linear-gradient(135deg, #27ae60, #229954)'
+                : type === 'warning'
+                    ? 'linear-gradient(135deg, #f39c12, #d68910)'
+                    : type === 'error'
+                        ? 'linear-gradient(135deg, #e74c3c, #c0392b)'
+                        : 'linear-gradient(135deg, #8e44ad, #6c3483)';
+
+            toastEl.style.cssText = `
+                background: ${background};
+                color: white;
+                padding: 15px 18px;
+                border-radius: 12px;
+                font-weight: bold;
+                width: 100%;
+                box-sizing: border-box;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.38);
+                border: 2px solid rgba(255,255,255,0.25);
+                animation: promoToastSlide 0.35s ease-out;
+                font-size: 14px;
+                line-height: 1.35;
+                white-space: pre-line;
+                pointer-events: auto;
+            `;
+
+            toastEl.textContent = message;
+
+            if (!document.getElementById('promo-toast-style')) {
+                const style = document.createElement('style');
+                style.id = 'promo-toast-style';
+                style.textContent = `
+                    @keyframes promoToastSlide {
+                        0% {
+                            transform: translateX(-100%);
+                            opacity: 0;
+                        }
+                        100% {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                    }
+                    @keyframes promoToastHide {
+                        0% {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                        100% {
+                            transform: translateX(-100%);
+                            opacity: 0;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            container.appendChild(toastEl);
+
+            setTimeout(() => {
+                if (toastEl.parentNode) {
+                    toastEl.style.animation = 'promoToastHide 0.3s ease-in forwards';
+                    setTimeout(() => {
+                        if (toastEl.parentNode) {
+                            toastEl.parentNode.removeChild(toastEl);
+                        }
+                    }, 300);
+                }
+            }, 3400);
+        }
+
         function showPromocodeMessage(message, type) {
             const promocodeMessage = document.getElementById('promocodeMessage');
-            promocodeMessage.textContent = message;
-            promocodeMessage.style.display = 'block';
-            
-            if (type === 'success') {
-                promocodeMessage.style.color = '#27ae60';
-            } else if (type === 'error') {
-                promocodeMessage.style.color = '#e74c3c';
+            if (promocodeMessage) {
+                promocodeMessage.textContent = message;
+                promocodeMessage.style.display = 'block';
+
+                if (type === 'success') {
+                    promocodeMessage.style.color = '#27ae60';
+                } else if (type === 'error') {
+                    promocodeMessage.style.color = '#e74c3c';
+                } else if (type === 'warning') {
+                    promocodeMessage.style.color = '#f39c12';
+                } else {
+                    promocodeMessage.style.color = '#8e44ad';
+                }
+
+                setTimeout(() => {
+                    promocodeMessage.style.display = 'none';
+                }, 3000);
             }
-            
-            // Hide message after 3 seconds
-            setTimeout(() => {
-                promocodeMessage.style.display = 'none';
-            }, 3000);
+
+            showPromoToast(message, type || 'info');
         }
         
         // Handle Enter key in promocode input
@@ -7323,8 +7602,13 @@ ${(() => {
             const warningEl = document.getElementById('health-warning');
             if (warningEl) {
                 warningEl.style.display = 'none';
-                warningMessageShown = true; // Помечаем что показали
-                saveGameData(); // Сохраняем флаг
+                warningMessageShown = true;
+                try {
+                    localStorage.setItem(HEALTH_WARNING_ACK_KEY, '1');
+                } catch (e) {
+                    console.log('⚠️ Не удалось записать отдельный флаг предупреждения:', e);
+                }
+                saveGameData();
                 console.log('⚠️ Предупреждение о здоровье закрыто, больше не показываем');
             }
         };
@@ -7415,6 +7699,9 @@ ${(() => {
                 economyStreak = 0;
                 totalSpent = 0;
                 totalWon = 0;
+                nextCaseCashbackActive = false;
+                luckySpinCharges = 0;
+                try { localStorage.removeItem(HEALTH_WARNING_ACK_KEY); } catch (e) {}
                 
                 cleanupDebtOverlays();
                 updateBalance();
@@ -8369,179 +8656,225 @@ ${(() => {
             }
         }
         
-        // 🔄 ФУНКЦИЯ ПОКАЯНИЯ
-        function repent() {
-            if (!isBlocked) {
-                showDebtMessage('Вы не заблокированы!', 'info');
-                return;
-            }
-            
-            const repentModal = document.createElement('div');
-            repentModal.id = 'repent-modal';
-            repentModal.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100vw;
-                height: 100vh;
-                background: rgba(0, 0, 0, 0.8);
-                z-index: 10006;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                flex-direction: column;
-                padding: 20px;
-                box-sizing: border-box;
-            `;
-            
-            const isMobile = window.innerWidth <= 768;
-            
-            repentModal.innerHTML = `
+// 🔄 ФУНКЦИЯ ПОКАЯНИЯ
+function repent() {
+    if (!isBlocked) {
+        showDebtMessage('Вы не заблокированы!', 'info');
+        return;
+    }
+
+    let repentanceClicks = 0;
+    const repentModal = document.createElement('div');
+    repentModal.id = 'repent-modal';
+    repentModal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 10006;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        padding: 20px;
+        box-sizing: border-box;
+    `;
+
+    const isMobile = window.innerWidth <= 768;
+
+    repentModal.innerHTML = `
+        <div style="
+            background: linear-gradient(135deg, #8e44ad, #9b59b6);
+            border: 3px solid #ffd700;
+            border-radius: ${isMobile ? '15px' : '20px'};
+            padding: ${isMobile ? '25px 20px' : '30px'};
+            text-align: center;
+            max-width: ${isMobile ? '340px' : '500px'};
+            width: ${isMobile ? '90vw' : 'auto'};
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            animation: repentGlow 2s ease-in-out infinite;
+        ">
+            <h2 style="color: #ffd700; font-size: ${isMobile ? '20px' : '24px'}; margin-bottom: ${isMobile ? '15px' : '20px'}; text-shadow: 2px 2px 4px rgba(0,0,0,0.7);">🙏 ПОКАЯНИЕ 🙏</h2>
+            <div style="
+                background: rgba(255,255,255,0.1);
+                border-radius: ${isMobile ? '8px' : '10px'};
+                padding: ${isMobile ? '15px' : '20px'};
+                margin-bottom: ${isMobile ? '20px' : '25px'};
+                border: 1px solid rgba(255,255,255,0.3);
+            ">
+                <p style="color: #fff; font-size: ${isMobile ? '14px' : '16px'}; margin-bottom: 15px; line-height: 1.4;">
+                    СПО готово простить ваши долги в обмен на <strong>${REPENTANCE_CLICK_TARGET}</strong> актов искреннего покаяния.
+                </p>
                 <div style="
-                    background: linear-gradient(135deg, #8e44ad, #9b59b6);
-                    border: 3px solid #ffd700;
-                    border-radius: ${isMobile ? '15px' : '20px'};
-                    padding: ${isMobile ? '25px 20px' : '30px'};
-                    text-align: center;
-                    max-width: ${isMobile ? '340px' : '500px'};
-                    width: ${isMobile ? '90vw' : 'auto'};
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-                    animation: repentGlow 2s ease-in-out infinite;
+                    background: rgba(255,215,0,0.2);
+                    border-radius: 8px;
+                    padding: 12px;
+                    margin-bottom: 15px;
+                    border: 1px solid rgba(255,215,0,0.4);
                 ">
-                    <h2 style="color: #ffd700; font-size: ${isMobile ? '20px' : '24px'}; margin-bottom: ${isMobile ? '15px' : '20px'}; text-shadow: 2px 2px 4px rgba(0,0,0,0.7);">🙏 ПОКАЯНИЕ 🙏</h2>
-                    <div style="
-                        background: rgba(255,255,255,0.1);
-                        border-radius: ${isMobile ? '8px' : '10px'};
-                        padding: ${isMobile ? '15px' : '20px'};
-                        margin-bottom: ${isMobile ? '20px' : '25px'};
-                        border: 1px solid rgba(255,255,255,0.3);
-                    ">
-                        <p style="color: #fff; font-size: ${isMobile ? '14px' : '16px'}; margin-bottom: 15px; line-height: 1.4;">
-                            СПО готово простить ваши долги в обмен на искреннее покаяние.
-                        </p>
-                        <div style="
-                            background: rgba(255,215,0,0.2);
-                            border-radius: 8px;
-                            padding: 12px;
-                            margin-bottom: 15px;
-                            border: 1px solid rgba(255,215,0,0.4);
-                        ">
-                            <div style="color: #ffd700; font-size: ${isMobile ? '13px' : '15px'}; font-weight: bold; margin-bottom: 8px;">
-                                📋 УСЛОВИЯ ПОКАЯНИЯ:
-                            </div>
-                            <div style="color: #fff; font-size: ${isMobile ? '12px' : '14px'}; line-height: 1.3;">
-                                ✅ Полное прощение всех долгов<br>
-                                ✅ Разблокировка доступа к кейсам<br>
-                                ✅ Восстановление рейтинга до 75<br>
-                                ⚠️ Сброс баланса до 100 ꙮ<br>
-                                ⚠️ Конфискация инвентаря
-                            </div>
-                        </div>
-                        <div style="
-                            background: rgba(231,76,60,0.2);
-                            border-radius: 8px;
-                            padding: 10px;
-                            border: 1px solid rgba(231,76,60,0.4);
-                        ">
-                            <p style="color: #ff6b6b; font-size: ${isMobile ? '11px' : '12px'}; margin: 0; font-style: italic; line-height: 1.3;">
-                                "Покаяние - единственный путь к прощению.<br>
-                                СПО милосердно к раскаявшимся должникам."<br>
-                                <span style="color: #ffd700;">- Статья 666 УК СПО</span>
-                            </p>
-                        </div>
+                    <div style="color: #ffd700; font-size: ${isMobile ? '13px' : '15px'}; font-weight: bold; margin-bottom: 8px;">
+                        📋 УСЛОВИЯ ПОКАЯНИЯ:
                     </div>
-                    <div style="display: flex; gap: ${isMobile ? '10px' : '15px'}; justify-content: center; ${isMobile ? 'flex-direction: column;' : ''}">
-                        <button onclick="executeRepentance()" style="
-                            background: linear-gradient(145deg, #27ae60, #229954);
-                            color: white;
-                            border: none;
-                            padding: ${isMobile ? '15px 25px' : '15px 30px'};
-                            border-radius: ${isMobile ? '10px' : '12px'};
-                            font-size: ${isMobile ? '14px' : '16px'};
-                            font-weight: bold;
-                            cursor: pointer;
-                            transition: all 0.3s ease;
-                            ${isMobile ? 'width: 100%;' : ''}
-                        " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                            🙏 ПОКАЯТЬСЯ
-                        </button>
-                        <button onclick="closeRepentModal()" style="
-                            background: linear-gradient(145deg, #e74c3c, #c0392b);
-                            color: white;
-                            border: none;
-                            padding: ${isMobile ? '15px 25px' : '15px 30px'};
-                            border-radius: ${isMobile ? '10px' : '12px'};
-                            font-size: ${isMobile ? '14px' : '16px'};
-                            font-weight: bold;
-                            cursor: pointer;
-                            transition: all 0.3s ease;
-                            ${isMobile ? 'width: 100%;' : ''}
-                        " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                            😤 ОТКАЗАТЬСЯ
-                        </button>
+                    <div style="color: #fff; font-size: ${isMobile ? '12px' : '14px'}; line-height: 1.3;">
+                        ✅ Полное прощение всех долгов<br>
+                        ✅ Разблокировка доступа к кейсам<br>
+                        ✅ Восстановление рейтинга до 75<br>
+                        ⚠️ Сброс баланса до 100 ꙮ<br>
+                        ⚠️ Конфискация инвентаря
                     </div>
                 </div>
-            `;
-            
-            // Добавляем анимацию свечения
-            if (!document.getElementById('repent-glow-style')) {
-                const style = document.createElement('style');
-                style.id = 'repent-glow-style';
-                style.textContent = `
-                    @keyframes repentGlow {
-                        0%, 100% { 
-                            box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(255,215,0,0.3);
-                        }
-                        50% { 
-                            box-shadow: 0 15px 40px rgba(0,0,0,1), 0 0 40px rgba(255,215,0,0.6);
-                        }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-            
-            document.body.appendChild(repentModal);
-            
-            // Глобальные функции для кнопок
-            window.executeRepentance = function() {
-                // ПОКАЯНИЕ: списываем все долги но обнуляем богатство
-                
-                // Сбрасываем долги и блокировку
-                isBlocked = false;
-                hasDebt = false;
-                debtCasesLeft = 0;
-                debtAmount = 500;
-                
-                // Восстанавливаем рейтинг до 75 (хороший уровень)
-                socialRating = 75;
-                
-                // ЖЁСТКИЕ УСЛОВИЯ ПОКАЯНИЯ
-                balance = 100; // Оставляем только 100 ꙮ
-                inventory = [{ name: 'Стартовый предмет', image: 'dropcase1_1', rarity: 'common', value: 10 }]; // Конфискуем весь инвентарь
-                
-                updateBalance();
-                updateInventory();
-                updateDebtStatus();
-            initializeSupportChat();
-                hideBlockBanner();
-                saveGameData();
-                
-                closeRepentModal();
-                
-                showDebtMessage(`🙏 ПОКАЯНИЕ ПРИНЯТО!\n✅ Все долги прощены\n✅ Доступ восстановлен\n📈 Рейтинг восстановлен до 75\n⚠️ Инвентарь конфискован\n💰 Баланс сброшен до 100 ꙮ`, 'success');
-                
-                console.log('🙏 Покаяние выполнено: долги прощены, инвентарь конфискован, баланс сброшен, рейтинг восстановлен до 75');
-            };
-            
-            window.closeRepentModal = function() {
-                if (repentModal.parentNode) {
-                    repentModal.parentNode.removeChild(repentModal);
+                <div id="repentProgressText" style="color: #fff; font-size: ${isMobile ? '13px' : '15px'}; margin-bottom: 10px;">
+                    Нажимай кнопку и докажи, что раскаяние не на словах.
+                </div>
+                <div style="background: rgba(0,0,0,0.25); border-radius: 999px; height: 10px; overflow: hidden; margin-bottom: 12px;">
+                    <div id="repentProgressBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #ffd700, #fff1a8); transition: width 0.15s ease;"></div>
+                </div>
+                <div style="
+                    background: rgba(231,76,60,0.2);
+                    border-radius: 8px;
+                    padding: 10px;
+                    border: 1px solid rgba(231,76,60,0.4);
+                ">
+                    <p style="color: #ff6b6b; font-size: ${isMobile ? '11px' : '12px'}; margin: 0; font-style: italic; line-height: 1.3;">
+                        "Покаяние - единственный путь к прощению.<br>
+                        СПО милосердно к раскаявшимся должникам."<br>
+                        <span style="color: #ffd700;">- Статья 666 УК СПО</span>
+                    </p>
+                </div>
+            </div>
+            <div style="display: flex; gap: ${isMobile ? '10px' : '15px'}; justify-content: center; ${isMobile ? 'flex-direction: column;' : ''}">
+                <button id="repentActionButton" onclick="executeRepentance()" style="
+                    background: linear-gradient(145deg, #27ae60, #229954);
+                    color: white;
+                    border: none;
+                    padding: ${isMobile ? '15px 25px' : '15px 30px'};
+                    border-radius: ${isMobile ? '10px' : '12px'};
+                    font-size: ${isMobile ? '14px' : '16px'};
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    ${isMobile ? 'width: 100%;' : ''}
+                ">
+                    🙏 КАЯТЬСЯ (0/${REPENTANCE_CLICK_TARGET})
+                </button>
+                <button onclick="closeRepentModal()" style="
+                    background: linear-gradient(145deg, #e74c3c, #c0392b);
+                    color: white;
+                    border: none;
+                    padding: ${isMobile ? '15px 25px' : '15px 30px'};
+                    border-radius: ${isMobile ? '10px' : '12px'};
+                    font-size: ${isMobile ? '14px' : '16px'};
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    ${isMobile ? 'width: 100%;' : ''}
+                ">
+                    😤 ОТКАЗАТЬСЯ
+                </button>
+            </div>
+        </div>
+    `;
+
+    if (!document.getElementById('repent-glow-style')) {
+        const style = document.createElement('style');
+        style.id = 'repent-glow-style';
+        style.textContent = `
+            @keyframes repentGlow {
+                0%, 100% { 
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(255,215,0,0.3);
                 }
-                showDebtMessage('😤 Покаяние отклонено. Блокировка остаётся в силе.', 'warning');
-            };
+                50% { 
+                    box-shadow: 0 15px 40px rgba(0,0,0,1), 0 0 40px rgba(255,215,0,0.6);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    document.body.appendChild(repentModal);
+
+    const progressText = document.getElementById('repentProgressText');
+    const progressBar = document.getElementById('repentProgressBar');
+    const actionButton = document.getElementById('repentActionButton');
+    const repentanceFlavors = [
+        'СПО наблюдает. Продолжай.',
+        'Этого ещё маловато. Кайся дальше.',
+        'Искренности пока не хватает.',
+        'Уже лучше, но долг помнит всё.',
+        'Почти убедил. Ещё жми.'
+    ];
+
+    function updateRepentanceUi() {
+        const percent = Math.min(100, Math.round((repentanceClicks / REPENTANCE_CLICK_TARGET) * 100));
+        if (progressBar) {
+            progressBar.style.width = `${percent}%`;
         }
-        
-        // 🏛️ ФУНКЦИИ ОБНОВЛЕНИЯ СТАТУСА ДОЛГА
+        if (actionButton) {
+            actionButton.textContent = `🙏 КАЯТЬСЯ (${repentanceClicks}/${REPENTANCE_CLICK_TARGET})`;
+        }
+        if (progressText) {
+            if (repentanceClicks === 0) {
+                progressText.textContent = 'Нажимай кнопку и докажи, что раскаяние не на словах.';
+            } else if (repentanceClicks < REPENTANCE_CLICK_TARGET) {
+                progressText.textContent = repentanceFlavors[Math.min(repentanceFlavors.length - 1, Math.floor((repentanceClicks / REPENTANCE_CLICK_TARGET) * repentanceFlavors.length))];
+            } else {
+                progressText.textContent = 'СПО сочло покаяние достаточным.';
+            }
+        }
+    }
+
+    updateRepentanceUi();
+
+    window.executeRepentance = function() {
+        repentanceClicks += 1;
+        updateRepentanceUi();
+
+        if (repentanceClicks < REPENTANCE_CLICK_TARGET) {
+            if (actionButton) {
+                actionButton.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    if (actionButton) actionButton.style.transform = 'scale(1)';
+                }, 90);
+            }
+            return;
+        }
+
+        isBlocked = false;
+        hasDebt = false;
+        debtCasesLeft = 0;
+        debtAmount = 500;
+        socialRating = 75;
+        balance = 100;
+        inventory = [{ name: 'Стартовый предмет', image: 'dropcase1_1', rarity: 'common', value: 10 }];
+
+        updateBalance();
+        updateInventory();
+        updateDebtStatus();
+        initializeSupportChat();
+        hideBlockBanner();
+        saveGameData();
+
+        closeRepentModal();
+
+        showDebtMessage(`🙏 ПОКАЯНИЕ ПРИНЯТО!
+✅ Все долги прощены
+✅ Доступ восстановлен
+📈 Рейтинг восстановлен до 75
+⚠️ Инвентарь конфискован
+💰 Баланс сброшен до 100 ꙮ`, 'success');
+    };
+
+    window.closeRepentModal = function() {
+        if (repentModal.parentNode) {
+            repentModal.parentNode.removeChild(repentModal);
+        }
+        showDebtMessage('😤 Покаяние отклонено. Блокировка остаётся в силе.', 'warning');
+    };
+}
+
+// 🏛️ ФУНКЦИИ ОБНОВЛЕНИЯ СТАТУСА ДОЛГА
         function updateDebtStatus() {
             const debtButton = document.getElementById('debtButton');
             const debtStatus = document.getElementById('debtStatus');
@@ -9341,6 +9674,11 @@ ${(() => {
         // Save/Load game data
         let bonusHintShown = false;
         let warningMessageShown = false; // Флаг для предупреждения о здоровье
+        let nextCaseCashbackActive = false;
+        let luckySpinCharges = 0;
+        let rouletteSessionId = 0;
+        let currentRouletteSessionId = 0;
+        const REPENTANCE_CLICK_TARGET = 24;
         
 
         function getContractCatalog() {
@@ -9751,6 +10089,8 @@ ${(() => {
                 bonusHintShown,
                 warningMessageShown,
                 soundEnabled,
+                nextCaseCashbackActive,
+                luckySpinCharges,
                 devModeActive,
                 bugWarningClosed,
                 socialRating,
@@ -9794,6 +10134,8 @@ ${(() => {
                     bonusHintShown = gameData.bonusHintShown;
                     warningMessageShown = gameData.warningMessageShown;
                     soundEnabled = gameData.soundEnabled;
+                    nextCaseCashbackActive = gameData.nextCaseCashbackActive;
+                    luckySpinCharges = gameData.luckySpinCharges;
                     devModeActive = gameData.devModeActive;
                     bugWarningClosed = gameData.bugWarningClosed;
                     
@@ -9825,6 +10167,8 @@ ${(() => {
                         bonusHintShown,
                         warningMessageShown,
                         soundEnabled,
+                        nextCaseCashbackActive,
+                        luckySpinCharges,
                         devModeActive,
                         bugWarningClosed,
                         socialRating,
@@ -9917,10 +10261,11 @@ ${(() => {
             }
             
             // ⚠️ Показываем предупреждение о здоровье если не показывалось
+            warningMessageShown = warningMessageShown || localStorage.getItem(HEALTH_WARNING_ACK_KEY) === '1';
             if (!warningMessageShown) {
                 setTimeout(() => {
                     showHealthWarning();
-                }, 2000); // Показываем через 2 секунды после загрузки
+                }, 2000);
             }
             
             // 💡 Показываем подсказку BONUS если баланс 0 и она не показывалась
