@@ -512,45 +512,55 @@
         
         /* 🛠️ СТИЛИ ДЛЯ РЕЖИМА РАЗРАБОТЧИКА */
         .dev-mode-banner {
-            background: linear-gradient(135deg, #8e44ad, #9b59b6);
-            border: 3px solid #ffd700;
-            border-radius: 15px;
-            padding: 15px 20px;
-            margin: 20px auto;
-            max-width: 500px;
+            background: linear-gradient(135deg, rgba(142, 68, 173, 0.98), rgba(52, 73, 94, 0.98));
+            border: 2px solid #ffd700;
+            border-radius: 16px;
+            padding: 16px 18px 14px;
+            width: min(420px, calc(100vw - 24px));
             text-align: center;
             animation: devModeGlow 2s ease-in-out infinite;
-            box-shadow: 0 5px 20px rgba(142, 68, 173, 0.4);
-            position: relative;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5);
+            position: fixed;
+            right: 12px;
+            bottom: 12px;
+            z-index: 10040;
+            backdrop-filter: blur(10px);
         }
-        
+
         .dev-mode-banner h3 {
             color: #ffd700;
-            font-size: 18px;
-            margin: 0 0 8px 0;
+            font-size: 17px;
+            margin: 0 28px 8px 0;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
-        
+
         .dev-mode-banner p {
             color: #fff;
-            font-size: 14px;
-            margin: 0 0 15px 0;
-            line-height: 1.3;
+            font-size: 13px;
+            margin: 0 0 12px 0;
+            line-height: 1.35;
         }
-        
+
+        .dev-mode-hint {
+            color: rgba(255, 255, 255, 0.82);
+            font-size: 11px;
+            margin-top: 10px;
+            line-height: 1.35;
+        }
+
         .dev-mode-controls {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
             justify-content: center;
             align-items: center;
         }
-        
+
         .dev-btn {
             background: linear-gradient(145deg, #e74c3c, #c0392b);
             color: white;
             border: none;
-            padding: 8px 15px;
+            padding: 8px 13px;
             border-radius: 8px;
             font-size: 12px;
             font-weight: bold;
@@ -558,53 +568,153 @@
             transition: all 0.3s ease;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
-        
+
         .dev-btn:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.4);
         }
-        
+
         .dev-btn.balance {
             background: linear-gradient(145deg, #27ae60, #229954);
         }
-        
+
         .dev-btn.reset {
             background: linear-gradient(145deg, #f39c12, #d68910);
         }
-        
+
+        .dev-btn.special {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+        }
+
+        .dev-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.35);
+            background: rgba(0,0,0,0.22);
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .dev-close-btn:hover {
+            background: rgba(0,0,0,0.35);
+        }
+
+        .dev-force-status {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 13px;
+            line-height: 1.35;
+        }
+
+        .dev-force-status strong {
+            color: #ffd700;
+        }
+
+        .dev-toggle-fab {
+            position: fixed;
+            right: 14px;
+            bottom: 14px;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 215, 0, 0.95);
+            background: linear-gradient(145deg, rgba(123, 58, 168, 0.97), rgba(52, 73, 94, 0.97));
+            color: #fff;
+            font-size: 28px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+            z-index: 10030;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .dev-toggle-fab:hover {
+            transform: scale(1.06);
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.48);
+        }
+
+        .dev-toggle-fab:active {
+            transform: scale(0.96);
+        }
+
+        .dev-toggle-fab.active {
+            box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.18), 0 14px 32px rgba(0, 0, 0, 0.48);
+        }
+
+        .dev-toggle-fab.hidden-for-recording {
+            opacity: 0.75;
+        }
+
         @keyframes devModeGlow {
             0%, 100% { 
-                box-shadow: 0 5px 20px rgba(142, 68, 173, 0.4);
+                box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5);
             }
             50% { 
-                box-shadow: 0 8px 30px rgba(142, 68, 173, 0.7), 0 0 40px rgba(255, 215, 0, 0.3);
+                box-shadow: 0 20px 55px rgba(82, 32, 108, 0.72), 0 0 28px rgba(255, 215, 0, 0.18);
             }
         }
-        
+
         /* 📱 МОБИЛЬНАЯ АДАПТАЦИЯ РЕЖИМА РАЗРАБОТЧИКА */
         @media (max-width: 768px) {
             .dev-mode-banner {
-                margin: 15px auto;
-                padding: 12px 15px;
-                max-width: 320px;
+                right: 10px;
+                left: 10px;
+                bottom: 10px;
+                width: auto;
+                padding: 14px 14px 12px;
             }
-            
+
             .dev-mode-banner h3 {
-                font-size: 16px;
+                font-size: 15px;
                 margin-bottom: 6px;
             }
-            
+
             .dev-mode-banner p {
                 font-size: 12px;
-                margin-bottom: 12px;
+                margin-bottom: 10px;
             }
-            
+
             .dev-btn {
-                padding: 6px 12px;
+                padding: 6px 10px;
                 font-size: 11px;
             }
+
+            .dev-force-status {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .dev-mode-hint {
+                font-size: 10px;
+            }
+
+            .dev-toggle-fab {
+                width: 54px;
+                height: 54px;
+                right: 10px;
+                bottom: 10px;
+                font-size: 26px;
+            }
         }
-        
+
         /* 🚫 СТИЛИ ДЛЯ ЗАКРЫВАЕМОГО ПРЕДУПРЕЖДЕНИЯ О БАГАХ */
         .bug-warning-banner {
             background: linear-gradient(135deg, #e74c3c, #c0392b);
@@ -1240,6 +1350,117 @@
             transform: scale(1.05);
         }
 
+        .avatar-presets-section {
+            margin: 10px 0 22px;
+        }
+
+        .avatar-presets-title {
+            color: #ffd700;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .avatar-presets-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .avatar-preset-btn {
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 10px 8px 8px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            min-height: 118px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar-preset-btn:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 215, 0, 0.65);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+        }
+
+        .avatar-preset-btn.selected {
+            border-color: #ffd700;
+            box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2), 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .avatar-preset-btn.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fff7b1, #ffd700 55%, #c79a00 100%);
+            color: #1b1b1b;
+            font-size: 15px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 0 18px rgba(255, 215, 0, 0.35);
+            animation: avatarCheckGlow 1.7s ease-in-out infinite alternate;
+            z-index: 2;
+        }
+
+        @keyframes avatarCheckGlow {
+            from {
+                transform: scale(1);
+                box-shadow: 0 0 8px rgba(255, 215, 0, 0.65), 0 0 14px rgba(255, 215, 0, 0.25);
+            }
+            to {
+                transform: scale(1.08);
+                box-shadow: 0 0 12px rgba(255, 215, 0, 0.95), 0 0 24px rgba(255, 215, 0, 0.45);
+            }
+        }
+
+        .avatar-preset-thumb {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            border: 2px solid rgba(255,255,255,0.18);
+            background-color: rgba(255,255,255,0.06);
+        }
+
+        .avatar-preset-label {
+            font-size: 12px;
+            line-height: 1.2;
+            color: #ecf0f1;
+        }
+
+        .avatar-custom-upload-btn {
+            width: 100%;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            background: linear-gradient(145deg, #8e44ad, #6c3483);
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+
+        .avatar-custom-upload-btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.08);
+        }
+
         .profile-input-group {
             margin: 20px 0;
             text-align: left;
@@ -1527,22 +1748,22 @@
 
         <!-- 🌐 СОЦИАЛЬНЫЕ СЕТИ -->
         <div class="social-links">
-            <a href="https://www.youtube.com/@Iva_Studio" target="_blank" class="social-icon youtube" title="YouTube">
+            <a href="https://www.youtube.com/@Iva_Studio" target="_blank" rel="noopener noreferrer" class="social-icon youtube" title="YouTube">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                 </svg>
             </a>
-            <a href="https://t.me/rm-WHXGnzr04ZDky" target="_blank" class="social-icon telegram" title="Telegram">
+            <a href="https://t.me/IvaAnimations" target="_blank" rel="noopener noreferrer" class="social-icon telegram" title="Telegram">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
                 </svg>
             </a>
-            <a href="https://discord.gg/79xqaYPaTE" target="_blank" class="social-icon discord" title="Discord">
+            <a href="https://discord.gg/79xqaYPaTE" target="_blank" rel="noopener noreferrer" class="social-icon discord" title="Discord">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419-.0189 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1568 2.4189Z"/>
                 </svg>
             </a>
-            <a href="https://boosty.to/iva_studio" target="_blank" class="social-icon boosty" title="Boosty">
+            <a href="https://boosty.to/iva_studio" target="_blank" rel="noopener noreferrer" class="social-icon boosty" title="Boosty">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
                 </svg>
@@ -1597,17 +1818,24 @@
 
         <!-- 🛠️ РЕЖИМ РАЗРАБОТЧИКА -->
         <div id="dev-mode-banner" class="dev-mode-banner" style="display: none;">
-            <h3>🛠️ РЕЖИМ РАЗРАБОТЧИКА АКТИВИРОВАН! 🛠️</h3>
-            <p>Доступны читерские функции для тестирования</p>
+            <button class="dev-close-btn" onclick="closeDevPanel()" aria-label="Скрыть панель разработчика" title="Скрыть">✕</button>
+            <h3>🛠️ РЕЖИМ РАЗРАБОТЧИКА</h3>
+            <p>Скрытая панель для постановочных сцен и тестов</p>
             <div class="dev-mode-controls">
                 <button class="dev-btn balance" onclick="devAddBalance()">💰 +1000 ꙮ</button>
                 <button class="dev-btn balance" onclick="devSetBalance()">✏️ Изменить баланс</button>
                 <button class="dev-btn reset" onclick="devResetPromocodes()">🔄 Сброс промокодов</button>
                 <button class="dev-btn reset" onclick="devResetRating()">📈 Сброс рейтинга</button>
                 <button class="dev-btn reset" onclick="devResetDropHistory()">🚫 Сброс истории дропов</button>
+                <button class="dev-btn special" onclick="openDevForceDropModal()">🎯 Подкрутить дроп</button>
+                <button class="dev-btn special" onclick="clearForcedDropSelection(true)">❌ Сброс подкрутки</button>
                 <button class="dev-btn reset" onclick="devResetAll()">🗑️ Полный сброс</button>
             </div>
+            <div id="dev-force-status" class="dev-force-status">Следующий дроп: <strong>случайный</strong></div>
+            <div class="dev-mode-hint">Открытие: кнопка 🐒 справа снизу • 5 быстрых тапов по балансу • долгое удержание аватарки</div>
         </div>
+
+        <button id="dev-toggle-fab" class="dev-toggle-fab hidden-for-recording" type="button" onclick="toggleDevPanel()" title="Открыть dev-панель" aria-label="Открыть dev-панель">🐒</button>
 
         <div class="cases-title">СЕРИЙНЫЕ КЕЙСЫ</div>
         
@@ -1829,6 +2057,11 @@
             <div class="profile-menu-container">
                 <h3 style="color: #ffd700; margin-bottom: 20px;">Настройки профиля</h3>
                 <div class="profile-menu-avatar" id="profileMenuAvatar" onclick="openAvatarUpload()">👤</div>
+                <div class="avatar-presets-section">
+                    <div class="avatar-presets-title">Готовые аватарки</div>
+                    <div class="avatar-presets-grid" id="avatarPresetsGrid"></div>
+                    <button type="button" class="avatar-custom-upload-btn" onclick="openAvatarUpload()">📁 Загрузить свою аву</button>
+                </div>
                 
                 <div class="profile-input-group">
                     <label for="nicknameInput">Никнейм:</label>
@@ -1878,6 +2111,549 @@
         ];
         let userNickname = 'Игрок';
         let userAvatar = null; // Хранит base64 данные аватара
+        
+        const GAME_DATA_KEY = 'caseGameData';
+        const GAME_DATA_VERSION = 3;
+        const MOBILE_BREAKPOINT = 768;
+        const LONG_PRESS_MS = 500;
+        const MAX_AVATAR_FILE_BYTES = 5 * 1024 * 1024;
+        const MAX_AVATAR_DIMENSION = 256;
+        const MAX_AVATAR_DATA_URL_LENGTH = 700000;
+        const DEFAULT_AVATAR_FILE = 'avatar.png';
+        const PRESET_AVATAR_OPTIONS = ['avatar.png', 'avatar2.png', 'avatar3.png', 'avatar4.png', 'avatar5.png', 'avatar6.png'];
+        const PRESET_AVATAR_SET = new Set(PRESET_AVATAR_OPTIONS);
+        const VALID_RARITIES = new Set(['common', 'rare', 'epic', 'legendary']);
+        const COUNTDOWN_STORAGE_KEY = 'winglistCountdownEndTs';
+        const COUNTDOWN_MIN_SECONDS = 2 * 3600;
+        const COUNTDOWN_MAX_SECONDS = 6 * 3600;
+        const CASE_DROPS_MODAL_ID = 'case-drops-modal';
+        let forcedNextDrop = null;
+        let suppressNextCaseClick = false;
+        let countdownInterval = null;
+        
+        function sanitizeText(value, fallback = '') {
+            return typeof value === 'string' ? value.trim() : fallback;
+        }
+
+        function sanitizeInt(value, fallback = 0, min = Number.MIN_SAFE_INTEGER, max = Number.MAX_SAFE_INTEGER) {
+            const parsed = Number.parseInt(value, 10);
+            if (!Number.isFinite(parsed)) {
+                return fallback;
+            }
+            return Math.min(max, Math.max(min, parsed));
+        }
+
+        function sanitizeNumber(value, fallback = 0, min = Number.MIN_SAFE_INTEGER, max = Number.MAX_SAFE_INTEGER) {
+            const parsed = Number(value);
+            if (!Number.isFinite(parsed)) {
+                return fallback;
+            }
+            return Math.min(max, Math.max(min, parsed));
+        }
+
+        function sanitizeBool(value, fallback = false) {
+            return typeof value === 'boolean' ? value : fallback;
+        }
+
+        function sanitizeAvatarValue(value) {
+            if (typeof value !== 'string') {
+                return null;
+            }
+
+            const trimmed = value.trim();
+            if (!trimmed) {
+                return null;
+            }
+
+            if (PRESET_AVATAR_SET.has(trimmed)) {
+                return trimmed;
+            }
+
+            if (trimmed.startsWith('data:image/') && trimmed.length <= MAX_AVATAR_DATA_URL_LENGTH) {
+                return trimmed;
+            }
+
+            return null;
+        }
+
+        function sanitizeInventoryItem(item, index = 0) {
+            if (!item || typeof item !== 'object') {
+                return null;
+            }
+
+            const name = sanitizeText(item.name);
+            const image = sanitizeText(item.image);
+            const rarity = VALID_RARITIES.has(item.rarity) ? item.rarity : 'common';
+            const value = sanitizeNumber(item.value, 0, 0, 99999999);
+            const chance = item.chance === undefined ? undefined : sanitizeNumber(item.chance, 0, 0, 100);
+            const casePrice = item.casePrice === undefined ? undefined : sanitizeNumber(item.casePrice, 0, 0, 99999999);
+
+            if (!name || !image) {
+                return null;
+            }
+
+            return {
+                name,
+                image,
+                rarity,
+                value,
+                ...(chance !== undefined ? { chance } : {}),
+                ...(casePrice !== undefined ? { casePrice } : {}),
+                _index: index
+            };
+        }
+
+        function sanitizeForcedNextDropValue(value) {
+            if (!value || typeof value !== 'object') {
+                return null;
+            }
+
+            const caseType = sanitizeInt(value.caseType, NaN, 1, 999);
+            if (!Number.isFinite(caseType) || !Array.isArray(items?.[caseType])) {
+                return null;
+            }
+
+            const original = items[caseType].find(item => item && item.name === value.itemName);
+            if (!original) {
+                return null;
+            }
+
+            return {
+                caseType,
+                itemName: original.name,
+                label: `${getCaseDisplayName(caseType)} → ${original.name}`
+            };
+        }
+
+        function sanitizeGameData(rawGameData) {
+            const gameData = rawGameData && typeof rawGameData === 'object' ? rawGameData : {};
+            const sanitizedInventory = Array.isArray(gameData.inventory)
+                ? gameData.inventory.map((item, index) => sanitizeInventoryItem(item, index)).filter(Boolean).map(({ _index, ...item }) => item)
+                : [];
+
+            const sanitizedRecentDrops = Array.isArray(gameData.recentDrops)
+                ? gameData.recentDrops
+                    .filter(item => item && typeof item === 'object')
+                    .map(item => ({
+                        name: sanitizeText(item.name),
+                        timestamp: sanitizeNumber(item.timestamp, Date.now(), 0, Date.now())
+                    }))
+                    .filter(item => item.name)
+                    .slice(0, 5)
+                : [];
+
+            return {
+                version: sanitizeInt(gameData.version, 1, 1, 999),
+                balance: sanitizeNumber(gameData.balance, 1000, 0, 99999999),
+                inventory: sanitizedInventory.length ? sanitizedInventory : [{ name: 'Стартовый предмет', image: 'dropcase1_1', rarity: 'common', value: 10 }],
+                userNickname: sanitizeText(gameData.userNickname, 'Игрок').slice(0, 20) || 'Игрок',
+                userAvatar: sanitizeAvatarValue(gameData.userAvatar),
+                usedPromocodes: Array.isArray(gameData.usedPromocodes)
+                    ? [...new Set(gameData.usedPromocodes.map(code => sanitizeText(code).toUpperCase()).filter(Boolean))]
+                    : [],
+                winglistItems: Array.isArray(gameData.winglistItems)
+                    ? gameData.winglistItems.map((item, index) => sanitizeInventoryItem(item, index)).filter(Boolean).map(({ _index, ...item }) => item)
+                    : [],
+                bonusHintShown: sanitizeBool(gameData.bonusHintShown),
+                warningMessageShown: sanitizeBool(gameData.warningMessageShown),
+                soundEnabled: sanitizeBool(gameData.soundEnabled, true),
+                devModeActive: sanitizeBool(gameData.devModeActive),
+                bugWarningClosed: sanitizeBool(gameData.bugWarningClosed),
+                socialRating: sanitizeNumber(gameData.socialRating, 100, 0, 100),
+                hasDebt: sanitizeBool(gameData.hasDebt),
+                debtCasesLeft: sanitizeInt(gameData.debtCasesLeft, 0, 0, 999),
+                debtAmount: sanitizeNumber(gameData.debtAmount, 500, 0, 99999999),
+                isBlocked: sanitizeBool(gameData.isBlocked),
+                economyBalance: sanitizeNumber(gameData.economyBalance, 0, -99999999, 99999999),
+                economyStreak: sanitizeInt(gameData.economyStreak, 0, -999999, 999999),
+                totalSpent: sanitizeNumber(gameData.totalSpent, 0, 0, 999999999),
+                totalWon: sanitizeNumber(gameData.totalWon, 0, 0, 999999999),
+                recentDrops: sanitizedRecentDrops,
+                pendingBonusHint: sanitizeBool(gameData.pendingBonusHint),
+                forcedNextDrop: sanitizeForcedNextDropValue(gameData.forcedNextDrop)
+            };
+        }
+
+        function getCaseDisplayName(caseType) {
+            const caseElement = document.querySelector(`[data-case="${caseType}"] .case-name`);
+            return caseElement ? caseElement.textContent.trim() : `Кейс ${caseType}`;
+        }
+
+        function updateForcedDropIndicator() {
+            const statusEl = document.getElementById('dev-force-status');
+            if (!statusEl) {
+                return;
+            }
+
+            if (forcedNextDrop && forcedNextDrop.itemName) {
+                statusEl.innerHTML = `Следующий дроп: <strong>${forcedNextDrop.label || `${getCaseDisplayName(forcedNextDrop.caseType)} → ${forcedNextDrop.itemName}`}</strong>`;
+            } else {
+                statusEl.innerHTML = 'Следующий дроп: <strong>случайный</strong>';
+            }
+        }
+
+        function clearForcedDropSelection(showNotice = false) {
+            forcedNextDrop = null;
+            updateForcedDropIndicator();
+            saveGameData();
+            if (showNotice) {
+                alert('🎯 Подкрутка следующего дропа сброшена.');
+            }
+        }
+
+        function updateDevToggleButton() {
+            const button = document.getElementById('dev-toggle-fab');
+            const panel = document.getElementById('dev-mode-banner');
+
+            if (!button) return;
+
+            if (!devModeActive) {
+                button.style.display = 'none';
+                button.classList.remove('active');
+                button.setAttribute('aria-hidden', 'true');
+                return;
+            }
+
+            const panelIsOpen = !!panel && panel.style.display === 'block';
+            button.style.display = 'flex';
+            button.classList.toggle('active', panelIsOpen);
+            button.setAttribute('aria-hidden', 'false');
+            button.setAttribute('title', panelIsOpen ? 'Скрыть dev-панель' : 'Открыть dev-панель');
+            button.setAttribute('aria-label', panelIsOpen ? 'Скрыть dev-панель' : 'Открыть dev-панель');
+        }
+
+        function openDevPanel() {
+            if (!devModeActive) return;
+
+            const panel = document.getElementById('dev-mode-banner');
+            if (!panel) return;
+
+            panel.style.display = 'block';
+            updateForcedDropIndicator();
+            updateDevToggleButton();
+            console.log('🛠️ DEV: панель открыта');
+        }
+
+        function closeDevPanel() {
+            const panel = document.getElementById('dev-mode-banner');
+            if (!panel) return;
+
+            panel.style.display = 'none';
+            updateDevToggleButton();
+            console.log('🛠️ DEV: панель скрыта');
+        }
+
+        function toggleDevPanel() {
+            if (!devModeActive) return;
+
+            const panel = document.getElementById('dev-mode-banner');
+            if (!panel) return;
+
+            if (panel.style.display === 'block') {
+                closeDevPanel();
+            } else {
+                openDevPanel();
+            }
+        }
+
+        function setupDevStealthAccess() {
+            document.addEventListener('keydown', function(event) {
+                if (!devModeActive) return;
+
+                const isStealthDevHotkey =
+                    event.key === 'F9' ||
+                    ((event.ctrlKey || event.metaKey) && event.altKey && (event.key === 'Y' || event.key === 'y' || event.code === 'KeyY'));
+
+                if (isStealthDevHotkey) {
+                    event.preventDefault();
+                    toggleDevPanel();
+                    return;
+                }
+
+                if (event.key === 'Escape') {
+                    closeDevPanel();
+                }
+            });
+
+            const balanceEl = document.getElementById('balance');
+            if (balanceEl) {
+                const handleSecretBalanceTap = function() {
+                    if (!devModeActive) return;
+
+                    devBalanceTapCount += 1;
+
+                    if (devBalanceTapTimer) {
+                        clearTimeout(devBalanceTapTimer);
+                    }
+
+                    devBalanceTapTimer = setTimeout(() => {
+                        devBalanceTapCount = 0;
+                    }, 1600);
+
+                    if (devBalanceTapCount >= 5) {
+                        devBalanceTapCount = 0;
+                        if (devBalanceTapTimer) {
+                            clearTimeout(devBalanceTapTimer);
+                            devBalanceTapTimer = null;
+                        }
+                        toggleDevPanel();
+                    }
+                };
+
+                balanceEl.addEventListener('click', handleSecretBalanceTap);
+                balanceEl.addEventListener('touchstart', handleSecretBalanceTap, { passive: true });
+            }
+
+            const avatarEl = document.getElementById('profileAvatar');
+            if (avatarEl) {
+                const startPress = function() {
+                    if (!devModeActive) return;
+
+                    if (devAvatarPressTimer) {
+                        clearTimeout(devAvatarPressTimer);
+                    }
+
+                    devAvatarPressTimer = setTimeout(() => {
+                        toggleDevPanel();
+                        devAvatarPressTimer = null;
+                    }, 1200);
+                };
+
+                const cancelPress = function() {
+                    if (devAvatarPressTimer) {
+                        clearTimeout(devAvatarPressTimer);
+                        devAvatarPressTimer = null;
+                    }
+                };
+
+                avatarEl.addEventListener('mousedown', startPress);
+                avatarEl.addEventListener('touchstart', startPress, { passive: true });
+                avatarEl.addEventListener('mouseup', cancelPress);
+                avatarEl.addEventListener('mouseleave', cancelPress);
+                avatarEl.addEventListener('touchend', cancelPress);
+                avatarEl.addEventListener('touchcancel', cancelPress);
+            }
+        }
+
+        window.openDevPanel = openDevPanel;
+        window.closeDevPanel = closeDevPanel;
+        window.toggleDevPanel = toggleDevPanel;
+        window.updateDevToggleButton = updateDevToggleButton;
+
+
+        function createDevModalContainer(titleText) {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 16px;
+                z-index: 10050;
+            `;
+
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                width: min(460px, 100%);
+                background: linear-gradient(135deg, #2c3e50, #34495e);
+                border: 2px solid rgba(255, 215, 0, 0.65);
+                border-radius: 18px;
+                padding: 22px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+            `;
+
+            const title = document.createElement('h3');
+            title.textContent = titleText;
+            title.style.cssText = 'color: #ffd700; margin: 0 0 16px 0; text-align: center;';
+            modal.appendChild(title);
+            overlay.appendChild(modal);
+
+            overlay.addEventListener('click', (event) => {
+                if (event.target === overlay) {
+                    document.body.removeChild(overlay);
+                }
+            });
+
+            return { overlay, modal };
+        }
+
+        function showDevNumberInputModal(title, initialValue, onConfirm) {
+            const { overlay, modal } = createDevModalContainer(title);
+
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.value = initialValue;
+            input.min = '0';
+            input.style.cssText = `
+                width: 100%;
+                padding: 12px 14px;
+                border-radius: 10px;
+                border: 1px solid rgba(255,255,255,0.2);
+                background: rgba(255,255,255,0.08);
+                color: white;
+                font-size: 16px;
+                margin-bottom: 14px;
+            `;
+            modal.appendChild(input);
+
+            const buttons = document.createElement('div');
+            buttons.style.cssText = 'display:flex; gap:10px; justify-content:center; flex-wrap:wrap;';
+
+            const confirmBtn = document.createElement('button');
+            confirmBtn.className = 'dev-btn balance';
+            confirmBtn.textContent = '✅ Сохранить';
+            confirmBtn.onclick = () => {
+                const nextValue = sanitizeInt(input.value, NaN, 0, 99999999);
+                if (!Number.isFinite(nextValue)) {
+                    alert('Введите корректное число.');
+                    return;
+                }
+                onConfirm(nextValue);
+                document.body.removeChild(overlay);
+            };
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'dev-btn reset';
+            cancelBtn.textContent = '❌ Отмена';
+            cancelBtn.onclick = () => document.body.removeChild(overlay);
+
+            buttons.appendChild(confirmBtn);
+            buttons.appendChild(cancelBtn);
+            modal.appendChild(buttons);
+            document.body.appendChild(overlay);
+            input.focus();
+            input.select();
+        }
+
+        function openDevForceDropModal() {
+            if (!devModeActive) return;
+
+            const caseTypes = Object.keys(items).map(Number).filter(caseType => Array.isArray(items[caseType]) && items[caseType].length > 0);
+            if (!caseTypes.length) {
+                alert('Нет доступных кейсов для подкрутки дропа.');
+                return;
+            }
+
+            const { overlay, modal } = createDevModalContainer('🎯 Подкрутка следующего дропа');
+
+            const description = document.createElement('p');
+            description.textContent = 'Выбери кейс и предмет. Подкрутка сработает один раз при следующем открытии выбранного кейса.';
+            description.style.cssText = 'margin: 0 0 14px 0; color: #ecf0f1; line-height: 1.45; font-size: 14px;';
+            modal.appendChild(description);
+
+            const caseSelect = document.createElement('select');
+            const itemSelect = document.createElement('select');
+            [caseSelect, itemSelect].forEach(select => {
+                select.style.cssText = `
+                    width: 100%;
+                    padding: 12px 14px;
+                    border-radius: 10px;
+                    border: 1px solid rgba(255,255,255,0.2);
+                    background: rgba(255,255,255,0.08);
+                    color: white;
+                    font-size: 15px;
+                    margin-bottom: 12px;
+                `;
+            });
+
+            const selectedCaseType = forcedNextDrop?.caseType && caseTypes.includes(forcedNextDrop.caseType)
+                ? forcedNextDrop.caseType
+                : caseTypes[0];
+
+            caseTypes.forEach(caseType => {
+                const option = document.createElement('option');
+                option.value = String(caseType);
+                option.textContent = `${getCaseDisplayName(caseType)} (#${caseType})`;
+                caseSelect.appendChild(option);
+            });
+            caseSelect.value = String(selectedCaseType);
+
+            const fillItems = () => {
+                const activeCaseType = sanitizeInt(caseSelect.value, caseTypes[0], 1, 999);
+                itemSelect.innerHTML = '';
+                items[activeCaseType].forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.name;
+                    option.textContent = `${item.name} — ${item.value} ꙮ — ${item.rarity}`;
+                    itemSelect.appendChild(option);
+                });
+
+                if (forcedNextDrop?.caseType === activeCaseType && forcedNextDrop.itemName) {
+                    itemSelect.value = forcedNextDrop.itemName;
+                }
+            };
+
+            caseSelect.addEventListener('change', fillItems);
+            fillItems();
+            modal.appendChild(caseSelect);
+            modal.appendChild(itemSelect);
+
+            const buttons = document.createElement('div');
+            buttons.style.cssText = 'display:flex; gap:10px; justify-content:center; flex-wrap:wrap;';
+
+            const confirmBtn = document.createElement('button');
+            confirmBtn.className = 'dev-btn special';
+            confirmBtn.textContent = '✅ Зафиксировать';
+            confirmBtn.onclick = () => {
+                const activeCaseType = sanitizeInt(caseSelect.value, NaN, 1, 999);
+                const selectedItemName = sanitizeText(itemSelect.value);
+                const selectedItem = items[activeCaseType]?.find(item => item.name === selectedItemName);
+                if (!selectedItem) {
+                    alert('Не удалось найти выбранный дроп.');
+                    return;
+                }
+
+                forcedNextDrop = {
+                    caseType: activeCaseType,
+                    itemName: selectedItem.name,
+                    label: `${getCaseDisplayName(activeCaseType)} → ${selectedItem.name}`
+                };
+                updateForcedDropIndicator();
+                saveGameData();
+                document.body.removeChild(overlay);
+                alert(`🎬 Следующий дроп для кейса «${getCaseDisplayName(activeCaseType)}» зафиксирован: ${selectedItem.name}`);
+            };
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'dev-btn reset';
+            cancelBtn.textContent = '❌ Отмена';
+            cancelBtn.onclick = () => document.body.removeChild(overlay);
+
+            buttons.appendChild(confirmBtn);
+            buttons.appendChild(cancelBtn);
+            modal.appendChild(buttons);
+
+            document.body.appendChild(overlay);
+        }
+
+        function compressImageFile(file, maxDimension = MAX_AVATAR_DIMENSION) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        if (!context) {
+                            reject(new Error('Canvas недоступен'));
+                            return;
+                        }
+
+                        const scale = Math.min(1, maxDimension / Math.max(img.width, img.height));
+                        canvas.width = Math.max(1, Math.round(img.width * scale));
+                        canvas.height = Math.max(1, Math.round(img.height * scale));
+                        context.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        resolve(canvas.toDataURL('image/webp', 0.9));
+                    };
+                    img.onerror = () => reject(new Error('Не удалось прочитать изображение'));
+                    img.src = event.target.result;
+                };
+                reader.onerror = () => reject(new Error('Ошибка чтения файла'));
+                reader.readAsDataURL(file);
+            });
+        }
         
         // 🎲 СИСТЕМА "РЕЗИНОВОЙ ЭКОНОМИКИ"
         let economyBalance = 0; // Баланс экономики: + = игрок в плюсе, - = игрок в минусе
@@ -1965,12 +2741,141 @@
         // 🎵 ЗВУК ДЛЯ ФЛЭШБЕКА
         let flashbackDropSound = null;
         let soundsGloballyBlocked = false; // ГЛОБАЛЬНАЯ БЛОКИРОВКА ЗВУКОВ
+        let soundEnabled = true; // Глобальный переключатель звука
+        
+        function ensureSoundToggleButton() {
+            if (document.getElementById('sound-toggle-style')) {
+                if (!document.getElementById('sound-toggle-button')) {
+                    const button = document.createElement('button');
+                    button.id = 'sound-toggle-button';
+                    button.type = 'button';
+                    button.setAttribute('aria-label', 'Переключить звук');
+                    button.addEventListener('click', toggleSoundEnabled);
+                    document.body.appendChild(button);
+                }
+                updateSoundToggleButton();
+                return;
+            }
+
+            const style = document.createElement('style');
+            style.id = 'sound-toggle-style';
+            style.textContent = `
+                #sound-toggle-button {
+                    position: fixed;
+                    top: 18px;
+                    left: 18px;
+                    z-index: 1300;
+                    width: 44px;
+                    height: 44px;
+                    border: none;
+                    border-radius: 999px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 20px;
+                    background: rgba(20, 24, 38, 0.86);
+                    color: #fff;
+                    box-shadow: 0 10px 26px rgba(0,0,0,0.28);
+                    backdrop-filter: blur(8px);
+                    transition: transform 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
+                }
+
+                #sound-toggle-button:hover {
+                    transform: translateY(-1px) scale(1.04);
+                    box-shadow: 0 12px 28px rgba(0,0,0,0.34);
+                }
+
+                #sound-toggle-button.muted {
+                    background: rgba(120, 32, 32, 0.88);
+                }
+
+                @media (max-width: 768px) {
+                    #sound-toggle-button {
+                        top: 12px;
+                        left: 12px;
+                        width: 40px;
+                        height: 40px;
+                        font-size: 18px;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+
+            const button = document.createElement('button');
+            button.id = 'sound-toggle-button';
+            button.type = 'button';
+            button.setAttribute('aria-label', 'Переключить звук');
+            button.addEventListener('click', toggleSoundEnabled);
+            document.body.appendChild(button);
+            updateSoundToggleButton();
+        }
+
+        function updateSoundToggleButton() {
+            const button = document.getElementById('sound-toggle-button');
+            if (!button) {
+                return;
+            }
+
+            button.textContent = soundEnabled ? '🔊' : '🔇';
+            button.title = soundEnabled ? 'Выключить звук сайта (кроме скримера)' : 'Включить звук сайта';
+            button.classList.toggle('muted', !soundEnabled);
+        }
+
+        function stopRegularSiteSounds() {
+            if (rollSound) {
+                try {
+                    rollSound.pause();
+                    rollSound.currentTime = 0;
+                } catch (e) {
+                    console.log('⚠️ Не удалось остановить звук рулетки:', e);
+                }
+            }
+
+            if (dropSound) {
+                try {
+                    dropSound.pause();
+                    dropSound.currentTime = 0;
+                } catch (e) {
+                    console.log('⚠️ Не удалось остановить звук дропа:', e);
+                }
+            }
+
+            if (flashbackDropSound) {
+                try {
+                    flashbackDropSound.pause();
+                    flashbackDropSound.currentTime = 0;
+                } catch (e) {
+                    console.log('⚠️ Не удалось остановить звук Флэшбека:', e);
+                }
+            }
+
+            soundPlayed = false;
+        }
+
+        function toggleSoundEnabled(forceValue) {
+            const nextValue = typeof forceValue === 'boolean' ? forceValue : !soundEnabled;
+            soundEnabled = !!nextValue;
+
+            if (!soundEnabled) {
+                stopRegularSiteSounds();
+                console.log('🙉 Обычные звуки выключены, но scream.mp3 всё равно сработает');
+            }
+
+            updateSoundToggleButton();
+            try {
+                saveGameData();
+            } catch (e) {
+                console.log('⚠️ Не удалось сохранить настройку звука:', e);
+            }
+            console.log(soundEnabled ? '🔊 Звук включён' : '🔇 Звук выключен');
+        }
         
         function playFlashbackDropSound() {
             console.log('🎬 Запуск звука Флэшбека...');
             
             // 🚫 КРИТИЧЕСКИ ВАЖНО: ЗВУК ФЛЭШБЕКА ТОЛЬКО ВНУТРИ РУЛЕТКИ И ПРИ ВЫПАДЕНИИ!
-            if (!rouletteProtection || fastSpinActive || soundsGloballyBlocked || currentItem === null) {
+            if (!rouletteProtection || fastSpinActive || soundsGloballyBlocked || !soundEnabled || currentItem === null) {
                 console.log('🔇 Звук Флэшбека ЗАБЛОКИРОВАН - вне рулетки, нет дропа, быстрая прокрутка или глобальная блокировка');
                 return;
             }
@@ -1997,7 +2902,7 @@
             
             // Создаем НОВЫЙ аудио объект каждый раз
             flashbackDropSound = new Audio();
-            flashbackDropSound.volume = 0.8;
+            flashbackDropSound.volume = 0.55;
             flashbackDropSound.preload = 'auto';
             flashbackDropSound.src = 'flashback_drop.mp3';
             
@@ -2922,14 +3827,14 @@
         // 🔊 ЗВУК ОШИБКИ ПРИ НЕДОСТАТКЕ СРЕДСТВ
         function playErrorSound() {
             // 🔇 ГЛОБАЛЬНАЯ БЛОКИРОВКА ЗВУКОВ
-            if (fastSpinActive || soundsGloballyBlocked) {
-                console.log('🔇 Звук ошибки ЗАБЛОКИРОВАН - быстрая прокрутка или глобальная блокировка');
+            if (fastSpinActive || soundsGloballyBlocked || !soundEnabled) {
+                console.log('🔇 Звук ошибки ЗАБЛОКИРОВАН - звук выключен, быстрая прокрутка или глобальная блокировка');
                 return;
             }
             
-            const errorAudio = new Audio();
-            errorAudio.volume = 0.5;
-            errorAudio.src = 'error.mp3';
+            const errorAudio = new Audio('error.mp3');
+            errorAudio.volume = 0.35;
+            errorAudio.preload = 'auto';
             
             const playPromise = errorAudio.play();
             if (playPromise !== undefined) {
@@ -2947,105 +3852,67 @@
         let errorSound = null;
         let fastSpinActive = false; // Флаг быстрой прокрутки
 
-        // 🔊 ИСПРАВЛЕННЫЙ ЗВУК РУЛЕТКИ С УМЕНЬШЕННОЙ ГРОМКОСТЬЮ
+        // 🔊 ЗВУК РУЛЕТКИ - ТИШЕ И БЕЗ ГЛЮКОВ С canplaythrough
         function playRouletteSound() {
             console.log('🎵 Запуск звука рулетки...');
             
-            // 🚫 КРИТИЧЕСКИ ВАЖНО: ЗВУКИ РУЛЕТКИ ТОЛЬКО ВНУТРИ РУЛЕТКИ!
-            if (!rouletteProtection || fastSpinActive || soundsGloballyBlocked) {
-                console.log('🔇 Звук рулетки ЗАБЛОКИРОВАН - вне рулетки, быстрая прокрутка или глобальная блокировка');
+            if (!rouletteProtection || fastSpinActive || soundsGloballyBlocked || !soundEnabled) {
+                console.log('🔇 Звук рулетки ЗАБЛОКИРОВАН - звук выключен, вне рулетки, быстрая прокрутка или глобальная блокировка');
                 return;
             }
             
-            // Создаем новый аудио объект если нужно
-            if (!rollSound) {
-                rollSound = new Audio();
-                rollSound.volume = 0.25; // Уменьшено с 0.4 до 0.25 (45% от 55%)
-                rollSound.loop = false;
-                rollSound.preload = 'auto';
-            }
-            
-            // Останавливаем предыдущий звук если играет
-            if (!rollSound.paused) {
-                rollSound.pause();
-                rollSound.currentTime = 0;
-            }
-            
-            // СРАЗУ устанавливаем источник
-            rollSound.src = 'roulette_sound.mp3';
-            
-            // Обработчик успешной загрузки
-            rollSound.addEventListener('canplaythrough', function onCanPlay() {
-                rollSound.removeEventListener('canplaythrough', onCanPlay);
-                console.log('✅ roulette_sound.mp3 загружен, воспроизводим...');
-                
-                // ДОПОЛНИТЕЛЬНАЯ ПРОВЕРКА ПЕРЕД ВОСПРОИЗВЕДЕНИЕМ
-                if (fastSpinActive) {
-                    console.log('🔇 Звук рулетки заблокирован во время загрузки - быстрая прокрутка');
+            try {
+                if (rollSound) {
                     rollSound.pause();
                     rollSound.currentTime = 0;
-                    return;
                 }
-                
+
+                rollSound = new Audio('roulette_sound.mp3');
+                rollSound.volume = 0.12;
+                rollSound.loop = false;
+                rollSound.preload = 'auto';
+                rollSound.playsInline = true;
+                rollSound.setAttribute('playsinline', '');
+
                 const playPromise = rollSound.play();
                 if (playPromise !== undefined) {
                     playPromise.then(() => {
                         console.log('🔊 Звук рулетки успешно воспроизводится!');
                     }).catch(error => {
-                        console.log('❌ Ошибка воспроизведения звука рулетки:', error);
+                        console.log('❌ Ошибка воспроизведения roulette_sound.mp3:', error);
                     });
                 }
-            });
-            
-            // Обработчик ошибки
-            rollSound.addEventListener('error', function onError() {
-                console.log('❌ roulette_sound.mp3 не найден - рулетка без звука');
-            });
-            
-            // Принудительная загрузка
-            rollSound.load();
+            } catch (error) {
+                console.log('❌ Не удалось запустить звук рулетки:', error);
+            }
         }
 
-        // 🎵 ИСПРАВЛЕННЫЙ ЗВУК ВЫПАДЕНИЯ ДРОПА
+        // 🎵 ЗВУК ВЫПАДЕНИЯ ДРОПА - НАПРЯМУЮ БЕЗ КРИВОГО canplaythrough
         function playDropSound() {
             console.log('🎵 Запуск звука дропа...');
             
-            // 🚫 КРИТИЧЕСКИ ВАЖНО: ЗВУКИ ДРОПА ТОЛЬКО ВНУТРИ РУЛЕТКИ И ПРИ ВЫПАДЕНИИ!
-            if (!rouletteProtection || fastSpinActive || soundsGloballyBlocked || currentItem === null) {
-                console.log('🔇 Звук дропа ЗАБЛОКИРОВАН - вне рулетки, нет дропа, быстрая прокрутка или глобальная блокировка');
+            if (!rouletteProtection || fastSpinActive || soundsGloballyBlocked || !soundEnabled || currentItem === null) {
+                console.log('🔇 Звук дропа ЗАБЛОКИРОВАН - звук выключен, вне рулетки, нет дропа, быстрая прокрутка или глобальная блокировка');
                 return;
             }
             
-            // 🔇 ОСТАНАВЛИВАЕМ ПРЕДЫДУЩИЙ ЗВУК ДРОПА ЕСЛИ ИГРАЕТ
-            if (dropSound && !dropSound.paused) {
-                dropSound.pause();
-                dropSound.currentTime = 0;
-                console.log('🔇 Остановлен предыдущий звук дропа');
-            }
-            
-            // Создаем НОВЫЙ аудио объект каждый раз - это предотвратит повторы
-            dropSound = new Audio();
-            dropSound.volume = 0.6;
-            dropSound.preload = 'auto';
-            
-            // Останавливаем звук рулетки если играет
-            if (rollSound && !rollSound.paused) {
-                rollSound.pause();
-                rollSound.currentTime = 0;
-            }
-            
-            dropSound.addEventListener('canplaythrough', function onCanPlay() {
-                dropSound.removeEventListener('canplaythrough', onCanPlay);
-                console.log('✅ drop_sound.mp3 загружен, воспроизводим...');
-                
-                // ДОПОЛНИТЕЛЬНАЯ ПРОВЕРКА ПЕРЕД ВОСПРОИЗВЕДЕНИЕМ
-                if (fastSpinActive) {
-                    console.log('🔇 Звук дропа заблокирован во время загрузки - быстрая прокрутка');
+            try {
+                if (dropSound) {
                     dropSound.pause();
                     dropSound.currentTime = 0;
-                    return;
                 }
-                
+
+                if (rollSound) {
+                    rollSound.pause();
+                    rollSound.currentTime = 0;
+                }
+
+                dropSound = new Audio('drop_sound.mp3');
+                dropSound.volume = 0.5;
+                dropSound.preload = 'auto';
+                dropSound.playsInline = true;
+                dropSound.setAttribute('playsinline', '');
+
                 const playPromise = dropSound.play();
                 if (playPromise !== undefined) {
                     playPromise.then(() => {
@@ -3054,15 +3921,9 @@
                         console.log('❌ Ошибка воспроизведения drop_sound.mp3:', error);
                     });
                 }
-            });
-            
-            dropSound.addEventListener('error', function onError() {
-                console.log('❌ drop_sound.mp3 не найден');
-            });
-            
-            // Устанавливаем источник и загружаем
-            dropSound.src = 'drop_sound.mp3';
-            dropSound.load();
+            } catch (error) {
+                console.log('❌ Не удалось запустить звук дропа:', error);
+            }
         }
         
         // 🔇 ФУНКЦИЯ ОСТАНОВКИ ЗВУКА ДРОПА
@@ -3403,6 +4264,16 @@
                 }
             }
             
+            if (screamerAudioElement) {
+                try {
+                    screamerAudioElement.pause();
+                    screamerAudioElement.currentTime = 0;
+                    console.log('🔇 Звук скримера остановлен');
+                } catch (e) {
+                    console.log('⚠️ Ошибка остановки звука скримера:', e);
+                }
+            }
+
             soundPlayed = false;
             console.log('💥✅ ВСЕ ЗВУКИ ВРЕМЕННО ОСТАНОВЛЕНЫ ДЛЯ БЫСТРОЙ ПРОКРУТКИ!');
         }
@@ -3416,8 +4287,8 @@
             console.log(`🎵 Проверяем звук для дропа: ${item.name}`);
             
             // 🔇 ГЛОБАЛЬНАЯ БЛОКИРОВКА ЗВУКОВ
-            if (fastSpinActive || soundsGloballyBlocked) {
-                console.log('🔇 ВСЕ ЗВУКИ ЗАБЛОКИРОВАНЫ - быстрая прокрутка или глобальная блокировка');
+            if (fastSpinActive || soundsGloballyBlocked || !soundEnabled) {
+                console.log('🔇 ВСЕ ЗВУКИ ЗАБЛОКИРОВАНЫ - звук выключен, быстрая прокрутка или глобальная блокировка');
                 soundPlayed = false; // Сбрасываем флаг
                 return;
             }
@@ -3450,11 +4321,17 @@
                 showNoDropsMessage();
                 return;
             }
+
+            const existingModal = document.getElementById(CASE_DROPS_MODAL_ID);
+            if (existingModal) {
+                existingModal.remove();
+            }
             
             // Получаем цену кейса для расчётов
             const casePrice = parseInt(document.querySelector(`[data-case="${caseType}"]`).dataset.price);
             
             const modal = document.createElement('div');
+            modal.id = CASE_DROPS_MODAL_ID;
             modal.style.cssText = `
                 position: fixed;
                 top: 0;
@@ -3744,9 +4621,22 @@ ${(() => {
             // 🎲 НОВАЯ СИСТЕМА ВЫБОРА ДРОПОВ ПО ПРОЦЕНТАМ
             const availableItems = items[caseType];
             const rouletteItems = [];
+            const activeForcedDrop = forcedNextDrop && forcedNextDrop.caseType === caseType
+                ? availableItems.find(item => item.name === forcedNextDrop.itemName) || null
+                : null;
+
+            if (activeForcedDrop) {
+                console.log(`🎬 DEV: следующий дроп для кейса ${caseType} зафиксирован: ${activeForcedDrop.name}`);
+            }
             
             // 🎯 УЛУЧШЕННАЯ ФУНКЦИЯ ВЫБОРА ДРОПА С "РЕЗИНОВОЙ ЭКОНОМИКОЙ" И АНТИПОВТОРАМИ
             function getRandomItemByChance(items, isMainDrop = false) {
+                if (isMainDrop && activeForcedDrop) {
+                    const forcedDropCopy = { ...activeForcedDrop };
+                    console.log(`🎯 DEV: принудительно возвращаем дроп ${forcedDropCopy.name}`);
+                    return forcedDropCopy;
+                }
+
                 // Проверяем что items является массивом
                 if (!Array.isArray(items) || items.length === 0) {
                     console.log('❌ Ошибка: items не является массивом или пуст:', items);
@@ -3950,6 +4840,13 @@ ${(() => {
             }
             
             console.log(`🎯 РЕАЛЬНЫЙ ВЫИГРЫШ: ${actualWinningItem.name} (${actualWinningItem.value} ꙮ, шанс ${actualWinningItem.chance}%)`);
+
+            if (activeForcedDrop) {
+                forcedNextDrop = null;
+                updateForcedDropIndicator();
+                saveGameData();
+                console.log('🎬 DEV: подкрутка следующего дропа израсходована и очищена');
+            }
             
             // 🚫 ДОБАВЛЯЕМ В ГЛОБАЛЬНЫЙ СПИСОК НЕДАВНИХ ДРОПОВ
             recentDrops.unshift({
@@ -4451,28 +5348,86 @@ ${(() => {
             // Клик на аватар сразу открывает меню профиля
             openProfileMenu();
         }
+
+        function getEffectiveAvatar(avatarValue = userAvatar) {
+            return sanitizeAvatarValue(avatarValue) || DEFAULT_AVATAR_FILE;
+        }
+
+        function clearAvatarElement(element, fallbackEmoji = '👤') {
+            if (!element) return;
+            element.style.backgroundImage = 'none';
+            element.textContent = fallbackEmoji;
+        }
+
+        function applyAvatarToElement(element, avatarValue = userAvatar, fallbackEmoji = '👤') {
+            if (!element) return;
+
+            const resolvedAvatar = getEffectiveAvatar(avatarValue);
+            element.style.backgroundImage = `url('${resolvedAvatar}')`;
+            element.style.backgroundSize = 'cover';
+            element.style.backgroundPosition = 'center';
+            element.textContent = '';
+        }
+
+        function updateAvatarUI() {
+            applyAvatarToElement(document.getElementById('profileAvatar'));
+            applyAvatarToElement(document.getElementById('profileMenuAvatar'));
+            renderAvatarPresets();
+        }
+
+        function renderAvatarPresets() {
+            const grid = document.getElementById('avatarPresetsGrid');
+            if (!grid) return;
+
+            const selectedAvatar = getEffectiveAvatar();
+            grid.innerHTML = '';
+
+            PRESET_AVATAR_OPTIONS.forEach((avatarFile, index) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                const isSelected = selectedAvatar === avatarFile;
+                button.className = 'avatar-preset-btn' + (isSelected ? ' selected' : '');
+                button.title = isSelected ? `Аватар ${index + 1} выбран` : `Выбрать аватар ${index + 1}`;
+                button.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+                button.onclick = () => {
+                    setUserAvatar(avatarFile, { showAlert: false });
+                };
+
+                const thumb = document.createElement('div');
+                thumb.className = 'avatar-preset-thumb';
+                thumb.style.backgroundImage = `url('${avatarFile}')`;
+
+                const label = document.createElement('div');
+                label.className = 'avatar-preset-label';
+                label.textContent = `Аватар ${index + 1}`;
+
+                button.appendChild(thumb);
+                button.appendChild(label);
+                grid.appendChild(button);
+            });
+        }
         
         // 👤 ФУНКЦИЯ ЗАГРУЗКИ ДЕФОЛТНОГО АВАТАРА
         function loadDefaultAvatar() {
-            if (!userAvatar) { // Только если нет пользовательского аватара
-                const profileAvatar = document.getElementById('profileAvatar');
-                const img = new Image();
-                
-                img.onload = () => {
-                    console.log('✅ Дефолтный аватар avatar.png загружен');
-                    profileAvatar.style.backgroundImage = `url('avatar.png')`;
-                    profileAvatar.style.backgroundSize = 'cover';
-                    profileAvatar.style.backgroundPosition = 'center';
-                    profileAvatar.textContent = '';
-                };
-                
-                img.onerror = () => {
-                    console.log('❌ avatar.png не найден - используем эмодзи аватар');
-                    // Оставляем стандартную иконку 👤
-                };
-                
-                img.src = 'avatar.png';
-            }
+            const profileAvatar = document.getElementById('profileAvatar');
+            const profileMenuAvatar = document.getElementById('profileMenuAvatar');
+            const img = new Image();
+
+            img.onload = () => {
+                console.log(`✅ Дефолтный аватар ${DEFAULT_AVATAR_FILE} загружен`);
+                applyAvatarToElement(profileAvatar, DEFAULT_AVATAR_FILE);
+                applyAvatarToElement(profileMenuAvatar, DEFAULT_AVATAR_FILE);
+                renderAvatarPresets();
+            };
+
+            img.onerror = () => {
+                console.log(`❌ ${DEFAULT_AVATAR_FILE} не найден - используем эмодзи аватар`);
+                clearAvatarElement(profileAvatar);
+                clearAvatarElement(profileMenuAvatar);
+                renderAvatarPresets();
+            };
+
+            img.src = DEFAULT_AVATAR_FILE;
         }
 
         function openAvatarUpload() {
@@ -4480,27 +5435,23 @@ ${(() => {
             input.click();
         }
 
-        function handleAvatarUpload(event) {
+        async function handleAvatarUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            // Проверяем размер файла (5 МБ максимум)
-            if (file.size > 5 * 1024 * 1024) {
-                alert('Файл слишком большой! Максимальный размер: 5 МБ');
-                return;
-            }
+            try {
+                if (file.size > MAX_AVATAR_FILE_BYTES) {
+                    alert('Файл слишком большой! Максимальный размер: 5 МБ');
+                    return;
+                }
 
-            // Проверяем тип файла
-            if (!file.type.startsWith('image/')) {
-                alert('Пожалуйста, выберите изображение!');
-                return;
-            }
+                if (!file.type.startsWith('image/')) {
+                    alert('Пожалуйста, выберите изображение!');
+                    return;
+                }
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const avatarData = e.target.result;
+                const avatarData = await compressImageFile(file);
                 
-                // Создаем превью для подтверждения
                 const preview = document.createElement('div');
                 preview.style.cssText = `
                     position: fixed;
@@ -4515,86 +5466,81 @@ ${(() => {
                     align-items: center;
                     flex-direction: column;
                 `;
-                
-                preview.innerHTML = `
-                    <div style="background: #2c3e50; padding: 30px; border-radius: 20px; text-align: center; border: 3px solid #e74c3c;">
-                        <h3 style="color: #ffd700; margin-bottom: 20px;">Предпросмотр аватара</h3>
-                        <div style="
-                            width: 120px; 
-                            height: 120px; 
-                            border-radius: 50%; 
-                            background-image: url('${avatarData}');
-                            background-size: cover;
-                            background-position: center;
-                            margin: 0 auto 20px;
-                            border: 3px solid #ffd700;
-                        "></div>
-                        <div style="display: flex; gap: 15px; justify-content: center;">
-                            <button id="confirmAvatar" style="
-                                background: #27ae60; color: white; border: none; padding: 12px 25px; 
-                                border-radius: 10px; cursor: pointer; font-size: 16px;
-                            ">✅ Установить</button>
-                            <button id="cancelAvatar" style="
-                                background: #e74c3c; color: white; border: none; padding: 12px 25px; 
-                                border-radius: 10px; cursor: pointer; font-size: 16px;
-                            ">❌ Отмена</button>
-                        </div>
-                    </div>
+
+                const container = document.createElement('div');
+                container.style.cssText = 'background: #2c3e50; padding: 30px; border-radius: 20px; text-align: center; border: 3px solid #e74c3c;';
+
+                const title = document.createElement('h3');
+                title.textContent = 'Предпросмотр аватара';
+                title.style.cssText = 'color: #ffd700; margin-bottom: 20px;';
+
+                const avatarPreview = document.createElement('div');
+                avatarPreview.style.cssText = `
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 50%;
+                    background-image: url('${avatarData}');
+                    background-size: cover;
+                    background-position: center;
+                    margin: 0 auto 20px;
+                    border: 3px solid #ffd700;
                 `;
-                
-                document.body.appendChild(preview);
-                
-                // Обработчики кнопок
-                document.getElementById('confirmAvatar').onclick = () => {
+
+                const buttons = document.createElement('div');
+                buttons.style.cssText = 'display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;';
+
+                const confirmAvatar = document.createElement('button');
+                confirmAvatar.textContent = '✅ Установить';
+                confirmAvatar.style.cssText = 'background: #27ae60; color: white; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; font-size: 16px;';
+                confirmAvatar.onclick = () => {
                     setUserAvatar(avatarData);
                     document.body.removeChild(preview);
                 };
-                
-                document.getElementById('cancelAvatar').onclick = () => {
+
+                const cancelAvatar = document.createElement('button');
+                cancelAvatar.textContent = '❌ Отмена';
+                cancelAvatar.style.cssText = 'background: #e74c3c; color: white; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; font-size: 16px;';
+                cancelAvatar.onclick = () => {
                     document.body.removeChild(preview);
                 };
-            };
-            
-            reader.readAsDataURL(file);
-            
-            // Очищаем input для повторной загрузки того же файла
-            event.target.value = '';
+
+                buttons.appendChild(confirmAvatar);
+                buttons.appendChild(cancelAvatar);
+                container.appendChild(title);
+                container.appendChild(avatarPreview);
+                container.appendChild(buttons);
+                preview.appendChild(container);
+                document.body.appendChild(preview);
+            } catch (error) {
+                console.log('❌ Ошибка обработки аватара:', error);
+                alert('Не удалось обработать изображение. Попробуйте другой файл.');
+            } finally {
+                event.target.value = '';
+            }
         }
 
-        function setUserAvatar(avatarData) {
-            userAvatar = avatarData;
-            
-            // Обновляем все аватары на странице
-            const profileAvatar = document.getElementById('profileAvatar');
-            profileAvatar.style.backgroundImage = `url('${avatarData}')`;
-            profileAvatar.style.backgroundSize = 'cover';
-            profileAvatar.style.backgroundPosition = 'center';
-            profileAvatar.textContent = '';
-            
-            // Сохраняем в localStorage
+        function setUserAvatar(avatarData, options = {}) {
+            const sanitizedAvatar = sanitizeAvatarValue(avatarData) || DEFAULT_AVATAR_FILE;
+            userAvatar = sanitizedAvatar;
+
+            updateAvatarUI();
             saveGameData();
-            
-            console.log('✅ Аватар успешно установлен и сохранён!');
+
+            if (options.showAlert) {
+                alert('Аватар успешно установлен!');
+            }
+
+            console.log('✅ Аватар успешно установлен и сохранён!', sanitizedAvatar);
         }
 
         // Profile menu functions
         function openProfileMenu() {
             const profileMenuModal = document.getElementById('profileMenuModal');
-            const profileMenuAvatar = document.getElementById('profileMenuAvatar');
             const nicknameInput = document.getElementById('nicknameInput');
             const promocodeInput = document.getElementById('promocodeInput');
             const promocodeMessage = document.getElementById('promocodeMessage');
             
-            // Update avatar preview
-            if (userAvatar) {
-                profileMenuAvatar.style.backgroundImage = `url('${userAvatar}')`;
-                profileMenuAvatar.style.backgroundSize = 'cover';
-                profileMenuAvatar.style.backgroundPosition = 'center';
-                profileMenuAvatar.textContent = '';
-            } else {
-                profileMenuAvatar.style.backgroundImage = 'none';
-                profileMenuAvatar.textContent = '👤';
-            }
+            updateAvatarUI();
             
             // Load current nickname
             nicknameInput.value = userNickname;
@@ -4658,6 +5604,9 @@ ${(() => {
         
         // 🛠️ РЕЖИМ РАЗРАБОТЧИКА
         let devModeActive = false;
+        let devBalanceTapCount = 0;
+        let devBalanceTapTimer = null;
+        let devAvatarPressTimer = null;
         let bugWarningClosed = false;
         
         function activatePromocode() {
@@ -4739,6 +5688,9 @@ ${(() => {
                 if (promoData.special === 'jumpscare') {
                     console.log('👻 GLIST промокод активирован - запускаем скример!');
                     
+                    // Пытаемся заранее разблокировать аудио, пока пользователь только что нажал кнопку
+                    primeScreamerAudio();
+                    
                     // Сначала показываем сообщение
                     showPromocodeMessage('😈 GLIST активирован! ГОТОВЬСЯ...', 'success');
                     promocodeInput.value = '';
@@ -4747,14 +5699,12 @@ ${(() => {
                     usedPromocodes.push(foundKey);
                     saveGameData();
                     
-                    // Закрываем меню
+                    // Через секунду закрываем меню и сразу запускаем выезд Глиста.
+                    // Сам звук сработает ещё через 1 секунду внутри executeJumpscare,
+                    // чтобы совпасть с моментом, когда он уже вылез на экран.
                     setTimeout(() => {
                         closeProfileMenu();
-                        
-                        // Запускаем скример через небольшую задержку
-                        setTimeout(() => {
-                            executeJumpscare();
-                        }, 500);
+                        executeJumpscare();
                     }, 1000);
                     
                     return;
@@ -4771,8 +5721,8 @@ ${(() => {
                     saveGameData();
                     promocodeInput.value = '';
                     
-                    // Показываем панель разработчика
-                    document.getElementById('dev-mode-banner').style.display = 'block';
+                    // Панель разработчика не показываем автоматически — для записи держим её скрытой
+                    closeDevPanel();
                     
                     console.log('🛠️ Режим разработчика активирован! Доступны читерские функции');
                     return;
@@ -4890,6 +5840,19 @@ ${(() => {
                 document.body.removeChild(modal);
             }
         };
+
+        function cleanupDebtOverlays() {
+            const debtSelectionModal = document.getElementById('debt-selection-modal');
+            if (debtSelectionModal && debtSelectionModal.parentNode) {
+                debtSelectionModal.parentNode.removeChild(debtSelectionModal);
+            }
+
+            const repentModal = document.getElementById('repent-modal');
+            if (repentModal && repentModal.parentNode) {
+                repentModal.parentNode.removeChild(repentModal);
+            }
+        }
+
         
         // ⚠️ ФУНКЦИЯ ЗАКРЫТИЯ ПРЕДУПРЕЖДЕНИЯ О ЗДОРОВЬЕ
         window.closeHealthWarning = function() {
@@ -4924,13 +5887,12 @@ ${(() => {
         
         window.devSetBalance = function() {
             if (!devModeActive) return;
-            const newBalance = prompt('Введите новый баланс:', balance);
-            if (newBalance !== null && !isNaN(newBalance)) {
-                balance = Math.max(0, parseInt(newBalance));
+            showDevNumberInputModal('✏️ Изменить баланс', balance, (nextBalance) => {
+                balance = nextBalance;
                 updateBalance();
                 saveGameData();
                 console.log(`🛠️ DEV: Баланс изменён на ${balance} ꙮ`);
-            }
+            });
         };
         
         window.devResetPromocodes = function() {
@@ -4950,6 +5912,7 @@ ${(() => {
             hasDebt = false;
             debtCasesLeft = 0;
             debtAmount = 500;
+            cleanupDebtOverlays();
             updateDebtStatus();
             hideBlockBanner();
             saveGameData();
@@ -4988,11 +5951,20 @@ ${(() => {
                 totalSpent = 0;
                 totalWon = 0;
                 
+                cleanupDebtOverlays();
                 updateBalance();
                 updateInventory();
                 updateWinglist();
                 updateDebtStatus();
                 hideBlockBanner();
+
+                const debtButton = document.getElementById('debtButton');
+                if (debtButton) {
+                    debtButton.disabled = false;
+                    debtButton.style.pointerEvents = 'auto';
+                    debtButton.style.opacity = '1';
+                }
+
                 saveGameData();
                 
                 console.log('🛠️ DEV: Полный сброс выполнен + экономика + история дропов сброшены');
@@ -5011,228 +5983,373 @@ ${(() => {
             }
         }
 
-        // 👻 СКРИМЕР С ВИДЕО НА ВЕСЬ ЭКРАН
+        // 👻 УЛУЧШЕННЫЙ GLIST-СКРИМЕР: ВИДЕО/PNG С ПРОЗРАЧНОСТЬЮ + ВЫЕЗД СНИЗУ
+        let screamerAudioElement = null;
+        let screamerAudioPrimed = false;
+        let screamerCleanupTimer = null;
+        let screamerAssetTimer = null;
+        let screamerSoundTimer = null;
+
+        function ensureScreamerStyle() {
+            if (document.getElementById('glist-screamer-style')) {
+                return;
+            }
+
+            const style = document.createElement('style');
+            style.id = 'glist-screamer-style';
+            style.textContent = `
+                .glist-screamer-overlay {
+                    position: fixed;
+                    inset: 0;
+                    z-index: 999999;
+                    pointer-events: none;
+                    overflow: hidden;
+                    background: transparent;
+                }
+
+                .glist-screamer-flash {
+                    position: absolute;
+                    inset: 0;
+                    background:
+                        radial-gradient(circle at center, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.16) 22%, rgba(255,0,0,0.10) 45%, rgba(0,0,0,0) 72%);
+                    animation: glistFlash 700ms ease-out forwards;
+                    pointer-events: none;
+                }
+
+                .glist-screamer-wrap {
+                    position: absolute;
+                    left: 50%;
+                    bottom: -6vh;
+                    transform: translateX(-50%);
+                    width: min(95vw, 1100px);
+                    height: min(115vh, 1100px);
+                    display: flex;
+                    align-items: flex-end;
+                    justify-content: center;
+                    pointer-events: none;
+                }
+
+                .glist-screamer-media {
+                    max-width: 100%;
+                    max-height: 100%;
+                    width: auto;
+                    height: auto;
+                    object-fit: contain;
+                    object-position: center center;
+                    will-change: transform, opacity;
+                    transform-origin: center bottom;
+                    filter:
+                        drop-shadow(0 0 20px rgba(255, 255, 255, 0.18))
+                        drop-shadow(0 0 40px rgba(255, 0, 0, 0.22))
+                        drop-shadow(0 14px 45px rgba(0, 0, 0, 0.65));
+                    animation:
+                        glistRise 720ms cubic-bezier(0.18, 0.88, 0.26, 1.24) forwards,
+                        glistIdleShake 95ms steps(2) infinite 720ms;
+                }
+
+                .glist-screamer-image {
+                    align-self: center;
+                    max-width: min(98vw, 1250px);
+                    max-height: min(92vh, 1100px);
+                    margin-bottom: 6vh;
+                    transform-origin: center center;
+                }
+
+                .glist-screamer-text {
+                    width: 100vw;
+                    height: 100vh;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: center;
+                    color: #ff3b30;
+                    font-weight: 900;
+                    font-family: Arial, sans-serif;
+                    text-shadow:
+                        0 0 12px rgba(255,0,0,0.9),
+                        0 0 30px rgba(255,0,0,0.7),
+                        0 0 50px rgba(255,255,255,0.35);
+                    animation: glistTextPulse 120ms steps(2) infinite;
+                    line-height: 0.95;
+                }
+
+                @keyframes glistRise {
+                    0% {
+                        transform: translateY(115%) scale(0.72);
+                        opacity: 0;
+                    }
+                    18% {
+                        opacity: 1;
+                    }
+                    72% {
+                        transform: translateY(-3%) scale(1.02);
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: translateY(0) scale(1);
+                        opacity: 1;
+                    }
+                }
+
+                @keyframes glistIdleShake {
+                    0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                    16% { transform: translate(-8px, -6px) rotate(-1.4deg) scale(1.01); }
+                    32% { transform: translate(8px, -10px) rotate(1.2deg) scale(0.995); }
+                    48% { transform: translate(-12px, 6px) rotate(-1.8deg) scale(1.012); }
+                    64% { transform: translate(12px, 8px) rotate(1.7deg) scale(0.99); }
+                    80% { transform: translate(-6px, -8px) rotate(-1deg) scale(1.005); }
+                }
+
+                @keyframes glistFlash {
+                    0% { opacity: 0; }
+                    12% { opacity: 0.95; }
+                    45% { opacity: 0.45; }
+                    100% { opacity: 0; }
+                }
+
+                @keyframes glistTextPulse {
+                    0%, 100% { transform: scale(1) translateY(0); }
+                    50% { transform: scale(1.03) translateY(-4px); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function ensureScreamerAudio() {
+            if (screamerAudioElement) {
+                return screamerAudioElement;
+            }
+
+            screamerAudioElement = document.createElement('audio');
+            screamerAudioElement.src = 'scream.mp3';
+            screamerAudioElement.preload = 'auto';
+            screamerAudioElement.volume = 1.0;
+            screamerAudioElement.playsInline = true;
+            screamerAudioElement.setAttribute('playsinline', '');
+            screamerAudioElement.style.display = 'none';
+            document.body.appendChild(screamerAudioElement);
+
+            return screamerAudioElement;
+        }
+
+        function primeScreamerAudio() {
+            try {
+                const audio = ensureScreamerAudio();
+                audio.volume = 1.0;
+
+                const playPromise = audio.play();
+                if (playPromise && typeof playPromise.then === 'function') {
+                    playPromise.then(() => {
+                        audio.pause();
+                        audio.currentTime = 0;
+                        screamerAudioPrimed = true;
+                        console.log('🔓 Аудио скримера заранее разблокировано');
+                    }).catch(() => {
+                        console.log('🔇 Не удалось заранее разблокировать scream.mp3');
+                    });
+                }
+            } catch (e) {
+                console.log('🔇 Ошибка подготовки scream.mp3:', e);
+            }
+        }
+
+        function lockPageForScreamer() {
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
+        }
+
+        function unlockPageAfterScreamer() {
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+        }
+
         function executeJumpscare() {
             console.log('😈 GLIST СКРИМЕР ЗАПУЩЕН! 👻');
-            
-            // Создаем контейнер скримера БЕЗ ПРИНУДИТЕЛЬНОГО ФОНА
+
+            removeScreamer();
+            ensureScreamerStyle();
+            lockPageForScreamer();
+
             const screamer = document.createElement('div');
             screamer.id = 'glist-screamer';
-            screamer.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100vw;
-                height: 100vh;
-                background: transparent;
-                z-index: 999999;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                overflow: hidden;
-            `;
-            
-            // Добавляем CSS анимацию тряски для резервного контента
-            if (!document.getElementById('glist-shake-style')) {
-                const style = document.createElement('style');
-                style.id = 'glist-shake-style';
-                style.textContent = `
-                    @keyframes glistShake {
-                        0% { transform: translate(0, 0) rotate(0deg) scale(1); }
-                        10% { transform: translate(-8px, -8px) rotate(-2deg) scale(1.02); }
-                        20% { transform: translate(8px, -8px) rotate(2deg) scale(0.98); }
-                        30% { transform: translate(-8px, 8px) rotate(-1deg) scale(1.01); }
-                        40% { transform: translate(8px, 8px) rotate(2deg) scale(0.99); }
-                        50% { transform: translate(-8px, -8px) rotate(-2deg) scale(1.02); }
-                        60% { transform: translate(8px, -8px) rotate(1deg) scale(0.98); }
-                        70% { transform: translate(-8px, 8px) rotate(-2deg) scale(1.01); }
-                        80% { transform: translate(8px, 8px) rotate(2deg) scale(0.99); }
-                        90% { transform: translate(-8px, -8px) rotate(-1deg) scale(1.01); }
-                        100% { transform: translate(0, 0) rotate(0deg) scale(1); }
-                    }
-                    
-                    .glist-video-effect {
-                        filter: brightness(1.2) contrast(1.3);
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-            
-            // Добавляем скример на страницу
+            screamer.className = 'glist-screamer-overlay';
+
+            const flash = document.createElement('div');
+            flash.className = 'glist-screamer-flash';
+
+            const mediaWrap = document.createElement('div');
+            mediaWrap.className = 'glist-screamer-wrap';
+
+            screamer.appendChild(flash);
+            screamer.appendChild(mediaWrap);
             document.body.appendChild(screamer);
-            
-            // 🔊 ЗВУК С МАКСИМАЛЬНОЙ ГРОМКОСТЬЮ (не нужен если видео со звуком)
-            // playMaxVolumeScreamerSound();
-            
-            // 🖼️ ЗАГРУЖАЕМ ФОТО СКРИМЕР (без видео)
-            setTimeout(() => {
-                console.log('🖼️ Загружаем фото скример glist.png...');
-                
-                const isMobile = window.innerWidth <= 768;
-                
-                // Запускаем звук скримера
+
+            showAnimatedScreamerMedia(screamer, mediaWrap);
+
+            if (screamerSoundTimer) {
+                clearTimeout(screamerSoundTimer);
+            }
+            screamerSoundTimer = setTimeout(() => {
                 playMaxVolumeScreamerSound();
-                
-                // Показываем фото скример
-                showFallbackImageScreamer(screamer, isMobile);
-                
-            }, 300);
-            
-            // Резервный таймер удаления фото скримера
-            setTimeout(() => {
-                if (document.getElementById('glist-screamer')) {
-                    console.log('⏰ Принудительное завершение скримера по таймеру');
-                    removeScreamer();
-                }
-            }, 8000); // 8 секунд для фото скримера
+            }, 1000);
+
+            screamerCleanupTimer = setTimeout(() => {
+                removeScreamer();
+            }, 3200);
         }
-        
-        // 🗑️ ФУНКЦИЯ УДАЛЕНИЯ СКРИМЕРА
+
         function removeScreamer() {
+            if (screamerCleanupTimer) {
+                clearTimeout(screamerCleanupTimer);
+                screamerCleanupTimer = null;
+            }
+
+            if (screamerAssetTimer) {
+                clearTimeout(screamerAssetTimer);
+                screamerAssetTimer = null;
+            }
+
+            if (screamerSoundTimer) {
+                clearTimeout(screamerSoundTimer);
+                screamerSoundTimer = null;
+            }
+
+            if (screamerAudioElement) {
+                try {
+                    screamerAudioElement.pause();
+                    screamerAudioElement.currentTime = 0;
+                } catch (e) {
+                    console.log('⚠️ Не удалось остановить scream.mp3:', e);
+                }
+            }
+
             const screamer = document.getElementById('glist-screamer');
             if (screamer) {
-                // Восстанавливаем скролл на мобильных
-                if (window.innerWidth <= 768) {
-                    document.body.style.overflow = '';
-                    document.documentElement.style.overflow = '';
-                    
-                    // Восстанавливаем viewport
-                    const viewport = document.querySelector('meta[name=viewport]');
-                    if (viewport) {
-                        viewport.content = 'width=device-width, initial-scale=1.0';
-                    }
-                }
-                
-                // Останавливаем видео если оно играет
                 const video = screamer.querySelector('video');
                 if (video) {
-                    video.pause();
-                    video.currentTime = 0;
-                    video.src = ''; // Освобождаем ресурсы
-                }
-                
-                document.body.removeChild(screamer);
-                console.log('🔚 Скример полностью удалён');
-            }
-        }
-        
-        // 🖼️ ФОТО СКРИМЕР БЕЗ ПРИНУДИТЕЛЬНОГО ЧЁРНОГО ФОНА
-        function showFallbackImageScreamer(screamer, isMobile) {
-            console.log('🖼️ Загружаем фото скример glist.png...');
-            
-            screamer.innerHTML = '';
-            
-            const glistImage = document.createElement('img');
-            glistImage.src = 'glist.png'; // Фото скример
-            
-            glistImage.style.cssText = `
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100vw;
-                height: 100vh;
-                object-fit: ${isMobile ? 'contain' : 'cover'};
-                object-position: center;
-                z-index: 1000000;
-                animation: glistShake 0.1s infinite;
-                image-rendering: -webkit-optimize-contrast;
-                image-rendering: crisp-edges;
-            `;
-            
-            // Когда изображение загрузилось
-            glistImage.onload = () => {
-                console.log('✅ Фото скример glist.png загружен! Показываем на весь экран.');
-                
-                screamer.appendChild(glistImage);
-                
-                // 📱 АДАПТАЦИЯ ДЛЯ МОБИЛЬНЫХ
-                if (isMobile) {
-                    // Отключаем скролл на время скримера
-                    document.body.style.overflow = 'hidden';
-                    document.documentElement.style.overflow = 'hidden';
-                    
-                    // Блокируем зум на мобильных
-                    const viewport = document.querySelector('meta[name=viewport]');
-                    if (viewport) {
-                        viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+                    try {
+                        video.pause();
+                        video.currentTime = 0;
+                        video.removeAttribute('src');
+                        video.load();
+                    } catch (e) {
+                        console.log('⚠️ Не удалось аккуратно остановить glist video:', e);
                     }
-                    
-                    console.log('📱 Мобильная адаптация фото скримера активирована');
                 }
-                
-                console.log('🖼️ Фото скример glist.png успешно отображён!');
-            };
-            
-            // Если фото тоже не загрузилось - показываем текстовый fallback
-            glistImage.onerror = () => {
-                console.log('❌ Фото glist.png не найдено - показываем текстовый скример');
-                showFallbackScreamerText(screamer, isMobile);
-            };
-        }
-        
-        // 📱 РЕЗЕРВНЫЙ ТЕКСТОВЫЙ СКРИМЕР (если и PNG не загрузился)
-        function showFallbackScreamerText(screamer, isMobile) {
-            const textScreamer = document.createElement('div');
-            textScreamer.id = 'text-screamer';
-            textScreamer.style.cssText = `
-                color: #ff0000;
-                font-size: ${isMobile ? '12vw' : '15vw'};
-                font-weight: bold;
-                text-align: center;
-                font-family: Arial, sans-serif;
-                animation: glistShake 0.1s infinite;
-                text-shadow: 0 0 50px #ff0000, 0 0 100px #ff0000, 0 0 150px #ff0000;
-                width: 100%;
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                background: rgba(0, 0, 0, 0.3);
-                backdrop-filter: blur(2px);
-            `;
-            
-            textScreamer.innerHTML = `
-                <div style="line-height: 0.9;">👻 GLIST! 👻</div>
-                <div style="
-                    font-size: ${isMobile ? '6vw' : '8vw'}; 
-                    color: #ffff00; 
-                    margin-top: ${isMobile ? '15px' : '20px'}; 
-                    text-shadow: 0 0 30px #ffff00, 0 0 60px #ffff00;
-                    line-height: 1;
-                ">
-                    ИСПУГАЛСЯ?! 😈
-                </div>
-            `;
-            
-            screamer.appendChild(textScreamer);
-            console.log('📱 Резервный текстовый скример активирован (последний fallback)');
+
+                screamer.remove();
+            }
+
+            unlockPageAfterScreamer();
         }
 
+        function showAnimatedScreamerMedia(screamer, mediaWrap) {
+            let resolved = false;
 
+            const finishWithNode = (node) => {
+                if (resolved || !document.body.contains(screamer)) {
+                    return;
+                }
 
-        // 🔊 ЗВУК СКРИМЕРА
+                resolved = true;
+                if (screamerAssetTimer) {
+                    clearTimeout(screamerAssetTimer);
+                    screamerAssetTimer = null;
+                }
+
+                mediaWrap.innerHTML = '';
+                mediaWrap.appendChild(node);
+                console.log('👻 GLIST-скример показал медиа-ассет');
+            };
+
+            const showImageFallback = () => {
+                if (resolved) {
+                    return;
+                }
+
+                const glistImage = new Image();
+                glistImage.className = 'glist-screamer-media glist-screamer-image';
+                glistImage.decoding = 'async';
+                glistImage.alt = 'GLIST screamer';
+
+                glistImage.onload = () => finishWithNode(glistImage);
+                glistImage.onerror = () => {
+                    console.log('❌ glist.png тоже не загрузился — показывать текстовый fallback больше не будем');
+                    if (screamerAssetTimer) {
+                        clearTimeout(screamerAssetTimer);
+                        screamerAssetTimer = null;
+                    }
+                };
+                glistImage.src = 'glist.png';
+            };
+
+            const glistVideo = document.createElement('video');
+            glistVideo.className = 'glist-screamer-media';
+            glistVideo.autoplay = true;
+            glistVideo.muted = true;
+            glistVideo.loop = false;
+            glistVideo.playsInline = true;
+            glistVideo.preload = 'auto';
+            glistVideo.setAttribute('playsinline', '');
+            glistVideo.crossOrigin = 'anonymous';
+
+            const handleVideoReady = () => {
+                finishWithNode(glistVideo);
+
+                const playPromise = glistVideo.play();
+                if (playPromise && typeof playPromise.catch === 'function') {
+                    playPromise.catch(() => {
+                        console.log('⚠️ glist.webm загрузился, но autoplay не стартовал');
+                    });
+                }
+            };
+
+            glistVideo.addEventListener('loadeddata', handleVideoReady, { once: true });
+            glistVideo.addEventListener('canplay', handleVideoReady, { once: true });
+            glistVideo.addEventListener('loadedmetadata', handleVideoReady, { once: true });
+            glistVideo.onerror = () => {
+                console.log('⚠️ glist.webm не найден или не загрузился, пробуем glist.png');
+                showImageFallback();
+            };
+
+            screamerAssetTimer = setTimeout(() => {
+                if (!resolved) {
+                    console.log('⏱️ glist.webm грузится слишком долго, пробуем glist.png');
+                    showImageFallback();
+                }
+            }, 2200);
+
+            glistVideo.src = 'glist.webm';
+            glistVideo.load();
+        }
+
         function playMaxVolumeScreamerSound() {
-            console.log('🔊 ЗАПУСК ЗВУКА СКРИМЕРА!');
-            
-            const screamAudio = new Audio();
-            screamAudio.volume = 1.0;
-            screamAudio.preload = 'auto';
-            screamAudio.src = 'scream.mp3';
-            
-            const playPromise = screamAudio.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    console.log('🔊 scream.mp3 успешно воспроизводится!');
-                }).catch(() => {
-                    console.log('❌ scream.mp3 не найден - скример без звука');
-                });
+            console.log('🔊 ЗАПУСК ЗВУКА СКРИМЕРА! (игнорирует общий mute)');
+
+            try {
+                const screamAudio = ensureScreamerAudio();
+                screamAudio.volume = 1.0;
+                screamAudio.currentTime = 0;
+
+                const playPromise = screamAudio.play();
+                if (playPromise && typeof playPromise.then === 'function') {
+                    playPromise.then(() => {
+                        console.log(screamerAudioPrimed ? '🔊 scream.mp3 запущен после предварительной разблокировки!' : '🔊 scream.mp3 успешно воспроизводится!');
+                    }).catch(() => {
+                        console.log('❌ scream.mp3 не запустился — включаем синтезированный fallback');
+                        playGeneratedMaxScream();
+                    });
+                }
+            } catch (e) {
+                console.log('❌ Ошибка запуска scream.mp3 — включаем синтезированный fallback', e);
+                playGeneratedMaxScream();
             }
         }
-        
+
         // 🔊 ГЕНЕРИРОВАННЫЙ МАКСИМАЛЬНЫЙ ЗВУК СКРИМЕРА
         function playGeneratedMaxScream() {
-            console.log('🎵 ЗАПУСК СИНТЕЗИРОВАННОГО СКРИМЕРА!');
+            console.log('🎵 ЗАПУСК СИНТЕЗИРОВАННОГО СКРИМЕРА! (игнорирует общий mute)');
             
             try {
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -5532,32 +6649,30 @@ ${(() => {
         // 💰 ФУНКЦИЯ РАСЧЁТА КОЛИЧЕСТВА КЕЙСОВ ДЛЯ ДОЛГА
         function calculateCasesForDebt(amount) {
             const interestRate = calculateDebtInterest(socialRating);
-            const baseReturn = amount * 2;
-            const interestAmount = Math.floor(baseReturn * interestRate / 100);
-            const returnAmount = baseReturn + interestAmount;
-            
-            // Считаем что средний доход с кейса примерно 50-100 ꙮ
-            // С учётом вероятности окупа 50/50 и средних цен кейсов
-            
-            let casesNeeded;
+
+            // Базовое количество кейсов теперь заметно мягче, чтобы долг не душил геймплей.
+            let baseCases;
             if (amount <= 500) {
-                casesNeeded = Math.ceil(returnAmount / 80); // ~12-13 кейсов
+                baseCases = 4;
             } else if (amount <= 1000) {
-                casesNeeded = Math.ceil(returnAmount / 85); // ~23-24 кейса
+                baseCases = 6;
+            } else if (amount <= 2500) {
+                baseCases = 8;
             } else if (amount <= 5000) {
-                casesNeeded = Math.ceil(returnAmount / 90); // ~111 кейсов
+                baseCases = 10;
             } else if (amount <= 10000) {
-                casesNeeded = Math.ceil(returnAmount / 95); // ~210 кейсов
+                baseCases = 13;
             } else {
-                casesNeeded = Math.ceil(returnAmount / 100); // ~400 кейсов для максимума
+                baseCases = 16;
             }
-            
-            // Ограничиваем максимум 30 кейсами как ты просил
-            casesNeeded = Math.min(casesNeeded, 30);
-            
-            // Минимум 5 кейсов для любого долга
-            casesNeeded = Math.max(casesNeeded, 5);
-            
+
+            // На плохом рейтинге добавляем немного штрафных кейсов, но без жести.
+            const interestPenalty = Math.ceil(interestRate / 10);
+            let casesNeeded = baseCases + interestPenalty;
+
+            // Не даём уйти в крайности.
+            casesNeeded = Math.max(3, Math.min(casesNeeded, 20));
+
             return casesNeeded;
         }
 
@@ -5792,6 +6907,7 @@ ${(() => {
             }
             
             const repentModal = document.createElement('div');
+            repentModal.id = 'repent-modal';
             repentModal.style.cssText = `
                 position: fixed;
                 top: 0;
@@ -5947,7 +7063,9 @@ ${(() => {
             };
             
             window.closeRepentModal = function() {
-                document.body.removeChild(repentModal);
+                if (repentModal.parentNode) {
+                    repentModal.parentNode.removeChild(repentModal);
+                }
                 showDebtMessage('😤 Покаяние отклонено. Блокировка остаётся в силе.', 'warning');
             };
         }
@@ -5956,7 +7074,13 @@ ${(() => {
         function updateDebtStatus() {
             const debtButton = document.getElementById('debtButton');
             const debtStatus = document.getElementById('debtStatus');
-            
+
+            if (!debtButton || !debtStatus) return;
+
+            debtButton.disabled = false;
+            debtButton.style.pointerEvents = 'auto';
+            debtButton.style.opacity = '1';
+
             if (isBlocked) {
                 // ЗАБЛОКИРОВАН
                 debtButton.style.display = 'none';
@@ -5978,12 +7102,15 @@ ${(() => {
                 // ДОЛГА НЕТ - показываем кнопку взятия долга
                 debtButton.style.display = 'block';
                 debtStatus.style.display = 'none';
-                
+
                 // Меняем текст кнопки в зависимости от рейтинга
                 if (socialRating <= 10) {
                     debtButton.textContent = '🚫 Чёрный список';
                     debtButton.style.background = 'linear-gradient(145deg, #95a5a6, #7f8c8d)';
                     debtButton.style.cursor = 'not-allowed';
+                    debtButton.style.pointerEvents = 'none';
+                    debtButton.disabled = true;
+                    debtButton.style.opacity = '0.85';
                 } else {
                     debtButton.textContent = '💰 Взять госдолг';
                     debtButton.style.background = 'linear-gradient(145deg, #e74c3c, #c0392b)';
@@ -5991,67 +7118,104 @@ ${(() => {
                 }
             }
         }
-        
+
+        function getDebtToastContainer() {
+            let container = document.getElementById('debt-toast-container');
+
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'debt-toast-container';
+                container.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-end;
+                    gap: 12px;
+                    z-index: 10008;
+                    pointer-events: none;
+                    width: min(340px, calc(100vw - 24px));
+                `;
+                document.body.appendChild(container);
+            }
+
+            return container;
+        }
+
         function showDebtMessage(message, type) {
+            const container = getDebtToastContainer();
             const messageEl = document.createElement('div');
+
+            const background = type === 'success'
+                ? 'linear-gradient(135deg, #27ae60, #229954)'
+                : type === 'warning'
+                    ? 'linear-gradient(135deg, #f39c12, #d68910)'
+                    : type === 'error'
+                        ? 'linear-gradient(135deg, #e74c3c, #c0392b)'
+                        : 'linear-gradient(135deg, #3498db, #2980b9)';
+
             messageEl.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${type === 'success' ? 'linear-gradient(135deg, #27ae60, #229954)' : 
-                            type === 'warning' ? 'linear-gradient(135deg, #f39c12, #d68910)' : 
-                            type === 'error' ? 'linear-gradient(135deg, #e74c3c, #c0392b)' : 
-                            'linear-gradient(135deg, #3498db, #2980b9)'};
+                background: ${background};
                 color: white;
                 padding: 15px 20px;
                 border-radius: 12px;
                 font-weight: bold;
-                z-index: 10008;
-                max-width: 300px;
+                width: 100%;
+                box-sizing: border-box;
                 box-shadow: 0 5px 20px rgba(0,0,0,0.4);
                 border: 2px solid rgba(255,255,255,0.3);
-                animation: debtMessageSlide 0.5s ease-out;
+                animation: debtMessageSlide 0.35s ease-out;
                 font-size: 14px;
-                line-height: 1.3;
+                line-height: 1.35;
                 white-space: pre-line;
+                pointer-events: auto;
             `;
-            
+
             messageEl.textContent = message;
-            
-            // Добавляем анимацию появления
+
             if (!document.getElementById('debt-message-style')) {
                 const style = document.createElement('style');
                 style.id = 'debt-message-style';
                 style.textContent = `
                     @keyframes debtMessageSlide {
-                        0% { 
+                        0% {
                             transform: translateX(100%);
                             opacity: 0;
                         }
-                        100% { 
+                        100% {
                             transform: translateX(0);
                             opacity: 1;
+                        }
+                    }
+                    @keyframes debtMessageHide {
+                        0% {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                        100% {
+                            transform: translateX(100%);
+                            opacity: 0;
                         }
                     }
                 `;
                 document.head.appendChild(style);
             }
-            
-            document.body.appendChild(messageEl);
-            
-            // Убираем сообщение через 5 секунд
+
+            container.appendChild(messageEl);
+
             setTimeout(() => {
-                if (document.body.contains(messageEl)) {
-                    messageEl.style.animation = 'debtMessageSlide 0.5s ease-out reverse';
+                if (messageEl.parentNode) {
+                    messageEl.style.animation = 'debtMessageHide 0.3s ease-in forwards';
                     setTimeout(() => {
-                        if (document.body.contains(messageEl)) {
-                            document.body.removeChild(messageEl);
+                        if (messageEl.parentNode) {
+                            messageEl.parentNode.removeChild(messageEl);
                         }
-                    }, 500);
+                    }, 300);
                 }
-            }, 5000);
+            }, 4200);
         }
-        
+
         // 🚫 ФУНКЦИИ БАННЕРА БЛОКИРОВКИ
         function showBlockBanner() {
             const blockBanner = document.getElementById('blockBanner');
@@ -6064,7 +7228,10 @@ ${(() => {
                 <strong style="color: #ffeb3b;">Социальный рейтинг: ${socialRating}</strong><br>
                 Единственный способ разблокировки - покаяние.
             `;
-            repentButton.style.display = 'block';
+            repentButton.style.display = 'inline-flex';
+            repentButton.style.alignItems = 'center';
+            repentButton.style.justifyContent = 'center';
+            repentButton.style.margin = '10px auto 0';
             
             // Блокируем все кейсы визуально
             document.querySelectorAll('.case').forEach(caseEl => {
@@ -6394,34 +7561,49 @@ ${(() => {
             }
         }
 
-        // Countdown timer - ОБНУЛЯЕТСЯ ПРИ КАЖДОЙ ПЕРЕЗАГРУЗКЕ
+        function getRandomCountdownSeconds() {
+            return Math.floor(Math.random() * (COUNTDOWN_MAX_SECONDS - COUNTDOWN_MIN_SECONDS)) + COUNTDOWN_MIN_SECONDS;
+        }
+
+        function setNewCountdownTarget() {
+            const totalSeconds = getRandomCountdownSeconds();
+            const endTimestamp = Date.now() + (totalSeconds * 1000);
+            localStorage.setItem(COUNTDOWN_STORAGE_KEY, String(endTimestamp));
+            return endTimestamp;
+        }
+
+        // Countdown timer - стабильный, не плодит дубликаты и переживает перезагрузку
         function startCountdown() {
             const countdownElement = document.getElementById('countdownTimer');
-            
-            // ВСЕГДА НАЧИНАЕМ С НОВОГО СЛУЧАЙНОГО ВРЕМЕНИ ПРИ КАЖДОЙ ПЕРЕЗАГРУЗКЕ!
-            let totalSeconds = Math.floor(Math.random() * (6 * 3600 - 2 * 3600)) + 2 * 3600;
-            console.log(`⏰ Таймер сброшен! Новое время: ${Math.floor(totalSeconds/3600)}ч ${Math.floor((totalSeconds%3600)/60)}м ${totalSeconds%60}с`);
-            
-            function updateCountdown() {
+            if (!countdownElement) return;
+
+            let savedEndTimestamp = Number(localStorage.getItem(COUNTDOWN_STORAGE_KEY));
+            if (!Number.isFinite(savedEndTimestamp) || savedEndTimestamp <= Date.now()) {
+                savedEndTimestamp = setNewCountdownTarget();
+            }
+
+            const updateCountdown = () => {
+                let totalSeconds = Math.max(0, Math.ceil((savedEndTimestamp - Date.now()) / 1000));
+
+                if (totalSeconds <= 0) {
+                    savedEndTimestamp = setNewCountdownTarget();
+                    totalSeconds = Math.max(0, Math.ceil((savedEndTimestamp - Date.now()) / 1000));
+                    console.log('⏰ Таймер достиг 0 и был перезапущен');
+                }
+
                 const hours = Math.floor(totalSeconds / 3600);
                 const minutes = Math.floor((totalSeconds % 3600) / 60);
                 const seconds = totalSeconds % 60;
-                
-                const display = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                countdownElement.textContent = display;
-                
-                totalSeconds--;
-                
-                if (totalSeconds < 0) {
-                    // Reset to random time when reaches 0
-                    totalSeconds = Math.floor(Math.random() * (6 * 3600 - 2 * 3600)) + 2 * 3600;
-                    console.log(`⏰ Таймер достиг 0! Новое время: ${Math.floor(totalSeconds/3600)}ч ${Math.floor((totalSeconds%3600)/60)}м ${totalSeconds%60}с`);
-                }
+
+                countdownElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            };
+
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
             }
-            
-            // Update immediately and then every second
+
             updateCountdown();
-            setInterval(updateCountdown, 1000);
+            countdownInterval = setInterval(updateCountdown, 1000);
         }
 
         // Case image loading - НОВАЯ СИСТЕМА С АНИМАЦИЕЙ
@@ -6582,10 +7764,19 @@ ${(() => {
                 const caseType = parseInt(caseEl.dataset.case);
                 const price = parseInt(caseEl.dataset.price);
                 
+                let touchTimer = null;
+                let touchStarted = false;
+                let longPressTriggered = false;
+
                 // Left click - open case
                 caseEl.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
+
+                    if (suppressNextCaseClick) {
+                        suppressNextCaseClick = false;
+                        return;
+                    }
                     
                     if (!caseEl.classList.contains('disabled')) {
                         openCase(caseType, price);
@@ -6597,58 +7788,62 @@ ${(() => {
                     e.preventDefault();
                     e.stopPropagation();
                     
-                    // Только на компьютере (ширина > 768px)
-                    if (window.innerWidth > 768) {
+                    if (window.innerWidth > MOBILE_BREAKPOINT) {
                         showCaseDrops(caseType);
                     }
                 });
                 
-                // Touch events for mobile (удержание)
-                let touchTimer;
-                let touchStarted = false;
-                
-                caseEl.addEventListener('touchstart', (e) => {
+                caseEl.addEventListener('touchstart', () => {
                     touchStarted = true;
+                    longPressTriggered = false;
+                    if (touchTimer) {
+                        clearTimeout(touchTimer);
+                    }
                     touchTimer = setTimeout(() => {
                         if (touchStarted) {
-                            // Вибрация если поддерживается
+                            longPressTriggered = true;
+                            suppressNextCaseClick = true;
                             if (navigator.vibrate) {
                                 navigator.vibrate(50);
                             }
                             showCaseDrops(caseType);
                         }
-                    }, 500); // 500мс удержания
-                });
+                    }, LONG_PRESS_MS);
+                }, { passive: true });
                 
-                caseEl.addEventListener('touchend', (e) => {
+                caseEl.addEventListener('touchend', () => {
                     if (touchTimer) {
                         clearTimeout(touchTimer);
+                        touchTimer = null;
                     }
-                    
-                    // Если удержание было меньше 500мс - открываем кейс
-                    if (touchStarted) {
-                        setTimeout(() => {
-                            if (!caseEl.classList.contains('disabled')) {
-                                openCase(caseType, price);
-                            }
-                        }, 50);
+
+                    if (touchStarted && !longPressTriggered && !caseEl.classList.contains('disabled')) {
+                        openCase(caseType, price);
                     }
                     
                     touchStarted = false;
+                    setTimeout(() => {
+                        longPressTriggered = false;
+                        suppressNextCaseClick = false;
+                    }, 50);
                 });
                 
                 caseEl.addEventListener('touchmove', () => {
                     touchStarted = false;
                     if (touchTimer) {
                         clearTimeout(touchTimer);
+                        touchTimer = null;
                     }
-                });
+                }, { passive: true });
                 
                 caseEl.addEventListener('touchcancel', () => {
                     touchStarted = false;
+                    longPressTriggered = false;
                     if (touchTimer) {
                         clearTimeout(touchTimer);
+                        touchTimer = null;
                     }
+                    suppressNextCaseClick = false;
                 });
             });
         }
@@ -6678,6 +7873,7 @@ ${(() => {
         
         function saveGameData() {
             const gameData = {
+                version: GAME_DATA_VERSION,
                 balance,
                 inventory,
                 userNickname,
@@ -6686,6 +7882,7 @@ ${(() => {
                 winglistItems,
                 bonusHintShown,
                 warningMessageShown,
+                soundEnabled,
                 devModeActive,
                 bugWarningClosed,
                 socialRating,
@@ -6697,12 +7894,13 @@ ${(() => {
                 economyStreak,
                 totalSpent,
                 totalWon,
-                recentDrops, // Сохраняем глобальную историю дропов
-                pendingBonusHint // Сохраняем флаг отложенной подсказки
+                recentDrops,
+                pendingBonusHint,
+                forcedNextDrop
             };
             
             try {
-                localStorage.setItem('caseGameData', JSON.stringify(gameData));
+                localStorage.setItem(GAME_DATA_KEY, JSON.stringify(gameData));
                 console.log('✅ Данные игры сохранены');
             } catch (e) {
                 console.log('❌ Ошибка сохранения данных:', e);
@@ -6711,41 +7909,39 @@ ${(() => {
 
         function loadGameData() {
             try {
-                const savedData = localStorage.getItem('caseGameData');
+                const savedData = localStorage.getItem(GAME_DATA_KEY);
                 if (savedData) {
-                    const gameData = JSON.parse(savedData);
+                    const rawGameData = JSON.parse(savedData);
+                    const gameData = sanitizeGameData(rawGameData);
                     
-                    balance = gameData.balance || 1000;
-                    inventory = gameData.inventory || [{ name: 'Стартовый предмет', image: 'dropcase1_1', rarity: 'common', value: 10 }];
-                    userNickname = gameData.userNickname || 'Игрок';
-                    userAvatar = gameData.userAvatar || null;
-                    usedPromocodes = gameData.usedPromocodes || [];
-                    winglistItems = gameData.winglistItems || [];
-                    bonusHintShown = gameData.bonusHintShown || false;
-                    warningMessageShown = gameData.warningMessageShown || false;
-                    devModeActive = gameData.devModeActive || false;
-                    bugWarningClosed = gameData.bugWarningClosed || false;
+                    balance = gameData.balance;
+                    inventory = gameData.inventory;
+                    userNickname = gameData.userNickname;
+                    userAvatar = gameData.userAvatar;
+                    usedPromocodes = gameData.usedPromocodes;
+                    winglistItems = gameData.winglistItems;
+                    bonusHintShown = gameData.bonusHintShown;
+                    warningMessageShown = gameData.warningMessageShown;
+                    soundEnabled = gameData.soundEnabled;
+                    devModeActive = gameData.devModeActive;
+                    bugWarningClosed = gameData.bugWarningClosed;
                     
-                    // 🏛️ Загрузка данных госдолга
-                    socialRating = gameData.socialRating !== undefined ? gameData.socialRating : 100;
-                    hasDebt = gameData.hasDebt || false;
-                    debtCasesLeft = gameData.debtCasesLeft || 0;
-                    debtAmount = gameData.debtAmount || 500;
-                    isBlocked = gameData.isBlocked || false;
+                    socialRating = gameData.socialRating;
+                    hasDebt = gameData.hasDebt;
+                    debtCasesLeft = gameData.debtCasesLeft;
+                    debtAmount = gameData.debtAmount;
+                    isBlocked = gameData.isBlocked;
                     
-                    // 🎲 Загрузка экономических данных
-                    economyBalance = gameData.economyBalance || 0;
-                    economyStreak = gameData.economyStreak || 0;
-                    totalSpent = gameData.totalSpent || 0;
-                    totalWon = gameData.totalWon || 0;
-                    
-                    // 🚫 Загрузка глобальной истории дропов
-                    recentDrops = gameData.recentDrops || [];
-                    
-                    // 💡 Загрузка флага отложенной подсказки
-                    pendingBonusHint = gameData.pendingBonusHint || false;
+                    economyBalance = gameData.economyBalance;
+                    economyStreak = gameData.economyStreak;
+                    totalSpent = gameData.totalSpent;
+                    totalWon = gameData.totalWon;
+                    recentDrops = gameData.recentDrops;
+                    pendingBonusHint = gameData.pendingBonusHint;
+                    forcedNextDrop = gameData.forcedNextDrop;
                     
                     console.log('📦 Данные игры загружены:', {
+                        version: gameData.version,
                         balance,
                         inventorySize: inventory.length,
                         nickname: userNickname,
@@ -6754,6 +7950,7 @@ ${(() => {
                         winglist: winglistItems.length,
                         bonusHintShown,
                         warningMessageShown,
+                        soundEnabled,
                         devModeActive,
                         bugWarningClosed,
                         socialRating,
@@ -6764,7 +7961,8 @@ ${(() => {
                         economyBalance,
                         economyStreak,
                         recentDropsCount: recentDrops.length,
-                        pendingBonusHint
+                        pendingBonusHint,
+                        forcedNextDrop
                     });
                 }
             } catch (e) {
@@ -6777,6 +7975,7 @@ ${(() => {
             console.log('🎮 Инициализация игры...');
             
             loadGameData();
+            ensureSoundToggleButton();
             
             // Update UI with loaded data
             updateBalance();
@@ -6784,16 +7983,12 @@ ${(() => {
             updateWinglist();
             updateDebtStatus();
             
-            // Set up user avatar if exists, otherwise load default
-            if (userAvatar) {
-                const profileAvatar = document.getElementById('profileAvatar');
-                profileAvatar.style.backgroundImage = `url('${userAvatar}')`;
-                profileAvatar.style.backgroundSize = 'cover';
-                profileAvatar.style.backgroundPosition = 'center';
-                profileAvatar.textContent = '';
-                console.log('👤 Загружен пользовательский аватар');
+            // Set up avatar (preset or custom) and render preset selector
+            renderAvatarPresets();
+            if (sanitizeAvatarValue(userAvatar)) {
+                updateAvatarUI();
+                console.log('👤 Загружен сохранённый аватар');
             } else {
-                // Загружаем дефолтный аватар если нет пользовательского
                 loadDefaultAvatar();
             }
             
@@ -6805,6 +8000,7 @@ ${(() => {
             
             // Setup event listeners
             setupCaseEventListeners();
+            updateForcedDropIndicator();
             
             // Start countdown timer
             startCountdown();
@@ -6812,10 +8008,12 @@ ${(() => {
             // 📱 Показываем подходящие подсказки для платформы
             showPlatformSpecificHints();
             
-            // 🛠️ Показываем панель разработчика если режим активен
+            // 🛠️ Скрытый режим разработчика восстанавливается без показа панели
             if (devModeActive) {
-                document.getElementById('dev-mode-banner').style.display = 'block';
-                console.log('🛠️ Режим разработчика восстановлен');
+                closeDevPanel();
+                console.log('🛠️ Режим разработчика восстановлен в скрытом виде');
+            } else {
+                updateDevToggleButton();
             }
             
             // 🚫 Показываем предупреждение о багах если не закрыто (ИСПРАВЛЕНО)
