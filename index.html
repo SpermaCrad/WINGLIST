@@ -1954,6 +1954,402 @@
             }
         }
 
+    
+        .contracts-widget {
+            position: fixed;
+            left: 34px;
+            top: 262px;
+            width: min(330px, calc(100vw - 24px));
+            background: linear-gradient(145deg, rgba(29, 31, 49, 0.97), rgba(15, 18, 31, 0.99));
+            border: 1px solid rgba(111, 203, 255, 0.18);
+            border-radius: 16px;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.28);
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+            z-index: 1204;
+        }
+
+        .contracts-toggle {
+            width: 100%;
+            border: none;
+            background: linear-gradient(145deg, rgba(68, 120, 187, 0.96), rgba(43, 73, 129, 0.99));
+            color: #eef7ff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 11px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: left;
+            transition: filter 0.2s ease, transform 0.2s ease;
+        }
+
+        .contracts-toggle:hover {
+            filter: brightness(1.08);
+        }
+
+        .contracts-toggle:active {
+            transform: scale(0.99);
+        }
+
+        .contracts-toggle-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .contracts-badge {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #f0f8ff, #7dbbff 60%, #375f98 100%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 12px rgba(125, 187, 255, 0.35);
+            flex-shrink: 0;
+        }
+
+        .contracts-toggle-text {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            min-width: 0;
+        }
+
+        .contracts-toggle-text strong {
+            font-size: 13px;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .contracts-toggle-text span {
+            font-size: 11px;
+            color: rgba(226, 241, 255, 0.82);
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .contracts-arrow {
+            font-size: 12px;
+            color: #eef7ff;
+            transition: transform 0.25s ease;
+            flex-shrink: 0;
+        }
+
+        .contracts-widget.expanded .contracts-arrow {
+            transform: rotate(180deg);
+        }
+
+        .contracts-content {
+            display: none;
+            padding: 12px 12px 10px;
+            border-top: 1px solid rgba(111, 203, 255, 0.12);
+        }
+
+        .contracts-widget.expanded .contracts-content {
+            display: block;
+        }
+
+        .contracts-description {
+            color: rgba(228, 240, 255, 0.86);
+            font-size: 11px;
+            line-height: 1.35;
+            margin-bottom: 9px;
+        }
+
+        .contracts-summary {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(125, 187, 255, 0.12);
+            border-radius: 12px;
+            padding: 9px 10px;
+            color: #eff7ff;
+            font-size: 11px;
+            line-height: 1.45;
+            margin-bottom: 9px;
+        }
+
+        .contracts-summary strong {
+            color: #8ed0ff;
+        }
+
+        .contracts-selected {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            min-height: 42px;
+            margin-bottom: 10px;
+        }
+
+        .contracts-chip,
+        .contracts-empty-state {
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 11px;
+            line-height: 1.2;
+        }
+
+        .contracts-chip {
+            background: rgba(91, 154, 227, 0.16);
+            border: 1px solid rgba(125, 187, 255, 0.18);
+            color: #eef7ff;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .contracts-empty-state {
+            background: rgba(255,255,255,0.04);
+            border: 1px dashed rgba(125, 187, 255, 0.2);
+            color: rgba(214, 229, 245, 0.72);
+        }
+
+        .contracts-actions-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .contracts-mini-btn,
+        .contracts-submit-btn {
+            border: none;
+            border-radius: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, filter 0.2s ease, opacity 0.2s ease;
+        }
+
+        .contracts-mini-btn {
+            flex: 1;
+            padding: 8px 10px;
+            font-size: 11px;
+            background: rgba(255,255,255,0.08);
+            color: #eef7ff;
+            border: 1px solid rgba(125, 187, 255, 0.14);
+        }
+
+        .contracts-submit-btn {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 13px;
+            background: linear-gradient(145deg, #2fbe65, #24864a);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(26, 127, 60, 0.26);
+        }
+
+        .contracts-mini-btn:hover,
+        .contracts-submit-btn:hover {
+            filter: brightness(1.06);
+            transform: translateY(-1px);
+        }
+
+        .contracts-mini-btn:disabled,
+        .contracts-submit-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+            filter: none;
+        }
+
+        .contracts-inventory {
+            max-height: 250px;
+            overflow-y: auto;
+            padding-right: 4px;
+            margin-bottom: 10px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .contract-item {
+            display: grid;
+            grid-template-columns: 46px 1fr auto;
+            gap: 10px;
+            align-items: center;
+            padding: 8px 9px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(125, 187, 255, 0.08);
+            cursor: pointer;
+            transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .contract-item:hover {
+            transform: translateY(-1px);
+            border-color: rgba(125, 187, 255, 0.18);
+            background: rgba(255,255,255,0.06);
+        }
+
+        .contract-item.selected {
+            border-color: rgba(139, 221, 255, 0.46);
+            background: linear-gradient(145deg, rgba(60, 98, 153, 0.28), rgba(33, 61, 97, 0.34));
+            box-shadow: 0 0 14px rgba(100, 190, 255, 0.18);
+        }
+
+        .contract-item-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .contract-item-text {
+            min-width: 0;
+        }
+
+        .contract-item-name {
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.2;
+            word-break: break-word;
+            margin-bottom: 4px;
+        }
+
+        .contract-item-meta {
+            color: rgba(218, 232, 246, 0.75);
+            font-size: 10px;
+        }
+
+        .contract-item-price {
+            color: #ffd700;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .contracts-note {
+            color: rgba(214, 229, 245, 0.62);
+            font-size: 10px;
+            line-height: 1.35;
+            margin-top: 8px;
+        }
+
+        .contracts-status {
+            margin-top: 8px;
+            min-height: 16px;
+            font-size: 11px;
+            line-height: 1.35;
+        }
+
+        .contracts-status.success {
+            color: #81f7b5;
+        }
+
+        .contracts-status.error {
+            color: #ff8d8d;
+        }
+
+        .contracts-status.info {
+            color: #9ed5ff;
+        }
+
+        .contract-result-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.72);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10055;
+            padding: 20px;
+        }
+
+        .contract-result-modal.active {
+            display: flex;
+        }
+
+        .contract-result-card {
+            width: min(420px, 100%);
+            background: linear-gradient(145deg, rgba(20, 26, 39, 0.98), rgba(10, 15, 25, 0.99));
+            border: 1px solid rgba(125, 187, 255, 0.18);
+            border-radius: 18px;
+            padding: 18px 18px 16px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .contract-result-card h3 {
+            color: #8ed0ff;
+            margin: 0 0 12px;
+            font-size: 22px;
+        }
+
+        .contract-result-icon {
+            width: 110px;
+            height: 110px;
+            margin: 0 auto 12px;
+            border-radius: 18px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            box-shadow: 0 0 18px rgba(125, 187, 255, 0.22);
+        }
+
+        .contract-result-name {
+            color: #fff;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .contract-result-value {
+            color: #ffd700;
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .contract-result-note {
+            color: rgba(222, 236, 249, 0.82);
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 14px;
+        }
+
+        .contract-result-close {
+            border: none;
+            background: linear-gradient(145deg, #4a78bd, #355891);
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 11px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .contracts-widget {
+                position: relative;
+                left: auto;
+                top: auto;
+                width: min(340px, 94vw);
+                margin: 0 auto 18px auto;
+                z-index: 1;
+            }
+
+            .contracts-inventory {
+                max-height: 220px;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -2171,7 +2567,48 @@
 
         <button id="dev-toggle-fab" class="dev-toggle-fab hidden-for-recording" type="button" onclick="toggleDevPanel()" title="Открыть dev-панель" aria-label="Открыть dev-панель">🐒</button>
 
+        
+        <div id="contractsWidget" class="contracts-widget">
+            <button class="contracts-toggle" type="button" onclick="toggleContractsWidget()">
+                <span class="contracts-toggle-left">
+                    <span class="contracts-badge">📜</span>
+                    <span class="contracts-toggle-text">
+                        <strong>Контракты СПО</strong>
+                        <span id="contractsToggleSubtitle">Обмен 3+ предметов в один</span>
+                    </span>
+                </span>
+                <span class="contracts-arrow" id="contractsArrow">▼</span>
+            </button>
+            <div class="contracts-content" id="contractsContent">
+                <div class="contracts-description">
+                    Выбери <strong>минимум 3 предмета</strong> из инвентаря. Система выдаст <strong>1 случайный предмет</strong> из общего каталога в диапазоне <strong>70–130%</strong> от суммы. Чем больше предметов кидаешь в контракт, тем чаще награда тянется к верхней части диапазона.
+                </div>
+                <div class="contracts-summary" id="contractsSummary">Выбрано: <strong>0</strong> • Сумма: <strong>0 ꙮ</strong><br>Диапазон награды: <strong>0–0 ꙮ</strong></div>
+                <div class="contracts-selected" id="contractsSelected"></div>
+                <div class="contracts-actions-row">
+                    <button type="button" class="contracts-mini-btn" onclick="clearContractSelection()">Сбросить выбор</button>
+                    <button type="button" class="contracts-mini-btn" onclick="selectContractCheapest()">Добить дешёвым</button>
+                </div>
+                <div class="contracts-inventory" id="contractsInventory"></div>
+                <button type="button" class="contracts-submit-btn" id="contractsSubmitButton" onclick="executeContract()">Заключить контракт</button>
+                <div class="contracts-status info" id="contractsStatus">Каталог готов. Выбери предметы и начинай алхимию.</div>
+                <div class="contracts-note">При аресте инвентаря СПО контракты тоже замораживаются.</div>
+            </div>
+        </div>
+
+        <div id="contractResultModal" class="contract-result-modal" onclick="handleContractResultBackdrop(event)">
+            <div class="contract-result-card">
+                <h3>📜 Контракт завершён</h3>
+                <div id="contractResultIcon" class="contract-result-icon">?</div>
+                <div id="contractResultName" class="contract-result-name">Предмет</div>
+                <div id="contractResultValue" class="contract-result-value">0 ꙮ</div>
+                <div id="contractResultNote" class="contract-result-note">Описание результата</div>
+                <button type="button" class="contract-result-close" onclick="closeContractResultModal()">Закрыть</button>
+            </div>
+        </div>
+
         <div class="cases-title">СЕРИЙНЫЕ КЕЙСЫ</div>
+
         
         <!-- 🚫 ЗАКРЫВАЕМОЕ ПРЕДУПРЕЖДЕНИЕ О БАГАХ -->
         <div id="bug-warning-banner" class="bug-warning-banner">
@@ -2606,7 +3043,8 @@
                 pendingBonusHint: sanitizeBool(gameData.pendingBonusHint),
                 forcedNextDrop: sanitizeForcedNextDropValue(gameData.forcedNextDrop),
                 supportCurrentAgent: sanitizeSupportAgentId(gameData.supportCurrentAgent),
-                supportChatOpen: sanitizeBool(gameData.supportChatOpen)
+                supportChatOpen: sanitizeBool(gameData.supportChatOpen),
+                contractsWidgetOpen: sanitizeBool(gameData.contractsWidgetOpen)
             };
         }
 
@@ -3682,6 +4120,7 @@
                 // Обновляем интерфейс
                 updateDebtStatus();
             initializeSupportChat();
+            initializeContractsWidget();
                 document.getElementById('balance').textContent = balance; // Сразу обновляем отображение
                 saveGameData();
                 
@@ -3728,6 +4167,7 @@
             // 🚫 ПРОВЕРЯЕМ АРЕСТ ИНВЕНТАРЯ
             if (isBlocked) {
                 showArrestedInventory();
+                renderContractsWidget();
                 return;
             }
             
@@ -3779,6 +4219,8 @@
                 
                 inventoryGrid.appendChild(itemEl);
             });
+
+            renderContractsWidget();
         }
         
         // 🚫 ПОКАЗЫВАЕМ АРЕСТОВАННЫЙ ИНВЕНТАРЬ
@@ -5947,6 +6389,13 @@ ${(() => {
         let devAvatarPressTimer = null;
         let bugWarningClosed = false;
 
+
+        let contractsWidgetOpen = false;
+        let contractSelectedItems = [];
+
+        const CONTRACT_MIN_ITEMS = 3;
+        const CONTRACT_RANGE_MIN_MULTIPLIER = 0.7;
+        const CONTRACT_RANGE_MAX_MULTIPLIER = 1.3;
 
         const SUPPORT_AGENT_IDS = ['glist1', 'glist2', 'glist3'];
         const SUPPORT_AGENT_DATA = {
@@ -8893,6 +9342,403 @@ ${(() => {
         let bonusHintShown = false;
         let warningMessageShown = false; // Флаг для предупреждения о здоровье
         
+
+        function getContractCatalog() {
+            const catalogMap = new Map();
+
+            Object.values(items).forEach(caseItems => {
+                if (!Array.isArray(caseItems)) return;
+
+                caseItems.forEach(item => {
+                    if (!item || !item.name || !item.image) return;
+
+                    const key = `${item.name}__${item.image}`;
+                    if (!catalogMap.has(key)) {
+                        catalogMap.set(key, {
+                            name: item.name,
+                            image: item.image,
+                            rarity: item.rarity || 'common',
+                            value: sanitizeNumber(item.value, 0, 0, 99999999),
+                            chance: sanitizeNumber(item.chance, 0, 0, 100),
+                            casePrice: sanitizeNumber(item.value, 0, 0, 99999999)
+                        });
+                    }
+                });
+            });
+
+            return Array.from(catalogMap.values()).sort((a, b) => a.value - b.value);
+        }
+
+        function syncContractSelection() {
+            contractSelectedItems = contractSelectedItems.filter(item => inventory.includes(item));
+        }
+
+        function getContractSelectionSummary() {
+            syncContractSelection();
+
+            const totalValue = contractSelectedItems.reduce((sum, item) => sum + sanitizeNumber(item.value, 0, 0, 99999999), 0);
+            const minValue = Math.floor(totalValue * CONTRACT_RANGE_MIN_MULTIPLIER);
+            const maxValue = Math.ceil(totalValue * CONTRACT_RANGE_MAX_MULTIPLIER);
+            const eligibleItems = totalValue > 0
+                ? getContractCatalog().filter(item => item.value >= minValue && item.value <= maxValue)
+                : [];
+
+            return {
+                selectedCount: contractSelectedItems.length,
+                totalValue,
+                minValue,
+                maxValue,
+                eligibleItems
+            };
+        }
+
+        function setContractsStatus(message, type = 'info') {
+            const statusEl = document.getElementById('contractsStatus');
+            if (!statusEl) return;
+            statusEl.textContent = message;
+            statusEl.className = `contracts-status ${type}`;
+        }
+
+        function updateContractsWidgetState() {
+            const widget = document.getElementById('contractsWidget');
+            const subtitle = document.getElementById('contractsToggleSubtitle');
+            if (!widget || !subtitle) return;
+
+            widget.classList.toggle('expanded', contractsWidgetOpen);
+
+            const summary = getContractSelectionSummary();
+            if (summary.selectedCount > 0) {
+                subtitle.textContent = `Выбрано: ${summary.selectedCount} • ${summary.totalValue} ꙮ`;
+            } else {
+                subtitle.textContent = 'Обмен 3+ предметов в один';
+            }
+        }
+
+        function toggleContractsWidget() {
+            contractsWidgetOpen = !contractsWidgetOpen;
+            updateContractsWidgetState();
+            saveGameData();
+        }
+
+        function clearContractSelection(silent = false) {
+            contractSelectedItems = [];
+            renderContractsWidget();
+            if (!silent) {
+                setContractsStatus('Выбор контракта очищен.', 'info');
+            }
+        }
+
+        function selectContractCheapest() {
+            syncContractSelection();
+
+            if (isBlocked) {
+                setContractsStatus('Инвентарь арестован. Контракты временно заморожены.', 'error');
+                return;
+            }
+
+            if (inventory.length < CONTRACT_MIN_ITEMS) {
+                setContractsStatus('Слишком мало предметов для контракта. Нужно минимум 3.', 'error');
+                return;
+            }
+
+            const unselectedItems = inventory.filter(item => !contractSelectedItems.includes(item));
+            if (unselectedItems.length === 0) {
+                setContractsStatus('Все доступные предметы уже в контракте.', 'info');
+                return;
+            }
+
+            const cheapest = [...unselectedItems].sort((a, b) => (a.value || 0) - (b.value || 0))[0];
+            if (cheapest) {
+                contractSelectedItems.push(cheapest);
+                renderContractsWidget();
+                setContractsStatus(`Добавлен предмет "${cheapest.name}" (${cheapest.value} ꙮ).`, 'success');
+            }
+        }
+
+        function toggleContractItemByIndex(index) {
+            const item = inventory[index];
+            if (!item) return;
+
+            const existingIndex = contractSelectedItems.indexOf(item);
+            if (existingIndex >= 0) {
+                contractSelectedItems.splice(existingIndex, 1);
+            } else {
+                contractSelectedItems.push(item);
+            }
+
+            renderContractsWidget();
+        }
+
+        function renderContractsWidget() {
+            const inventoryContainer = document.getElementById('contractsInventory');
+            const selectedContainer = document.getElementById('contractsSelected');
+            const summaryEl = document.getElementById('contractsSummary');
+            const submitButton = document.getElementById('contractsSubmitButton');
+
+            if (!inventoryContainer || !selectedContainer || !summaryEl || !submitButton) {
+                return;
+            }
+
+            syncContractSelection();
+            updateContractsWidgetState();
+
+            const summary = getContractSelectionSummary();
+            const qualityBonus = Math.max(0, summary.selectedCount - CONTRACT_MIN_ITEMS) * 3;
+            const effectiveHighEdge = Math.min(130, 100 + qualityBonus);
+
+            summaryEl.innerHTML = `Выбрано: <strong>${summary.selectedCount}</strong> • Сумма: <strong>${summary.totalValue} ꙮ</strong><br>Диапазон награды: <strong>${summary.minValue}–${summary.maxValue} ꙮ</strong> • В каталоге подходит: <strong>${summary.eligibleItems.length}</strong><br>Бонус плотности: <strong>до ${effectiveHighEdge}%</strong> от суммы`;
+
+            selectedContainer.innerHTML = '';
+            if (summary.selectedCount === 0) {
+                const emptyState = document.createElement('div');
+                emptyState.className = 'contracts-empty-state';
+                emptyState.textContent = 'Пока ничего не выбрано';
+                selectedContainer.appendChild(emptyState);
+            } else {
+                contractSelectedItems.forEach(item => {
+                    const chip = document.createElement('div');
+                    chip.className = 'contracts-chip';
+                    chip.textContent = `${item.name} • ${item.value} ꙮ`;
+                    selectedContainer.appendChild(chip);
+                });
+            }
+
+            inventoryContainer.innerHTML = '';
+            if (inventory.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'contracts-empty-state';
+                empty.textContent = 'Инвентарь пуст. Контрактовать пока нечего.';
+                inventoryContainer.appendChild(empty);
+            } else if (isBlocked) {
+                const blocked = document.createElement('div');
+                blocked.className = 'contracts-empty-state';
+                blocked.textContent = 'Инвентарь арестован СПО. Контракты временно отключены.';
+                inventoryContainer.appendChild(blocked);
+            } else {
+                inventory.forEach((item, index) => {
+                    const row = document.createElement('button');
+                    row.type = 'button';
+                    row.className = 'contract-item';
+                    if (contractSelectedItems.includes(item)) {
+                        row.classList.add('selected');
+                    }
+
+                    row.addEventListener('click', () => toggleContractItemByIndex(index));
+
+                    const icon = document.createElement('div');
+                    icon.className = 'contract-item-icon';
+                    const iconColor = getDropValueColor(item, item.casePrice || 200);
+                    icon.style.backgroundColor = iconColor;
+                    icon.style.border = `2px solid ${iconColor}`;
+                    loadDropImage(icon, item.image);
+
+                    const text = document.createElement('div');
+                    text.className = 'contract-item-text';
+
+                    const name = document.createElement('div');
+                    name.className = 'contract-item-name';
+                    name.textContent = item.name;
+
+                    const meta = document.createElement('div');
+                    meta.className = 'contract-item-meta';
+                    meta.textContent = `${item.rarity || 'common'} • ${contractSelectedItems.includes(item) ? 'в контракте' : 'свободен'}`;
+
+                    text.appendChild(name);
+                    text.appendChild(meta);
+
+                    const price = document.createElement('div');
+                    price.className = 'contract-item-price';
+                    price.textContent = `${item.value} ꙮ`;
+
+                    row.appendChild(icon);
+                    row.appendChild(text);
+                    row.appendChild(price);
+
+                    inventoryContainer.appendChild(row);
+                });
+            }
+
+            submitButton.disabled = isBlocked || summary.selectedCount < CONTRACT_MIN_ITEMS || summary.eligibleItems.length === 0;
+            if (isBlocked) {
+                setContractsStatus('Инвентарь арестован. Контракты недоступны до разблокировки.', 'error');
+            } else if (inventory.length < CONTRACT_MIN_ITEMS) {
+                setContractsStatus('Для контракта нужно минимум 3 предмета.', 'info');
+            } else if (summary.selectedCount < CONTRACT_MIN_ITEMS) {
+                setContractsStatus('Выбери минимум 3 предмета.', 'info');
+            } else if (summary.eligibleItems.length === 0) {
+                setContractsStatus('Для такой суммы нет подходящих наград. Попробуй другую комбинацию.', 'error');
+            }
+        }
+
+        function chooseWeightedContractItem(eligibleItems, totalValue, selectedCount) {
+            const upwardBias = Math.min(0.18, Math.max(0, selectedCount - CONTRACT_MIN_ITEMS) * 0.03);
+            const targetMultiplier = 0.96 + upwardBias + (Math.random() * 0.18 - 0.09);
+            const targetValue = totalValue * targetMultiplier;
+
+            const weightedItems = eligibleItems.map(item => {
+                const distance = Math.abs(item.value - targetValue);
+                const normalizedDistance = distance / Math.max(totalValue * 0.34, 60);
+                let weight = 1 + Math.max(0.15, 2.1 - normalizedDistance);
+
+                if (item.value >= totalValue) {
+                    weight *= 1.08 + upwardBias;
+                }
+                if (item.value <= totalValue * 0.82) {
+                    weight *= 0.72;
+                }
+                if (item.value >= totalValue * 1.2) {
+                    weight *= 0.82;
+                }
+
+                const rarityFactor = {
+                    common: 0.96,
+                    rare: 1.03,
+                    epic: 1.08,
+                    legendary: 1.12
+                }[item.rarity] || 1;
+
+                weight *= rarityFactor;
+
+                return { item, weight: Math.max(weight, 0.05) };
+            });
+
+            const totalWeight = weightedItems.reduce((sum, entry) => sum + entry.weight, 0);
+            let randomPoint = Math.random() * totalWeight;
+
+            for (const entry of weightedItems) {
+                randomPoint -= entry.weight;
+                if (randomPoint <= 0) {
+                    return {
+                        ...entry.item,
+                        casePrice: totalValue,
+                        fromContract: true
+                    };
+                }
+            }
+
+            const fallback = weightedItems[weightedItems.length - 1]?.item || eligibleItems[eligibleItems.length - 1];
+            return {
+                ...fallback,
+                casePrice: totalValue,
+                fromContract: true
+            };
+        }
+
+        function playContractRewardSound() {
+            if (!soundEnabled || soundsGloballyBlocked) {
+                return;
+            }
+
+            try {
+                const audio = new Audio('drop_sound.mp3');
+                audio.volume = 0.4;
+                audio.play().catch(() => {});
+            } catch (e) {
+                console.log('⚠️ Не удалось воспроизвести звук контракта:', e);
+            }
+        }
+
+        function showContractResultModal(rewardItem, totalValue, selectedCount) {
+            const modal = document.getElementById('contractResultModal');
+            const icon = document.getElementById('contractResultIcon');
+            const name = document.getElementById('contractResultName');
+            const value = document.getElementById('contractResultValue');
+            const note = document.getElementById('contractResultNote');
+
+            if (!modal || !icon || !name || !value || !note) return;
+
+            const resultColor = getDropValueColor(rewardItem, totalValue || rewardItem.casePrice || 200);
+            icon.style.backgroundColor = resultColor;
+            icon.style.border = `3px solid ${resultColor}`;
+            loadDropImage(icon, rewardItem.image);
+
+            name.textContent = rewardItem.name;
+            value.textContent = `${rewardItem.value} ꙮ`;
+
+            const diff = rewardItem.value - totalValue;
+            const diffLabel = diff === 0
+                ? 'ровно в ноль'
+                : diff > 0
+                    ? `в плюс на ${diff} ꙮ`
+                    : `в минус на ${Math.abs(diff)} ꙮ`;
+
+            note.textContent = `Сожжено предметов: ${selectedCount}. Сумма контракта: ${totalValue} ꙮ. Итог вышел ${diffLabel}.`;
+
+            modal.classList.add('active');
+        }
+
+        function closeContractResultModal() {
+            const modal = document.getElementById('contractResultModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        function handleContractResultBackdrop(event) {
+            if (event.target && event.target.id === 'contractResultModal') {
+                closeContractResultModal();
+            }
+        }
+
+        function executeContract() {
+            syncContractSelection();
+
+            if (isBlocked) {
+                setContractsStatus('Инвентарь арестован. Контракт не может быть выполнен.', 'error');
+                return;
+            }
+
+            if (contractSelectedItems.length < CONTRACT_MIN_ITEMS) {
+                setContractsStatus('Нужно выбрать минимум 3 предмета.', 'error');
+                return;
+            }
+
+            const summary = getContractSelectionSummary();
+            if (summary.eligibleItems.length === 0) {
+                setContractsStatus('Для выбранной суммы нет подходящих наград.', 'error');
+                return;
+            }
+
+            const selectedSet = new Set(contractSelectedItems);
+            const newInventory = [];
+            inventory.forEach(item => {
+                if (!selectedSet.has(item)) {
+                    newInventory.push(item);
+                }
+            });
+
+            const rewardItem = chooseWeightedContractItem(summary.eligibleItems, summary.totalValue, summary.selectedCount);
+
+            inventory = newInventory;
+            inventory.push({
+                name: rewardItem.name,
+                image: rewardItem.image,
+                rarity: rewardItem.rarity,
+                value: rewardItem.value,
+                casePrice: summary.totalValue
+            });
+
+            contractSelectedItems = [];
+            updateInventory();
+            addToWinglist({
+                name: rewardItem.name,
+                image: rewardItem.image,
+                rarity: rewardItem.rarity,
+                value: rewardItem.value,
+                casePrice: summary.totalValue
+            });
+            saveGameData();
+            playContractRewardSound();
+            showContractResultModal(rewardItem, summary.totalValue, summary.selectedCount);
+            setContractsStatus(`Контракт отработал: получен "${rewardItem.name}" за ${rewardItem.value} ꙮ.`, 'success');
+        }
+
+        function initializeContractsWidget() {
+            updateContractsWidgetState();
+            renderContractsWidget();
+        }
+
+
         function saveGameData() {
             const gameData = {
                 version: GAME_DATA_VERSION,
@@ -8920,7 +9766,8 @@ ${(() => {
                 pendingBonusHint,
                 forcedNextDrop,
                 supportCurrentAgent,
-                supportChatOpen
+                supportChatOpen,
+                contractsWidgetOpen
             };
             
             try {
@@ -8965,6 +9812,7 @@ ${(() => {
                     forcedNextDrop = gameData.forcedNextDrop;
                     supportCurrentAgent = gameData.supportCurrentAgent;
                     supportChatOpen = gameData.supportChatOpen;
+                    contractsWidgetOpen = gameData.contractsWidgetOpen;
                     
                     console.log('📦 Данные игры загружены:', {
                         version: gameData.version,
