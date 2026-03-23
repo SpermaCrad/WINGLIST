@@ -7272,10 +7272,25 @@ function activatePromocode(options = {}) {
         socialRating = 100;
         luckySpinCharges = Math.min(99, luckySpinCharges + 2);
         nextCaseCashbackActive = true;
+        if (typeof buildCaseVoucherItem === 'function') {
+            inventory.push(buildCaseVoucherItem(5, 'Глист', getCasePriceByType(5) || 130));
+        } else {
+            inventory.push({
+                name: '🎁 Глист',
+                image: 'casevoucher_5',
+                rarity: 'legendary',
+                value: getCasePriceByType(5) || 130,
+                itemType: 'case_voucher',
+                usableCaseType: 5,
+                usableCaseName: 'Глист',
+                usableCasePrice: getCasePriceByType(5) || 130
+            });
+        }
         updateBalance();
         updateDebtStatus();
+        if (typeof updateInventory === 'function') updateInventory();
         hideBlockBanner();
-        showPromocodeMessage('🔥 IVA STUDIO активирован! +15000 ꙮ, долги сняты, рейтинг 100, 2x LUCKY и CASEBACK готовы!', 'success');
+        showPromocodeMessage('🔥 IVA STUDIO активирован! +15000 ꙮ, долги сняты, рейтинг 100, 2x LUCKY, CASEBACK и бесплатный кейс «Глист» выданы!', 'success', 8200);
         markUsed();
         finishPromo();
         return true;
@@ -10281,5 +10296,1964 @@ function repent() {
             document.getElementById('noDropsModal').classList.add('active');
         }
     </script>
+
+<script id="oai-contract-promo-fixes">
+(function() {
+    const CASE_VOUCHER_TYPE = 'case_voucher';
+    const IVA_LOGO_FILES = ['Iva.png', 'Iva2.png', 'Iva3.png'];
+    const DEFAULT_PROMO_TOAST_DURATION = 5600;
+    let bonusHintLock = false;
+    let lastRouletteResultItem = null;
+
+    function isCaseVoucherItem(item) {
+        return !!item && item.itemType === CASE_VOUCHER_TYPE && Number.isFinite(Number(item.usableCaseType));
+    }
+
+    function getCasePriceByType(caseType) {
+        const caseEl = document.querySelector(`.case[data-case="${caseType}"]`);
+        if (caseEl) {
+            const parsed = Number(caseEl.dataset.price);
+            if (Number.isFinite(parsed)) return parsed;
+        }
+        return 0;
+    }
+
+    function getCaseNameByType(caseType) {
+        const caseEl = document.querySelector(`.case[data-case="${caseType}"] .case-name`);
+        if (caseEl && caseEl.textContent.trim()) {
+            return caseEl.textContent.trim();
+        }
+        return `Кейс ${caseType}`;
+    }
+
+    function buildCaseVoucherItem(caseType, caseName, casePrice) {
+        const numericCaseType = Number(caseType);
+        const safePrice = Number.isFinite(Number(casePrice)) ? Number(casePrice) : getCasePriceByType(numericCaseType);
+        const safeName = (caseName || getCaseNameByType(numericCaseType) || `Кейс ${numericCaseType}`).trim();
+        return {
+            name: `🎁 ${safeName}`,
+            image: `casevoucher_${numericCaseType}`,
+            rarity: 'legendary',
+            value: safePrice,
+            itemType: CASE_VOUCHER_TYPE,
+            usableCaseType: numericCaseType,
+            usableCaseName: safeName,
+            usableCasePrice: safePrice
+        };
+    }
+
+    function getContractableInventoryItems() {
+        return inventory.filter(item => !isCaseVoucherItem(item));
+    }
+
+    const originalSanitizeInventoryItem = window.sanitizeInventoryItem;
+    window.sanitizeInventoryItem = function(item, index = 0) {
+        if (!item || typeof item !== 'object') {
+            return null;
+        }
+
+        const itemType = sanitizeText(item.itemType || '');
+        if (itemType === CASE_VOUCHER_TYPE) {
+            const usableCaseType = sanitizeInt(item.usableCaseType, NaN, 1, 999);
+            if (!Number.isFinite(usableCaseType)) {
+                return null;
+            }
+
+            const usableCaseName = sanitizeText(item.usableCaseName, getCaseNameByType(usableCaseType));
+            const usableCasePrice = sanitizeNumber(item.usableCasePrice, getCasePriceByType(usableCaseType), 0, 99999999);
+            const value = sanitizeNumber(item.value, usableCasePrice, 0, 99999999);
+            const image = sanitizeText(item.image, `casevoucher_${usableCaseType}`) || `casevoucher_${usableCaseType}`;
+
+            return {
+                name: sanitizeText(item.name, `🎁 ${usableCaseName}`) || `🎁 ${usableCaseName}`,
+                image,
+                rarity: 'legendary',
+                value,
+                itemType: CASE_VOUCHER_TYPE,
+                usableCaseType,
+                usableCaseName,
+                usableCasePrice,
+                _index: index
+            };
+        }
+
+        return originalSanitizeInventoryItem ? originalSanitizeInventoryItem(item, index) : null;
+    };
+
+    function ensureIvaCinematicStyles() {
+        if (document.getElementById('iva-studio-cinematic-style')) return;
+        const style = document.createElement('style');
+        style.id = 'iva-studio-cinematic-style';
+        style.textContent = `
+            @keyframes ivaStudioOverlayIn {
+                0% { opacity: 0; }
+                100% { opacity: 1; }
+            }
+            @keyframes ivaStudioLogoPulse {
+                0% { transform: scale(0.72) rotate(-6deg); filter: blur(10px) brightness(0.7); opacity: 0; }
+                18% { transform: scale(1.08) rotate(2deg); filter: blur(0px) brightness(1.25); opacity: 1; }
+                45% { transform: scale(0.97) rotate(0deg); filter: blur(0px) brightness(1.15); opacity: 1; }
+                100% { transform: scale(1) rotate(0deg); filter: blur(0px) brightness(1); opacity: 1; }
+            }
+            @keyframes ivaStudioGlowRing {
+                0% { transform: translate(-50%, -50%) scale(0.45); opacity: 0.85; }
+                100% { transform: translate(-50%, -50%) scale(1.4); opacity: 0; }
+            }
+            @keyframes ivaStudioTitleSlide {
+                0% { opacity: 0; transform: translateY(26px) scale(0.92); letter-spacing: 6px; }
+                100% { opacity: 1; transform: translateY(0) scale(1); letter-spacing: 2px; }
+            }
+            .iva-studio-cinematic-overlay {
+                position: fixed;
+                inset: 0;
+                z-index: 10030;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background:
+                    radial-gradient(circle at center, rgba(173, 44, 255, 0.18), rgba(0,0,0,0.88) 55%),
+                    linear-gradient(135deg, rgba(23,11,42,0.94), rgba(0,0,0,0.96));
+                animation: ivaStudioOverlayIn 0.35s ease-out;
+                overflow: hidden;
+                pointer-events: none;
+            }
+            .iva-studio-cinematic-core {
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 18px;
+                width: min(78vw, 760px);
+                max-width: 760px;
+                text-align: center;
+            }
+            .iva-studio-cinematic-ring {
+                position: absolute;
+                left: 50%;
+                top: 44%;
+                width: min(42vw, 340px);
+                height: min(42vw, 340px);
+                border-radius: 50%;
+                border: 2px solid rgba(255,255,255,0.32);
+                box-shadow: 0 0 35px rgba(162, 52, 255, 0.4), inset 0 0 25px rgba(255, 0, 136, 0.22);
+                animation: ivaStudioGlowRing 1.45s ease-out infinite;
+            }
+            .iva-studio-cinematic-ring:nth-child(2) { animation-delay: 0.28s; }
+            .iva-studio-cinematic-ring:nth-child(3) { animation-delay: 0.56s; }
+            .iva-studio-logo-shell {
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 340px;
+                width: min(76vw, 650px);
+            }
+            .iva-studio-logo-img,
+            .iva-studio-logo-fallback {
+                position: relative;
+                max-width: min(76vw, 620px);
+                max-height: min(52vh, 420px);
+                width: auto;
+                height: auto;
+                animation: ivaStudioLogoPulse 0.95s cubic-bezier(.18,.89,.32,1.28) both;
+                filter: drop-shadow(0 0 28px rgba(187, 66, 255, 0.45)) drop-shadow(0 0 46px rgba(255, 0, 136, 0.22));
+                user-select: none;
+                -webkit-user-drag: none;
+            }
+            .iva-studio-logo-fallback {
+                font-size: clamp(52px, 10vw, 110px);
+                font-weight: 900;
+                background: linear-gradient(135deg, #7a2cff 0%, #ff008c 100%);
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+                text-shadow: 0 0 18px rgba(255,255,255,0.08);
+            }
+            .iva-studio-title {
+                font-size: clamp(28px, 4vw, 54px);
+                font-weight: 900;
+                letter-spacing: 2px;
+                color: #ffffff;
+                text-shadow: 0 0 18px rgba(173, 44, 255, 0.42), 0 0 30px rgba(255, 0, 136, 0.24);
+                animation: ivaStudioTitleSlide 0.65s ease-out 0.18s both;
+            }
+            .iva-studio-subtitle {
+                font-size: clamp(13px, 1.55vw, 18px);
+                color: rgba(255,255,255,0.86);
+                max-width: min(78vw, 680px);
+                line-height: 1.35;
+                opacity: 0;
+                animation: ivaStudioTitleSlide 0.55s ease-out 0.35s both;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function playIvaStudioCinematic() {
+        ensureIvaCinematicStyles();
+
+        const existing = document.getElementById('iva-studio-cinematic-overlay');
+        if (existing && existing.parentNode) {
+            existing.parentNode.removeChild(existing);
+        }
+
+        const overlay = document.createElement('div');
+        overlay.id = 'iva-studio-cinematic-overlay';
+        overlay.className = 'iva-studio-cinematic-overlay';
+
+        const core = document.createElement('div');
+        core.className = 'iva-studio-cinematic-core';
+
+        for (let i = 0; i < 3; i++) {
+            const ring = document.createElement('div');
+            ring.className = 'iva-studio-cinematic-ring';
+            core.appendChild(ring);
+        }
+
+        const shell = document.createElement('div');
+        shell.className = 'iva-studio-logo-shell';
+        const fallback = document.createElement('div');
+        fallback.className = 'iva-studio-logo-fallback';
+        fallback.textContent = 'IVA STUDIO';
+        shell.appendChild(fallback);
+        core.appendChild(shell);
+
+        const title = document.createElement('div');
+        title.className = 'iva-studio-title';
+        title.textContent = 'IVA STUDIO';
+        core.appendChild(title);
+
+        const subtitle = document.createElement('div');
+        subtitle.className = 'iva-studio-subtitle';
+        subtitle.textContent = 'Промокод канала активирован. Баланс раздут, долги сняты, удача выкручена вверх.';
+        core.appendChild(subtitle);
+
+        overlay.appendChild(core);
+        document.body.appendChild(overlay);
+
+        const loadedImages = [];
+        let settled = 0;
+
+        const finalizeImages = () => {
+            if (loadedImages.length > 0) {
+                fallback.style.display = 'none';
+                const img = document.createElement('img');
+                img.className = 'iva-studio-logo-img';
+                img.src = loadedImages[0];
+                img.alt = 'IVA STUDIO';
+                shell.insertBefore(img, fallback);
+                if (loadedImages.length > 1) {
+                    let currentIndex = 0;
+                    const cycle = setInterval(() => {
+                        currentIndex = (currentIndex + 1) % loadedImages.length;
+                        img.src = loadedImages[currentIndex];
+                    }, 650);
+                    overlay.dataset.cycleId = String(cycle);
+                }
+            }
+        };
+
+        IVA_LOGO_FILES.forEach(src => {
+            const testImg = new Image();
+            testImg.onload = () => {
+                loadedImages.push(src);
+                settled += 1;
+                if (settled === IVA_LOGO_FILES.length) finalizeImages();
+            };
+            testImg.onerror = () => {
+                settled += 1;
+                if (settled === IVA_LOGO_FILES.length) finalizeImages();
+            };
+            testImg.src = src;
+        });
+
+        setTimeout(() => {
+            const cycleId = Number(overlay.dataset.cycleId || '0');
+            if (cycleId) {
+                clearInterval(cycleId);
+            }
+            overlay.style.transition = 'opacity 0.35s ease';
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                if (overlay.parentNode) {
+                    overlay.parentNode.removeChild(overlay);
+                }
+            }, 380);
+        }, 3150);
+    }
+
+    function getPromoToastContainer() {
+        let container = document.getElementById('promo-toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'promo-toast-container';
+            container.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                z-index: 10009;
+                pointer-events: none;
+                width: min(380px, calc(100vw - 24px));
+            `;
+            document.body.appendChild(container);
+        }
+        return container;
+    }
+
+    window.showPromoToast = function(message, type = 'info', durationMs = DEFAULT_PROMO_TOAST_DURATION) {
+        const container = getPromoToastContainer();
+        const toastEl = document.createElement('div');
+        const background = type === 'success'
+            ? 'linear-gradient(135deg, #27ae60, #229954)'
+            : type === 'warning'
+                ? 'linear-gradient(135deg, #f39c12, #d68910)'
+                : type === 'error'
+                    ? 'linear-gradient(135deg, #e74c3c, #c0392b)'
+                    : 'linear-gradient(135deg, #8e44ad, #6c3483)';
+
+        toastEl.style.cssText = `
+            background: ${background};
+            color: white;
+            padding: 15px 18px;
+            border-radius: 12px;
+            font-weight: bold;
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.38);
+            border: 2px solid rgba(255,255,255,0.25);
+            animation: promoToastSlide 0.35s ease-out;
+            font-size: 14px;
+            line-height: 1.4;
+            white-space: pre-line;
+            pointer-events: auto;
+        `;
+        toastEl.textContent = message;
+
+        if (!document.getElementById('promo-toast-style')) {
+            const style = document.createElement('style');
+            style.id = 'promo-toast-style';
+            style.textContent = `
+                @keyframes promoToastSlide {
+                    0% { transform: translateX(-100%); opacity: 0; }
+                    100% { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes promoToastHide {
+                    0% { transform: translateX(0); opacity: 1; }
+                    100% { transform: translateX(-100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        container.appendChild(toastEl);
+        setTimeout(() => {
+            if (toastEl.parentNode) {
+                toastEl.style.animation = 'promoToastHide 0.3s ease-in forwards';
+                setTimeout(() => {
+                    if (toastEl.parentNode) {
+                        toastEl.parentNode.removeChild(toastEl);
+                    }
+                }, 300);
+            }
+        }, durationMs);
+    };
+
+    window.showPromocodeMessage = function(message, type = 'info', durationMs = DEFAULT_PROMO_TOAST_DURATION) {
+        const promocodeMessage = document.getElementById('promocodeMessage');
+        if (promocodeMessage) {
+            promocodeMessage.textContent = message;
+            promocodeMessage.style.display = 'block';
+            promocodeMessage.style.color = type === 'success'
+                ? '#27ae60'
+                : type === 'error'
+                    ? '#e74c3c'
+                    : type === 'warning'
+                        ? '#f39c12'
+                        : '#8e44ad';
+            setTimeout(() => {
+                promocodeMessage.style.display = 'none';
+            }, Math.max(3000, durationMs - 500));
+        }
+        showPromoToast(message, type, durationMs);
+    };
+
+    window.checkZeroBalance = function() {
+        if (bonusHintLock) {
+            return;
+        }
+
+        const rouletteSection = document.getElementById('rouletteSection');
+        const rouletteActive = rouletteProtection || (!!rouletteSection && rouletteSection.classList.contains('active'));
+
+        if (balance !== 0) {
+            if (pendingBonusHint) {
+                pendingBonusHint = false;
+                saveGameData();
+            }
+            return;
+        }
+
+        if (balance === 0 && !bonusHintShown && !rouletteActive) {
+            showBonusHint();
+        } else if (balance === 0 && !bonusHintShown && rouletteActive) {
+            pendingBonusHint = true;
+            saveGameData();
+        }
+    };
+
+    const originalShowResult = window.showResult;
+    window.showResult = function(item) {
+        if (item) {
+            try {
+                lastRouletteResultItem = JSON.parse(JSON.stringify(item));
+            } catch (e) {
+                lastRouletteResultItem = { ...item };
+            }
+        }
+        originalShowResult(item);
+        const rouletteResult = document.getElementById('rouletteResult');
+        if (rouletteResult) {
+            rouletteResult.style.pointerEvents = 'auto';
+            rouletteResult.style.zIndex = '10005';
+        }
+        document.querySelectorAll('#rouletteResult button').forEach(btn => {
+            btn.disabled = false;
+            btn.style.pointerEvents = 'auto';
+        });
+    };
+
+    const originalHideResult = window.hideResult;
+    window.hideResult = function() {
+        originalHideResult();
+        bonusHintLock = false;
+        lastRouletteResultItem = null;
+    };
+
+    const originalKeepItem = window.keepItem;
+    window.keepItem = function() {
+        if (!currentItem && lastRouletteResultItem) {
+            currentItem = { ...lastRouletteResultItem };
+        }
+        originalKeepItem();
+    };
+
+    const originalSellItem = window.sellItem;
+    window.sellItem = function() {
+        if (!currentItem && lastRouletteResultItem) {
+            currentItem = { ...lastRouletteResultItem };
+        }
+        originalSellItem();
+    };
+
+    const originalOpenCase = window.openCase;
+    window.openCase = function(caseType, price, options = {}) {
+        const opts = options && typeof options === 'object' ? options : {};
+        const numericPrice = Number(price) || 0;
+        const useFreeVoucher = !!opts.freeVoucher;
+        const consumeVoucherIndex = Number.isInteger(opts.consumeVoucherIndex) ? opts.consumeVoucherIndex : null;
+        const sessionBefore = rouletteSessionId;
+        const shouldLockBonus = (balance >= numericPrice) || useFreeVoucher;
+        const luckyBefore = luckySpinCharges;
+        const cashbackBefore = !!nextCaseCashbackActive && !useFreeVoucher;
+
+        if (shouldLockBonus) {
+            bonusHintLock = true;
+        }
+
+        if (useFreeVoucher) {
+            balance += numericPrice;
+        }
+
+        originalOpenCase(caseType, price);
+        const success = rouletteSessionId !== sessionBefore;
+
+        if (!success) {
+            if (useFreeVoucher) {
+                balance = Math.max(0, balance - numericPrice);
+                updateBalance();
+            }
+            bonusHintLock = false;
+            return;
+        }
+
+        if (useFreeVoucher && consumeVoucherIndex !== null && inventory[consumeVoucherIndex] && isCaseVoucherItem(inventory[consumeVoucherIndex])) {
+            inventory.splice(consumeVoucherIndex, 1);
+            updateInventory();
+            saveGameData();
+            showPromoToast(`🎁 Бесплатный кейс «${getCaseNameByType(caseType)}» запущен из инвентаря.`, 'success', 6200);
+        }
+
+        if (cashbackBefore) {
+            nextCaseCashbackActive = false;
+            balance += numericPrice;
+            updateBalance();
+            saveGameData();
+            showPromoToast(`🔁 CASEBACK сработал! ${numericPrice} ꙮ полностью вернулись за кейс «${getCaseNameByType(caseType)}».`, 'success', 6800);
+        }
+
+        if (luckyBefore > 0) {
+            setTimeout(() => {
+                showPromoToast(`🍀 LUCKY был применён к кейсу «${getCaseNameByType(caseType)}». Это буст шансов на дорогой дроп, а не 100% легендарка.`, 'success', 6200);
+            }, 420);
+        }
+    };
+
+    function ensureCaseVoucherButton() {
+        const buttonsWrap = document.querySelector('#itemMenuModal .item-menu-buttons');
+        if (!buttonsWrap || document.getElementById('openCaseVoucherBtn')) return;
+
+        const voucherBtn = document.createElement('button');
+        voucherBtn.id = 'openCaseVoucherBtn';
+        voucherBtn.className = 'btn btn-success';
+        voucherBtn.textContent = 'Открыть кейс';
+        voucherBtn.style.display = 'none';
+        voucherBtn.onclick = function() {
+            openCaseVoucherFromMenu();
+        };
+        buttonsWrap.insertBefore(voucherBtn, buttonsWrap.firstChild);
+    }
+
+    window.updateInventory = function() {
+        const inventoryGrid = document.getElementById('inventoryGrid');
+        inventoryGrid.innerHTML = '';
+
+        if (isBlocked) {
+            showArrestedInventory();
+            renderContractsWidget();
+            return;
+        }
+
+        inventory.forEach((item, index) => {
+            const itemEl = document.createElement('div');
+            itemEl.className = 'inventory-item';
+            itemEl.style.cursor = 'pointer';
+
+            const iconEl = document.createElement('div');
+            const isVoucher = isCaseVoucherItem(item);
+            const iconColor = isVoucher ? '#8e44ad' : getDropValueColor(item, item.casePrice || 200);
+            iconEl.className = `inventory-item-icon ${isVoucher ? 'legendary' : (item.rarity || 'common')}`;
+            iconEl.style.cssText = `
+                width: 60px;
+                height: 60px;
+                margin: 0 auto 8px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: ${isVoucher ? '26px' : '30px'};
+                background-size: cover;
+                background-position: center;
+                background-color: ${iconColor};
+                border: 3px solid ${iconColor};
+                box-shadow: 0 0 10px ${iconColor}40;
+                position: relative;
+                overflow: hidden;
+            `;
+
+            if (isVoucher) {
+                iconEl.textContent = '🎁';
+                const small = document.createElement('div');
+                small.textContent = (item.usableCaseName || 'Кейс').slice(0, 6);
+                small.style.cssText = 'position:absolute;bottom:2px;left:0;right:0;font-size:9px;font-weight:bold;color:#fff;text-shadow:1px 1px 2px rgba(0,0,0,0.75);';
+                iconEl.appendChild(small);
+            } else {
+                loadDropImage(iconEl, item.image);
+            }
+
+            itemEl.addEventListener('click', () => openItemMenu(index));
+            itemEl.appendChild(iconEl);
+
+            const nameEl = document.createElement('div');
+            nameEl.textContent = isVoucher ? `Бесплатный ${item.usableCaseName || 'кейс'}` : item.name;
+            nameEl.style.cssText = 'font-size: 12px; text-align: center; margin-bottom: 4px; word-wrap: break-word; line-height: 1.2; max-width: 100px;';
+            itemEl.appendChild(nameEl);
+
+            const valueEl = document.createElement('div');
+            valueEl.textContent = isVoucher ? `Открыть → ${item.usableCasePrice || item.value || 0} ꙮ` : `${item.value} ꙮ`;
+            valueEl.style.cssText = 'color: #ffd700; font-size: 11px; text-align: center; font-weight: bold;';
+            itemEl.appendChild(valueEl);
+
+            inventoryGrid.appendChild(itemEl);
+        });
+
+        renderContractsWidget();
+    };
+
+    window.openItemMenu = function(index) {
+        if (isBlocked) {
+            showArrestMessage();
+            return;
+        }
+
+        if (index < 0 || index >= inventory.length) return;
+        selectedInventoryIndex = index;
+        const item = inventory[index];
+
+        const itemMenuModal = document.getElementById('itemMenuModal');
+        const itemMenuImage = document.getElementById('itemMenuImage');
+        const itemMenuName = document.getElementById('itemMenuName');
+        const itemMenuValue = document.getElementById('itemMenuValue');
+        const sellButton = itemMenuModal.querySelector('.btn.btn-warning');
+        const openVoucherBtn = document.getElementById('openCaseVoucherBtn');
+
+        const isVoucher = isCaseVoucherItem(item);
+        const color = isVoucher ? '#8e44ad' : getDropValueColor(item, item.casePrice || 200);
+        itemMenuImage.style.background = color;
+        itemMenuImage.style.border = `3px solid ${color}`;
+        itemMenuImage.style.boxShadow = `0 0 15px ${color}40`;
+        itemMenuImage.innerHTML = '';
+        itemMenuImage.style.display = 'flex';
+        itemMenuImage.style.alignItems = 'center';
+        itemMenuImage.style.justifyContent = 'center';
+        itemMenuImage.style.fontSize = isVoucher ? '58px' : '';
+
+        if (isVoucher) {
+            itemMenuImage.textContent = '🎁';
+            itemMenuName.textContent = `Бесплатный кейс: ${item.usableCaseName || getCaseNameByType(item.usableCaseType)}`;
+            itemMenuValue.textContent = `Запуск без оплаты • обычная цена ${item.usableCasePrice || item.value || 0} ꙮ`;
+            if (sellButton) sellButton.style.display = 'none';
+            if (openVoucherBtn) openVoucherBtn.style.display = 'inline-flex';
+        } else {
+            loadDropImage(itemMenuImage, item.image);
+            itemMenuName.textContent = item.name;
+            itemMenuValue.textContent = `Стоимость: ${item.value} ꙮ`;
+            if (sellButton) sellButton.style.display = 'inline-flex';
+            if (openVoucherBtn) openVoucherBtn.style.display = 'none';
+        }
+
+        itemMenuModal.classList.add('active');
+    };
+
+    window.openCaseVoucherFromMenu = function() {
+        if (selectedInventoryIndex < 0 || selectedInventoryIndex >= inventory.length) {
+            return;
+        }
+        const item = inventory[selectedInventoryIndex];
+        if (!isCaseVoucherItem(item)) {
+            return;
+        }
+        const caseType = Number(item.usableCaseType);
+        const casePrice = Number(item.usableCasePrice) || getCasePriceByType(caseType);
+        const voucherIndex = selectedInventoryIndex;
+        closeItemMenu();
+        openCase(caseType, casePrice, {
+            freeVoucher: true,
+            consumeVoucherIndex: voucherIndex,
+            visualPrice: casePrice,
+            voucherName: item.name
+        });
+    };
+
+    window.syncContractSelection = function() {
+        contractSelectedItems = contractSelectedItems.filter(item => inventory.includes(item) && !isCaseVoucherItem(item));
+    };
+
+    window.getContractSelectionSummary = function() {
+        syncContractSelection();
+        const totalValue = contractSelectedItems.reduce((sum, item) => sum + sanitizeNumber(item.value, 0, 0, 99999999), 0);
+        const minValue = Math.floor(totalValue * CONTRACT_RANGE_MIN_MULTIPLIER);
+        const maxValue = Math.ceil(totalValue * CONTRACT_RANGE_MAX_MULTIPLIER);
+        const eligibleItems = totalValue > 0
+            ? getContractCatalog().filter(item => item.value >= minValue && item.value <= maxValue)
+            : [];
+        return {
+            selectedCount: contractSelectedItems.length,
+            totalValue,
+            minValue,
+            maxValue,
+            eligibleItems
+        };
+    };
+
+    window.toggleContractItemByIndex = function(index) {
+        const item = inventory[index];
+        if (!item || isCaseVoucherItem(item)) return;
+        const existingIndex = contractSelectedItems.indexOf(item);
+        if (existingIndex >= 0) {
+            contractSelectedItems.splice(existingIndex, 1);
+        } else {
+            contractSelectedItems.push(item);
+        }
+        renderContractsWidget();
+    };
+
+    window.selectContractCheapest = function() {
+        syncContractSelection();
+
+        if (isBlocked) {
+            setContractsStatus('Инвентарь арестован. Контракты временно заморожены.', 'error');
+            return;
+        }
+
+        const contractable = getContractableInventoryItems();
+        if (contractable.length < CONTRACT_MIN_ITEMS) {
+            setContractsStatus('Слишком мало обычных предметов для контракта. Нужно минимум 3.', 'error');
+            return;
+        }
+
+        const unselectedItems = contractable.filter(item => !contractSelectedItems.includes(item));
+        if (unselectedItems.length === 0) {
+            setContractsStatus('Все доступные предметы уже в контракте.', 'info');
+            return;
+        }
+
+        const targetCount = contractSelectedItems.length < CONTRACT_MIN_ITEMS
+            ? Math.max(CONTRACT_MIN_ITEMS - contractSelectedItems.length, 1)
+            : Math.min(6, unselectedItems.length);
+
+        const toAdd = [...unselectedItems]
+            .sort((a, b) => (a.value || 0) - (b.value || 0))
+            .slice(0, targetCount);
+
+        toAdd.forEach(item => contractSelectedItems.push(item));
+        renderContractsWidget();
+        setContractsStatus(`Добавлено дешёвых предметов: ${toAdd.length}. Самый дорогой из них: ${Math.max(...toAdd.map(item => item.value || 0))} ꙮ.`, 'success');
+    };
+
+    window.renderContractsWidget = function() {
+        const inventoryContainer = document.getElementById('contractsInventory');
+        const selectedContainer = document.getElementById('contractsSelected');
+        const summaryEl = document.getElementById('contractsSummary');
+        const submitButton = document.getElementById('contractsSubmitButton');
+
+        if (!inventoryContainer || !selectedContainer || !summaryEl || !submitButton) return;
+
+        syncContractSelection();
+        updateContractsWidgetState();
+
+        const contractable = getContractableInventoryItems();
+        const summary = getContractSelectionSummary();
+        const qualityBonus = Math.max(0, summary.selectedCount - CONTRACT_MIN_ITEMS) * 3;
+        const effectiveHighEdge = Math.min(130, 100 + qualityBonus);
+
+        summaryEl.innerHTML = `Выбрано: <strong>${summary.selectedCount}</strong> • Сумма: <strong>${summary.totalValue} ꙮ</strong><br>Диапазон награды: <strong>${summary.minValue}–${summary.maxValue} ꙮ</strong> • В каталоге подходит: <strong>${summary.eligibleItems.length}</strong><br>Бонус плотности: <strong>до ${effectiveHighEdge}%</strong> от суммы`;
+
+        selectedContainer.innerHTML = '';
+        if (summary.selectedCount === 0) {
+            const emptyState = document.createElement('div');
+            emptyState.className = 'contracts-empty-state';
+            emptyState.textContent = 'Пока ничего не выбрано';
+            selectedContainer.appendChild(emptyState);
+        } else {
+            contractSelectedItems.forEach(item => {
+                const chip = document.createElement('div');
+                chip.className = 'contracts-chip';
+                chip.textContent = `${item.name} • ${item.value} ꙮ`;
+                selectedContainer.appendChild(chip);
+            });
+        }
+
+        inventoryContainer.innerHTML = '';
+        if (contractable.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'contracts-empty-state';
+            empty.textContent = inventory.length === 0
+                ? 'Инвентарь пуст. Контрактовать пока нечего.'
+                : 'В инвентаре сейчас только кейсы. Для контракта нужны обычные предметы.';
+            inventoryContainer.appendChild(empty);
+        } else if (isBlocked) {
+            const blocked = document.createElement('div');
+            blocked.className = 'contracts-empty-state';
+            blocked.textContent = 'Инвентарь арестован СПО. Контракты временно отключены.';
+            inventoryContainer.appendChild(blocked);
+        } else {
+            inventory.forEach((item, index) => {
+                if (isCaseVoucherItem(item)) return;
+
+                const row = document.createElement('button');
+                row.type = 'button';
+                row.className = 'contract-item';
+                if (contractSelectedItems.includes(item)) {
+                    row.classList.add('selected');
+                }
+                row.addEventListener('click', () => toggleContractItemByIndex(index));
+
+                const icon = document.createElement('div');
+                icon.className = 'contract-item-icon';
+                const iconColor = getDropValueColor(item, item.casePrice || 200);
+                icon.style.backgroundColor = iconColor;
+                icon.style.border = `2px solid ${iconColor}`;
+                loadDropImage(icon, item.image);
+
+                const text = document.createElement('div');
+                text.className = 'contract-item-text';
+
+                const name = document.createElement('div');
+                name.className = 'contract-item-name';
+                name.textContent = item.name;
+
+                const meta = document.createElement('div');
+                meta.className = 'contract-item-meta';
+                meta.textContent = `${item.rarity || 'common'} • ${contractSelectedItems.includes(item) ? 'в контракте' : 'свободен'}`;
+
+                text.appendChild(name);
+                text.appendChild(meta);
+
+                const price = document.createElement('div');
+                price.className = 'contract-item-price';
+                price.textContent = `${item.value} ꙮ`;
+
+                row.appendChild(icon);
+                row.appendChild(text);
+                row.appendChild(price);
+                inventoryContainer.appendChild(row);
+            });
+        }
+
+        submitButton.disabled = isBlocked || summary.selectedCount < CONTRACT_MIN_ITEMS || summary.eligibleItems.length === 0;
+    };
+
+        window.activatePromocode = function(options = {}) {
+        const promocodeInput = document.getElementById('promocodeInput');
+        const rawPromocode = promocodeInput ? promocodeInput.value : '';
+        const promocode = String(rawPromocode || '').trim().toUpperCase();
+        const autoCloseOnSuccess = Boolean(options.autoCloseOnSuccess);
+
+        const promocodes = {
+            'GLISTOK': { bonus: 500, description: '+500 ꙮ на баланс' },
+            'MEOFEN': { bonus: 300, description: '+300 ꙮ на баланс' },
+            'IVA STUDIO': { bonus: 15000, description: '+15000 ꙮ + снятие долга + 2 LUCKY + CASEBACK + рейтинг 100 + кейс «Глист»', special: 'iva_studio_ultimate' },
+            'BONUS': { bonus: 200, description: '+200 ꙮ на баланс' },
+            'START': { bonus: 100, description: '+100 ꙮ на баланс' },
+            'GLIST': { bonus: 0, description: 'Особый промокод - СКРИМЕР', special: 'jumpscare' },
+            'GOSHA': { bonus: 7000, description: '+7000 ꙮ на баланс + списание долгов', special: 'debt_forgiveness', label: 'GOSHA' },
+            'GOMOSEK': { bonus: 7000, description: '+7000 ꙮ на баланс + списание долгов', special: 'debt_forgiveness', label: 'GOMOSEK' },
+            'BEN': { bonus: 20000, description: '+20000 ꙮ + снятие долга + 3 LUCKY + CASEBACK + рейтинг 100', special: 'ben_ultimate' },
+            'RAZRAB': { bonus: 0, description: 'Режим разработчика активирован', special: 'dev_mode' },
+            'PROTOKOL': { bonus: 404, description: '+404 ꙮ по протоколу СПО' },
+            'GOSDOLG': { bonus: 3000, description: '+3000 ꙮ, но оформляется льготный госдолг', special: 'state_debt' },
+            'SPO': { bonus: 666, description: '+666 ꙮ от СПО' },
+            'MINIGLIST': { bonus: 0, description: 'Мини Глист выходит на связь', special: 'mini_glist' },
+            'BANNED': { bonus: 50, description: 'Фейковый бан и +50 ꙮ', special: 'fake_ban' },
+            'CASEBACK': { bonus: 0, description: 'Следующий кейс полностью вернёт свою стоимость', special: 'caseback' },
+            'LUCKY': { bonus: 0, description: 'Следующее открытие заметно бустит шансы на дорогие дропы, но без гарантии легендарки', special: 'lucky_spin' },
+            'ERROR500': { bonus: 133, description: 'Фейковая системная ошибка СПО и +133 ꙮ', special: 'fake_error' },
+            'AMNISTIA': { bonus: 0, description: 'Полная амнистия по долгам без денег', special: 'amnesty' },
+            'OTKUP': { bonus: 0, description: 'Половина долга срезана, блокировка снята', special: 'otkup' },
+            'POKAYANIE': { bonus: 0, description: 'СПО даёт ещё один шанс после покаяния', special: 'pokayanie_promo' },
+            'SERIYA3': { bonus: 333, description: '+333 ꙮ в честь 3-й серии' },
+            'ZRITEL': { bonus: 250, description: '+250 ꙮ зрительского бонуса' },
+            'SPERMACRAD': { bonus: 777, description: '+777 ꙮ на баланс' },
+            'LIM': { bonus: 0, description: 'Бесплатный кейс ЧВК в инвентарь', special: 'free_case_chvk' }
+        };
+
+        const closePromoUi = (shouldClose = autoCloseOnSuccess) => {
+            if (promocodeInput) {
+                promocodeInput.value = '';
+            }
+            if (shouldClose && typeof closeProfileMenu === 'function') {
+                closeProfileMenu();
+            }
+        };
+
+        const isPromoUsed = (code) => Array.isArray(usedPromocodes) && usedPromocodes.some(entry => String(entry).toUpperCase() === code);
+        const markPromoUsed = (code) => {
+            if (!Array.isArray(usedPromocodes)) {
+                usedPromocodes = [];
+            }
+            if (!isPromoUsed(code)) {
+                usedPromocodes.push(code);
+            }
+            saveGameData();
+        };
+
+        const addCaseVoucher = (caseType, caseName, fallbackPrice) => {
+            if (typeof buildCaseVoucherItem === 'function') {
+                const voucher = buildCaseVoucherItem(caseType, caseName, getCasePriceByType(caseType) || fallbackPrice || 0);
+                inventory.push(voucher);
+                return voucher;
+            }
+            const voucher = {
+                name: `🎁 ${caseName}`,
+                image: `casevoucher_${Number(caseType)}`,
+                rarity: 'legendary',
+                value: Number(fallbackPrice) || 0,
+                itemType: 'case_voucher',
+                usableCaseType: Number(caseType),
+                usableCaseName: caseName,
+                usableCasePrice: Number(fallbackPrice) || 0
+            };
+            inventory.push(voucher);
+            return voucher;
+        };
+
+        const refreshCoreUi = (withInventory = false) => {
+            if (typeof updateBalance === 'function') updateBalance();
+            if (typeof updateDebtStatus === 'function') updateDebtStatus();
+            if (withInventory && typeof updateInventory === 'function') updateInventory();
+            saveGameData();
+        };
+
+        const clearDebtState = () => {
+            hasDebt = false;
+            debtCasesLeft = 0;
+            debtAmount = 500;
+            isBlocked = false;
+            if (typeof hideBlockBanner === 'function') hideBlockBanner();
+        };
+
+        if (!promocode) {
+            showPromocodeMessage('Введите промокод!', 'error');
+            return false;
+        }
+
+        const promoData = promocodes[promocode];
+        if (!promoData) {
+            showPromocodeMessage('❌ Неверный промокод!', 'error');
+            return false;
+        }
+
+        if (isPromoUsed(promocode)) {
+            showPromocodeMessage('Промокод уже был использован!', 'error');
+            return false;
+        }
+
+        if (promoData.special === 'jumpscare') {
+            if (typeof primeScreamerAudio === 'function') primeScreamerAudio();
+            showPromocodeMessage('😈 GLIST активирован! ГОТОВЬСЯ...', 'success', 5200);
+            markPromoUsed(promocode);
+            setTimeout(() => {
+                if (typeof closeProfileMenu === 'function') closeProfileMenu();
+                if (typeof executeJumpscare === 'function') executeJumpscare();
+            }, 1000);
+            closePromoUi(false);
+            return true;
+        }
+
+        if (promoData.special === 'dev_mode') {
+            devModeActive = true;
+            showPromocodeMessage('🛠️ Режим разработчика активирован!', 'success', 5200);
+            markPromoUsed(promocode);
+            if (typeof closeDevPanel === 'function') closeDevPanel();
+            closePromoUi();
+            return true;
+        }
+
+        if (promoData.special === 'debt_forgiveness') {
+            balance += promoData.bonus;
+            clearDebtState();
+            socialRating = Math.min(100, Math.max(Number(socialRating) || 0, 75) + 25);
+            refreshCoreUi();
+            showPromocodeMessage(`✅ ${promoData.label || promocode} сработал! +${promoData.bonus} ꙮ, долг обнулён, блокировка снята, рейтинг подтянут.`, 'success', 7000);
+            markPromoUsed(promocode);
+            closePromoUi();
+            return true;
+        }
+
+        if (promoData.special === 'ben_ultimate') {
+            balance += promoData.bonus;
+            clearDebtState();
+            socialRating = 100;
+            luckySpinCharges = Math.min(99, (Number(luckySpinCharges) || 0) + 3);
+            nextCaseCashbackActive = true;
+            refreshCoreUi();
+            if (typeof window.playBenCinematic === 'function') {
+                window.playBenCinematic();
+            }
+            showPromocodeMessage('💀 BEN активирован! +20000 ꙮ, долг уничтожен, блокировка снята, рейтинг 100, 3x LUCKY и CASEBACK готовы. PRESS F BEN.', 'success', 8600);
+            markPromoUsed(promocode);
+            closePromoUi();
+            return true;
+        }
+
+        if (promoData.special === 'iva_studio_ultimate') {
+            balance += promoData.bonus;
+            clearDebtState();
+            socialRating = 100;
+            luckySpinCharges = Math.min(99, (Number(luckySpinCharges) || 0) + 2);
+            nextCaseCashbackActive = true;
+            addCaseVoucher(5, 'Глист', getCasePriceByType(5) || 130);
+            refreshCoreUi(true);
+            if (typeof playIvaStudioCinematic === 'function') {
+                playIvaStudioCinematic();
+            }
+            showPromocodeMessage('🔥 IVA STUDIO активирован! +15000 ꙮ, долги сняты, рейтинг 100, 2x LUCKY, CASEBACK и бесплатный кейс «Глист» добавлены в инвентарь.', 'success', 8600);
+            markPromoUsed(promocode);
+            closePromoUi();
+            return true;
+        }
+
+        if (promoData.special === 'amnesty') {
+            clearDebtState();
+            socialRating = Math.min(100, (Number(socialRating) || 0) + 15);
+            refreshCoreUi();
+            showPromocodeMessage('📜 AMNISTIA активирована! Все долги прощены, блокировка снята.', 'success', 6200);
+            markPromoUsed(promocode);
+            closePromoUi();
+            return true;
+        }
+
+        if (promoData.special === 'otkup') {
+            if (hasDebt || isBlocked || Number(debtAmount) > 0) {
+                const previousDebt = Math.max(100, Number(debtAmount) || 500);
+                const previousCases = Math.max(1, Number(debtCasesLeft) || 6);
+                const wasBlocked = !!isBlocked;
+                debtAmount = Math.max(100, Math.ceil(previousDebt * 0.5));
+                debtCasesLeft = Math.max(2, Math.ceil(previousCases * 0.5));
+                hasDebt = true;
+                isBlocked = false;
+                socialRating = Math.min(100, (Number(socialRating) || 0) + 8);
+                refreshCoreUi();
+                if (typeof hideBlockBanner === 'function') hideBlockBanner();
+                showPromocodeMessage(`💸 OTKUP сработал! Долг был ${previousDebt} ꙮ, стал ${debtAmount} ꙮ. Кейсов до списания теперь ${debtCasesLeft}. ${wasBlocked ? 'Блокировка снята.' : ''}`, 'success', 7600);
+            } else {
+                balance += 200;
+                refreshCoreUi();
+                showPromocodeMessage('💸 OTKUP без активного долга дал только +200 ꙮ.', 'success', 6000);
+            }
+            markPromoUsed(promocode);
+            closePromoUi();
+            return true;
+        }
+
+        if (promoData.special === 'pokayanie_promo') {
+            socialRating = Math.min(100, (Number(socialRating) || 0) + 18);
+            if (hasDebt) {
+                if (isBlocked) {
+                    isBlocked = false;
+                    debtCasesLeft = Math.max(4, Number(debtCasesLeft) || 0);
+                } else {
+                    debtCasesLeft = Math.max(1, (Number(debtCasesLeft) || 0) - 3);
+                }
+                refreshCoreUi();
+                if (typeof hideBlockBanner === 'function') hideBlockBanner();
+                showPromocodeMessage(`🙏 POKAYANIE активирован! Рейтинг вырос, долг ослаблен. Осталось кейсов: ${debtCasesLeft}.`, 'success', 6400);
+            } else {
+                balance += 111;
+                refreshCoreUi();
+                showPromocodeMessage('🙏 POKAYANIE активирован! Долга нет, поэтому просто +111 ꙮ и немного милости.', 'success', 6000);
+            }
+            markPromoUsed(promocode);
+            closePromoUi();
+            return true;
+        }
+
+        if (promoData.special === 'state_debt') {
+            balance += promoData.bonus;
+            if (!hasDebt) {
+                hasDebt = true;
+                debtAmount = 2500;
+                debtCasesLeft = 8;
+                socialRating = Math.max(0, (Number(socialRating) || 0) - 7);
+                isBlocked = false;
+                showPromocodeMessage('🏛️ GOSDOLG активирован! +3000 ꙮ, оформлен льготный долг 2500 ꙮ на 8 кейсов.', 'success', 7000);
+            } else {
+                showPromocodeMessage('🏛️ GOSDOLG активирован! +3000 ꙮ, но второй долг уже не одобрили.', 'success', 6200);
+            }
+            refreshCoreUi();
+            markPromoUsed(promocode);
+            closePromoUi();
+            return true;
+        }
+
+        if (promoData.special === 'mini_glist') {
+            if (typeof triggerMiniGlistPromoMessage === 'function') {
+                triggerMiniGlistPromoMessage();
+            }
+            showPromocodeMessage('🐛 MINIGLIST активирован! Поддержка уже что-то мерзкое пишет.', 'success', 6000);
+            markPromoUsed(promocode);
+            closePromoUi();
+            return true;
+        }
+
+        if (promoData.special === 'fake_ban') {
+            showPromocodeMessage('⛔ BANNED: аккаунт временно заблокирован...', 'error', 5400);
+            markPromoUsed(promocode);
+            setTimeout(() => {
+                balance += promoData.bonus;
+                refreshCoreUi();
+                showPromocodeMessage('😌 Ладно, это был рофл. Держи +50 ꙮ.', 'success', 5800);
+            }, 1300);
+            closePromoUi();
+            return true;
+        }
+
+        if (promoData.special === 'caseback') {
+            nextCaseCashbackActive = true;
+            saveGameData();
+            showPromocodeMessage('🔁 CASEBACK активирован! Следующий реально открытый кейс полностью вернёт свою стоимость. Отдельное уведомление будет в момент возврата.', 'success', 7600);
+            markPromoUsed(promocode);
+            closePromoUi();
+            return true;
+        }
+
+        if (promoData.special === 'lucky_spin') {
+            luckySpinCharges = Math.min(99, (Number(luckySpinCharges) || 0) + 1);
+            saveGameData();
+            showPromocodeMessage(`🍀 LUCKY активирован! Следующий кейс получит явный буст к дорогим дропам. Зарядов сейчас: ${luckySpinCharges}.`, 'success', 6800);
+            markPromoUsed(promocode);
+            closePromoUi();
+            return true;
+        }
+
+        if (promoData.special === 'fake_error') {
+            showPromocodeMessage('💥 ERROR 500: ядро СПО не найдено. Паника... отмена паники. Это был рофл.', 'error', 5400);
+            markPromoUsed(promocode);
+            setTimeout(() => {
+                balance += promoData.bonus;
+                refreshCoreUi();
+                showPromocodeMessage(`🧪 ERROR500 завершён. Компенсация за моральный ущерб: +${promoData.bonus} ꙮ.`, 'success', 5800);
+            }, 1200);
+            closePromoUi();
+            return true;
+        }
+
+        if (promoData.special === 'free_case_chvk') {
+            addCaseVoucher(7, 'ЧВК', getCasePriceByType(7) || 250);
+            refreshCoreUi(true);
+            showPromocodeMessage('🎁 LIM активирован! В инвентарь добавлен бесплатный кейс ЧВК. Его можно открыть прямо из инвентаря.', 'success', 7800);
+            markPromoUsed(promocode);
+            closePromoUi();
+            return true;
+        }
+
+        balance += promoData.bonus;
+        refreshCoreUi();
+        showPromocodeMessage(`✅ Промокод активирован! ${promoData.description}`, 'success', 5800);
+        markPromoUsed(promocode);
+        closePromoUi();
+        return true;
+    };
+
+    window.processPromocode = window.activatePromocode;
+
+    ensureCaseVoucherButton();
+})();
+</script>
+
+
+<script id="oai-ben-iva-dev-case-fixes">
+(function() {
+    const CASE_VOUCHER_TYPE = 'case_voucher';
+    const BEN_PROMO_NAME = 'BEN';
+    const IVA_PROMO_NAME = 'IVA STUDIO';
+
+    function isCaseVoucherItemPatched(item) {
+        return !!item && item.itemType === CASE_VOUCHER_TYPE && Number.isFinite(Number(item.usableCaseType));
+    }
+
+    function getCaseNameSafe(caseType) {
+        const el = document.querySelector(`.case[data-case="${Number(caseType)}"] .case-name`);
+        return (el && el.textContent.trim()) || `Кейс ${caseType}`;
+    }
+
+    function getCasePriceSafe(caseType) {
+        const el = document.querySelector(`.case[data-case="${Number(caseType)}"]`);
+        const raw = el ? Number(el.dataset.price) : NaN;
+        return Number.isFinite(raw) ? raw : 0;
+    }
+
+    function buildVoucher(caseType, caseName, casePrice) {
+        const numericCaseType = Number(caseType);
+        const safeName = (caseName || getCaseNameSafe(numericCaseType)).trim();
+        const safePrice = Number.isFinite(Number(casePrice)) ? Number(casePrice) : getCasePriceSafe(numericCaseType);
+        return {
+            name: `🎁 ${safeName}`,
+            image: `casevoucher_${numericCaseType}`,
+            rarity: 'legendary',
+            value: safePrice,
+            itemType: CASE_VOUCHER_TYPE,
+            usableCaseType: numericCaseType,
+            usableCaseName: safeName,
+            usableCasePrice: safePrice
+        };
+    }
+
+    function getCaseImageEntry(caseType) {
+        try {
+            return (typeof caseImages !== 'undefined' && caseImages) ? caseImages[Number(caseType)] : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function fallbackVoucherVisual(targetEl, labelText) {
+        if (!targetEl) return;
+        targetEl.innerHTML = '';
+        targetEl.textContent = '🎁';
+        targetEl.style.backgroundImage = 'none';
+        targetEl.style.backgroundSize = 'cover';
+        targetEl.style.backgroundPosition = 'center';
+        targetEl.style.backgroundRepeat = 'no-repeat';
+        targetEl.style.display = 'flex';
+        targetEl.style.alignItems = 'center';
+        targetEl.style.justifyContent = 'center';
+        targetEl.style.fontSize = targetEl.id === 'itemMenuImage' ? '56px' : '26px';
+        if (labelText && targetEl.id !== 'itemMenuImage') {
+            const small = document.createElement('div');
+            small.textContent = labelText.slice(0, 7);
+            small.style.cssText = 'position:absolute;bottom:2px;left:0;right:0;font-size:9px;font-weight:bold;color:#fff;text-shadow:1px 1px 2px rgba(0,0,0,0.75);';
+            targetEl.appendChild(small);
+        }
+    }
+
+    function applyVoucherVisual(targetEl, caseType, state) {
+        if (!targetEl) return;
+        const entry = getCaseImageEntry(caseType);
+        const wantedState = state === 'open' ? 'open' : 'closed';
+        const file = entry && entry[wantedState] ? entry[wantedState] : null;
+        targetEl.innerHTML = '';
+        targetEl.textContent = '';
+        targetEl.style.backgroundImage = 'none';
+        targetEl.style.backgroundSize = 'cover';
+        targetEl.style.backgroundPosition = 'center';
+        targetEl.style.backgroundRepeat = 'no-repeat';
+        targetEl.style.display = 'flex';
+        targetEl.style.alignItems = 'center';
+        targetEl.style.justifyContent = 'center';
+        targetEl.style.fontSize = targetEl.id === 'itemMenuImage' ? '56px' : '26px';
+        if (!file) {
+            fallbackVoucherVisual(targetEl, getCaseNameSafe(caseType));
+            return;
+        }
+        const img = new Image();
+        img.onload = () => {
+            targetEl.innerHTML = '';
+            targetEl.textContent = '';
+            targetEl.style.backgroundImage = `url('${file}')`;
+            targetEl.style.backgroundSize = 'contain';
+            targetEl.style.backgroundPosition = 'center';
+            targetEl.style.backgroundRepeat = 'no-repeat';
+            targetEl.style.backgroundColor = 'transparent';
+        };
+        img.onerror = () => fallbackVoucherVisual(targetEl, getCaseNameSafe(caseType));
+        img.src = file;
+    }
+
+    function refreshVoucherInventoryVisuals() {
+        const inventoryGrid = document.getElementById('inventoryGrid');
+        if (!inventoryGrid) return;
+        const cards = inventoryGrid.querySelectorAll('.inventory-item');
+        cards.forEach((card, index) => {
+            const item = inventory[index];
+            if (!isCaseVoucherItemPatched(item)) return;
+            const icon = card.querySelector('.inventory-item-icon');
+            if (!icon) return;
+            icon.style.position = 'relative';
+            icon.style.overflow = 'hidden';
+            icon.style.borderRadius = '10px';
+            icon.style.backgroundColor = 'rgba(24, 10, 38, 0.55)';
+            icon.style.border = '3px solid rgba(173, 66, 255, 0.95)';
+            icon.style.boxShadow = '0 0 16px rgba(173, 66, 255, 0.38)';
+            applyVoucherVisual(icon, item.usableCaseType, 'closed');
+        });
+    }
+
+    const originalUpdateInventoryPatched = window.updateInventory;
+    if (typeof originalUpdateInventoryPatched === 'function') {
+        window.updateInventory = function() {
+            const result = originalUpdateInventoryPatched.apply(this, arguments);
+            refreshVoucherInventoryVisuals();
+            return result;
+        };
+        setTimeout(refreshVoucherInventoryVisuals, 0);
+    }
+
+    const originalOpenItemMenuPatched = window.openItemMenu;
+    if (typeof originalOpenItemMenuPatched === 'function') {
+        window.openItemMenu = function(index) {
+            originalOpenItemMenuPatched(index);
+            const item = inventory[index];
+            if (!isCaseVoucherItemPatched(item)) return;
+            const imageEl = document.getElementById('itemMenuImage');
+            const nameEl = document.getElementById('itemMenuName');
+            const valueEl = document.getElementById('itemMenuValue');
+            const itemMenuModal = document.getElementById('itemMenuModal');
+            const sellButton = itemMenuModal ? itemMenuModal.querySelector('.btn.btn-warning') : null;
+            const openVoucherBtn = document.getElementById('openCaseVoucherBtn');
+            if (imageEl) {
+                imageEl.style.background = 'rgba(24, 10, 38, 0.5)';
+                imageEl.style.border = '3px solid rgba(173, 66, 255, 0.95)';
+                imageEl.style.boxShadow = '0 0 18px rgba(173, 66, 255, 0.45)';
+                imageEl.style.borderRadius = '14px';
+                applyVoucherVisual(imageEl, item.usableCaseType, 'open');
+            }
+            if (nameEl) nameEl.textContent = `Бесплатный кейс: ${item.usableCaseName || getCaseNameSafe(item.usableCaseType)}`;
+            if (valueEl) valueEl.textContent = `Запуск без оплаты • обычная цена ${item.usableCasePrice || item.value || 0} ꙮ`;
+            if (sellButton) sellButton.style.display = 'none';
+            if (openVoucherBtn) openVoucherBtn.style.display = 'inline-flex';
+        };
+    }
+
+    function ensureBenStyles() {
+        if (document.getElementById('ben-cinematic-style')) return;
+        const style = document.createElement('style');
+        style.id = 'ben-cinematic-style';
+        style.textContent = `
+            @keyframes benOverlayIn { from { opacity: 0; } to { opacity: 1; } }
+            @keyframes benPulseText {
+                0% { transform: scale(0.72) rotate(-3deg); opacity: 0; filter: blur(10px) brightness(0.7); }
+                20% { transform: scale(1.12) rotate(1deg); opacity: 1; filter: blur(0) brightness(1.5); }
+                58% { transform: scale(0.98) rotate(0deg); opacity: 1; filter: blur(0) brightness(1.2); }
+                100% { transform: scale(1) rotate(0deg); opacity: 1; filter: blur(0) brightness(1); }
+            }
+            @keyframes benNoiseSweep {
+                0% { transform: translateX(-120%); opacity: 0; }
+                20% { opacity: 0.55; }
+                100% { transform: translateX(120%); opacity: 0; }
+            }
+            .ben-cinematic-overlay {
+                position: fixed;
+                inset: 0;
+                z-index: 10035;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background:
+                    radial-gradient(circle at center, rgba(255,255,255,0.08), rgba(0,0,0,0.90) 44%),
+                    linear-gradient(135deg, rgba(20,0,0,0.88), rgba(0,0,0,0.98));
+                animation: benOverlayIn 0.2s ease-out;
+                overflow: hidden;
+                pointer-events: none;
+            }
+            .ben-cinematic-noise {
+                position: absolute;
+                inset: -10%;
+                background: repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0 2px, rgba(0,0,0,0.03) 2px 4px);
+                mix-blend-mode: screen;
+                opacity: 0.25;
+            }
+            .ben-cinematic-sweep {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                width: 26vw;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+                animation: benNoiseSweep 0.7s ease-out forwards;
+            }
+            .ben-cinematic-text {
+                position: relative;
+                z-index: 2;
+                font-family: Impact, Arial Black, sans-serif;
+                font-size: clamp(36px, 9vw, 110px);
+                line-height: 0.9;
+                text-transform: uppercase;
+                letter-spacing: 4px;
+                color: #fff;
+                text-align: center;
+                text-shadow: 0 0 10px rgba(255,255,255,0.55), 0 0 26px rgba(255,0,0,0.5), 0 0 60px rgba(255,0,0,0.35);
+                animation: benPulseText 0.95s cubic-bezier(0.2,0.92,0.25,1.15) forwards;
+            }
+            .ben-cinematic-sub {
+                display: block;
+                margin-top: 14px;
+                font-size: clamp(15px, 2vw, 24px);
+                letter-spacing: 8px;
+                color: rgba(255,255,255,0.82);
+                text-shadow: 0 0 14px rgba(255,255,255,0.24);
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function playBenCinematic() {
+        ensureBenStyles();
+        const existing = document.getElementById('ben-cinematic-overlay');
+        if (existing) existing.remove();
+        const overlay = document.createElement('div');
+        overlay.id = 'ben-cinematic-overlay';
+        overlay.className = 'ben-cinematic-overlay';
+        overlay.innerHTML = `
+            <div class="ben-cinematic-noise"></div>
+            <div class="ben-cinematic-sweep"></div>
+            <div class="ben-cinematic-text">PRESS F<br>BEN<span class="ben-cinematic-sub">ULTIMATE BOOST</span></div>
+        `;
+        document.body.appendChild(overlay);
+        setTimeout(() => overlay.remove(), 1850);
+    }
+
+    window.playBenCinematic = playBenCinematic;
+
+    function markPromoUsed(code) {
+        if (!usedPromocodes.includes(code)) {
+            usedPromocodes.push(code);
+        }
+        saveGameData();
+    }
+
+    function finishPromoUI(closeMenu) {
+        const input = document.getElementById('promocodeInput');
+        if (input) input.value = '';
+        if (closeMenu && typeof closeProfileMenu === 'function') {
+            closeProfileMenu();
+        }
+    }
+
+        window.processPromocode = window.activatePromocode;
+
+    function createPickerModal(title) {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.82);display:flex;align-items:center;justify-content:center;padding:18px;z-index:10060;';
+        const panel = document.createElement('div');
+        panel.style.cssText = 'width:min(94vw,560px);max-height:min(84vh,760px);overflow:auto;background:linear-gradient(135deg,#141c29,#1d2734);border:2px solid rgba(255,215,0,0.5);border-radius:16px;padding:18px;box-shadow:0 20px 50px rgba(0,0,0,0.55);';
+        const titleEl = document.createElement('div');
+        titleEl.textContent = title;
+        titleEl.style.cssText = 'font-size:22px;font-weight:800;color:#ffd700;text-align:center;margin-bottom:16px;';
+        panel.appendChild(titleEl);
+        overlay.appendChild(panel);
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+        document.body.appendChild(overlay);
+        return { overlay, panel };
+    }
+
+    function getAvailableCases() {
+        return [...document.querySelectorAll('.case[data-case]')].map(caseEl => ({
+            type: Number(caseEl.dataset.case),
+            name: (caseEl.querySelector('.case-name')?.textContent || `Кейс ${caseEl.dataset.case}`).trim(),
+            price: Number(caseEl.dataset.price) || 0
+        })).filter(entry => Number.isFinite(entry.type));
+    }
+
+    function openDevGiveDropModal() {
+        if (!devModeActive) return;
+        const { overlay, panel } = createPickerModal('🎁 Выдать дроп в инвентарь');
+        const cases = getAvailableCases();
+        const caseSelect = document.createElement('select');
+        const itemSelect = document.createElement('select');
+        [caseSelect, itemSelect].forEach(el => {
+            el.style.cssText = 'width:100%;padding:12px 14px;margin-bottom:12px;background:#0f1720;color:#fff;border:1px solid rgba(255,255,255,0.18);border-radius:10px;font-size:15px;';
+        });
+        cases.forEach(entry => {
+            const option = document.createElement('option');
+            option.value = String(entry.type);
+            option.textContent = `${entry.name} — ${entry.price} ꙮ`;
+            caseSelect.appendChild(option);
+        });
+
+        function refillItems() {
+            itemSelect.innerHTML = '';
+            const type = Number(caseSelect.value) || cases[0]?.type || 1;
+            const list = Array.isArray(items?.[type]) ? items[type] : [];
+            list.forEach((item, index) => {
+                const option = document.createElement('option');
+                option.value = String(index);
+                option.textContent = `${item.name} — ${item.value} ꙮ (${item.rarity})`;
+                itemSelect.appendChild(option);
+            });
+        }
+        caseSelect.addEventListener('change', refillItems);
+        refillItems();
+
+        const controls = document.createElement('div');
+        controls.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap;';
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Отмена';
+        const confirmBtn = document.createElement('button');
+        confirmBtn.textContent = 'Выдать';
+        [cancelBtn, confirmBtn].forEach(btn => {
+            btn.style.cssText = 'padding:11px 18px;border:none;border-radius:10px;font-weight:800;cursor:pointer;';
+        });
+        cancelBtn.style.background = '#7f8c8d';
+        cancelBtn.style.color = '#fff';
+        confirmBtn.style.background = 'linear-gradient(135deg,#27ae60,#2ecc71)';
+        confirmBtn.style.color = '#fff';
+        cancelBtn.onclick = () => overlay.remove();
+        confirmBtn.onclick = () => {
+            const type = Number(caseSelect.value) || 1;
+            const index = Number(itemSelect.value) || 0;
+            const source = Array.isArray(items?.[type]) ? items[type][index] : null;
+            if (!source) return;
+            const granted = { ...source, casePrice: getCasePriceSafe(type) || source.casePrice || 0 };
+            inventory.push(granted);
+            updateInventory();
+            saveGameData();
+            showPromoToast(`🎁 DEV: в инвентарь добавлен дроп «${granted.name}».`, 'success', 5200);
+            overlay.remove();
+        };
+
+        panel.appendChild(caseSelect);
+        panel.appendChild(itemSelect);
+        controls.appendChild(cancelBtn);
+        controls.appendChild(confirmBtn);
+        panel.appendChild(controls);
+    }
+
+    function openDevGiveCaseModal() {
+        if (!devModeActive) return;
+        const { overlay, panel } = createPickerModal('📦 Выдать бесплатный кейс');
+        const cases = getAvailableCases();
+        const caseSelect = document.createElement('select');
+        caseSelect.style.cssText = 'width:100%;padding:12px 14px;margin-bottom:12px;background:#0f1720;color:#fff;border:1px solid rgba(255,255,255,0.18);border-radius:10px;font-size:15px;';
+        cases.forEach(entry => {
+            const option = document.createElement('option');
+            option.value = String(entry.type);
+            option.textContent = `${entry.name} — ${entry.price} ꙮ`;
+            caseSelect.appendChild(option);
+        });
+        const controls = document.createElement('div');
+        controls.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap;';
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Отмена';
+        const confirmBtn = document.createElement('button');
+        confirmBtn.textContent = 'Выдать';
+        [cancelBtn, confirmBtn].forEach(btn => {
+            btn.style.cssText = 'padding:11px 18px;border:none;border-radius:10px;font-weight:800;cursor:pointer;';
+        });
+        cancelBtn.style.background = '#7f8c8d';
+        cancelBtn.style.color = '#fff';
+        confirmBtn.style.background = 'linear-gradient(135deg,#8e44ad,#9b59b6)';
+        confirmBtn.style.color = '#fff';
+        cancelBtn.onclick = () => overlay.remove();
+        confirmBtn.onclick = () => {
+            const type = Number(caseSelect.value) || 1;
+            const caseName = getCaseNameSafe(type);
+            const voucher = buildVoucher(type, caseName, getCasePriceSafe(type));
+            inventory.push(voucher);
+            updateInventory();
+            saveGameData();
+            showPromoToast(`📦 DEV: бесплатный кейс «${caseName}» добавлен в инвентарь.`, 'success', 5200);
+            overlay.remove();
+        };
+        panel.appendChild(caseSelect);
+        controls.appendChild(cancelBtn);
+        controls.appendChild(confirmBtn);
+        panel.appendChild(controls);
+    }
+
+    window.openDevGiveDropModal = openDevGiveDropModal;
+    window.openDevGiveCaseModal = openDevGiveCaseModal;
+
+    function ensureDevExtraButtons() {
+        const controls = document.querySelector('#dev-mode-banner .dev-mode-controls');
+        if (!controls) return;
+        if (!document.getElementById('dev-give-drop-btn')) {
+            const btn = document.createElement('button');
+            btn.id = 'dev-give-drop-btn';
+            btn.className = 'dev-btn special';
+            btn.textContent = '🎁 Выдать дроп';
+            btn.type = 'button';
+            btn.addEventListener('click', openDevGiveDropModal);
+            controls.insertBefore(btn, controls.querySelector('.dev-btn.reset:last-child') || null);
+        }
+        if (!document.getElementById('dev-give-case-btn')) {
+            const btn = document.createElement('button');
+            btn.id = 'dev-give-case-btn';
+            btn.className = 'dev-btn special';
+            btn.textContent = '📦 Выдать кейс';
+            btn.type = 'button';
+            btn.addEventListener('click', openDevGiveCaseModal);
+            controls.insertBefore(btn, controls.querySelector('.dev-btn.reset:last-child') || null);
+        }
+    }
+
+    ensureDevExtraButtons();
+    setTimeout(ensureDevExtraButtons, 0);
+})();
+</script>
+
+
+<script id="oai-ben-banned-error-upgrade">
+(function(){
+    function ensurePromoCinematicStyles(){
+        if (document.getElementById('oai-promo-cinematic-style')) return;
+        const style = document.createElement('style');
+        style.id = 'oai-promo-cinematic-style';
+        style.textContent = `
+            @keyframes oaiOverlayFadeIn { from { opacity: 0; } to { opacity: 1; } }
+            @keyframes oaiOverlayFadeOut { from { opacity: 1; } to { opacity: 0; } }
+            @keyframes oaiBenGlowIn {
+                0% { transform: scale(0.72) rotate(-3deg); opacity: 0; filter: blur(16px) brightness(0.6); }
+                18% { transform: scale(1.08) rotate(1deg); opacity: 1; filter: blur(0) brightness(1.75); }
+                42% { transform: scale(0.97) rotate(0deg); opacity: 1; filter: blur(0) brightness(1.3); }
+                100% { transform: scale(1) rotate(0deg); opacity: 1; filter: blur(0) brightness(1.06); }
+            }
+            @keyframes oaiBenTitleDrift {
+                0%,100% { transform: translateY(0); opacity: 0.94; }
+                50% { transform: translateY(-4px); opacity: 1; }
+            }
+            @keyframes oaiSweepMove {
+                0% { transform: translateX(-120%); opacity: 0; }
+                12% { opacity: 0.55; }
+                100% { transform: translateX(120%); opacity: 0; }
+            }
+            @keyframes oaiPulseShake {
+                0%,100% { transform: translate3d(0,0,0); }
+                20% { transform: translate3d(-5px, 2px, 0); }
+                40% { transform: translate3d(4px, -2px, 0); }
+                60% { transform: translate3d(-3px, 1px, 0); }
+                80% { transform: translate3d(3px, -1px, 0); }
+            }
+            @keyframes oaiThreatTextIn {
+                0% { opacity: 0; transform: scale(1.26); filter: blur(14px); }
+                22% { opacity: 1; transform: scale(0.98); filter: blur(0); }
+                100% { opacity: 1; transform: scale(1); filter: blur(0); }
+            }
+            @keyframes oaiGreenAppear {
+                0% { opacity: 0; transform: translateY(18px) scale(0.92); filter: blur(10px); }
+                100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+            }
+            .oai-promo-cinematic-overlay {
+                position: fixed;
+                inset: 0;
+                z-index: 10060;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+                pointer-events: none;
+                animation: oaiOverlayFadeIn 0.18s ease-out;
+            }
+            .oai-promo-cinematic-overlay.oai-closing { animation: oaiOverlayFadeOut 0.34s ease-in forwards; }
+            .oai-ben-overlay {
+                background:
+                    radial-gradient(circle at center, rgba(255,199,70,0.12), rgba(0,0,0,0.88) 46%),
+                    linear-gradient(180deg, rgba(3,9,18,0.16), rgba(0,0,0,0.92));
+            }
+            .oai-ben-sweep, .oai-threat-sweep {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                width: 30vw;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
+                animation: oaiSweepMove 1.25s ease-out forwards;
+            }
+            .oai-ben-title {
+                position: absolute;
+                top: 16%;
+                left: 50%;
+                transform: translateX(-50%);
+                font-family: 'Arial Black', Impact, sans-serif;
+                font-size: clamp(22px, 3vw, 38px);
+                letter-spacing: 12px;
+                color: #f7c84a;
+                text-transform: uppercase;
+                text-shadow: 0 0 14px rgba(247,200,74,0.48), 0 0 36px rgba(247,200,74,0.22);
+                animation: oaiBenTitleDrift 2.4s ease-in-out infinite;
+                white-space: nowrap;
+            }
+            .oai-ben-main {
+                position: relative;
+                z-index: 2;
+                text-align: center;
+                font-family: Impact, 'Arial Black', sans-serif;
+                text-transform: uppercase;
+                line-height: 0.88;
+                letter-spacing: 8px;
+                animation: oaiBenGlowIn 1.05s cubic-bezier(0.18,0.95,0.26,1.08) forwards;
+            }
+            .oai-ben-main .line {
+                display: block;
+                font-size: clamp(72px, 12vw, 220px);
+                color: rgba(255,56,28,0.96);
+                text-shadow: 0 0 18px rgba(255,136,0,0.44), 0 0 56px rgba(255,32,32,0.45), 0 0 120px rgba(255,0,0,0.24);
+            }
+            .oai-ben-sub {
+                margin-top: 18px;
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: clamp(18px, 2.3vw, 34px);
+                font-weight: 700;
+                letter-spacing: 1px;
+                color: rgba(255,255,255,0.92);
+                text-shadow: 0 0 12px rgba(255,255,255,0.18);
+                max-width: min(1100px, 82vw);
+            }
+            .oai-ben-sub-small {
+                display: block;
+                margin-top: 16px;
+                font-size: clamp(16px, 2vw, 28px);
+                letter-spacing: 6px;
+                color: rgba(255,208,140,0.85);
+            }
+            .oai-threat-overlay {
+                background:
+                    radial-gradient(circle at center, rgba(255,0,0,0.10), rgba(0,0,0,0.94) 48%),
+                    linear-gradient(180deg, rgba(18,0,0,0.24), rgba(0,0,0,0.97));
+                animation: oaiPulseShake 0.3s linear 0s 4;
+            }
+            .oai-threat-overlay.error500 {
+                background:
+                    radial-gradient(circle at center, rgba(255,120,0,0.12), rgba(0,0,0,0.94) 48%),
+                    linear-gradient(180deg, rgba(30,6,0,0.28), rgba(0,0,0,0.97));
+            }
+            .oai-threat-noise {
+                position: absolute;
+                inset: -10%;
+                background: repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0 2px, rgba(0,0,0,0.05) 2px 4px);
+                mix-blend-mode: screen;
+                opacity: 0.22;
+            }
+            .oai-threat-core {
+                position: relative;
+                z-index: 2;
+                text-align: center;
+                width: min(1200px, 88vw);
+                padding: 24px;
+            }
+            .oai-threat-kicker {
+                font-family: 'Arial Black', Impact, sans-serif;
+                font-size: clamp(22px, 3vw, 44px);
+                letter-spacing: 12px;
+                text-transform: uppercase;
+                color: #f5ca4d;
+                text-shadow: 0 0 14px rgba(245,202,77,0.42);
+                margin-bottom: 26px;
+                white-space: nowrap;
+            }
+            .oai-threat-main {
+                font-family: Impact, 'Arial Black', sans-serif;
+                font-size: clamp(72px, 12vw, 220px);
+                line-height: 0.9;
+                letter-spacing: 8px;
+                text-transform: uppercase;
+                color: rgba(255,44,44,0.96);
+                text-shadow: 0 0 22px rgba(255,120,0,0.34), 0 0 66px rgba(255,0,0,0.42), 0 0 120px rgba(255,0,0,0.24);
+                animation: oaiThreatTextIn 0.6s cubic-bezier(0.18,0.95,0.26,1.08) forwards;
+            }
+            .oai-threat-overlay.error500 .oai-threat-main {
+                color: rgba(255,140,46,0.98);
+                text-shadow: 0 0 22px rgba(255,212,122,0.28), 0 0 66px rgba(255,120,0,0.42), 0 0 120px rgba(255,60,0,0.24);
+            }
+            .oai-threat-sub {
+                margin-top: 18px;
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: clamp(18px, 2.1vw, 34px);
+                font-weight: 700;
+                color: rgba(255,255,255,0.94);
+                text-shadow: 0 0 14px rgba(255,255,255,0.14);
+            }
+            .oai-threat-reward {
+                margin-top: 28px;
+                font-family: 'Arial Black', Impact, sans-serif;
+                font-size: clamp(24px, 3.2vw, 48px);
+                line-height: 1.1;
+                color: #65ff91;
+                text-shadow: 0 0 16px rgba(101,255,145,0.36), 0 0 48px rgba(24,255,125,0.20);
+                opacity: 0;
+                transform: translateY(18px) scale(0.92);
+            }
+            .oai-threat-reward.show {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                animation: oaiGreenAppear 0.34s ease-out forwards;
+            }
+            @media (max-width: 768px) {
+                .oai-ben-title, .oai-threat-kicker { letter-spacing: 6px; top: 12%; }
+                .oai-ben-main .line, .oai-threat-main { letter-spacing: 2px; }
+                .oai-ben-sub { max-width: 90vw; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function removeExistingCinematics(){
+        document.querySelectorAll('#oai-ben-overlay, #oai-threat-overlay, #ben-cinematic-overlay').forEach(el => el.remove());
+    }
+
+    window.playBenCinematic = function playBenCinematic(){
+        ensurePromoCinematicStyles();
+        removeExistingCinematics();
+        const overlay = document.createElement('div');
+        overlay.id = 'oai-ben-overlay';
+        overlay.className = 'oai-promo-cinematic-overlay oai-ben-overlay';
+        overlay.innerHTML = `
+            <div class="oai-ben-sweep"></div>
+            <div class="oai-ben-title">CRITICAL RESPECT PROTOCOL</div>
+            <div class="oai-ben-main">
+                <span class="line">PRESS F</span>
+                <span class="line">BEN</span>
+                <div class="oai-ben-sub">СПО фиксирует максимальную степень респекта. Баланс раздут, долги списаны,<br><span class="oai-ben-sub-small">удача выкручена в потолок</span></div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        setTimeout(() => overlay.classList.add('oai-closing'), 2900);
+        setTimeout(() => overlay.remove(), 3300);
+    };
+
+    function showScaryPromoFakeout(kind, rewardAmount, rewardText){
+        ensurePromoCinematicStyles();
+        removeExistingCinematics();
+        const isError = kind === 'error500';
+        const overlay = document.createElement('div');
+        overlay.id = 'oai-threat-overlay';
+        overlay.className = 'oai-promo-cinematic-overlay oai-threat-overlay' + (isError ? ' error500' : '');
+        overlay.innerHTML = `
+            <div class="oai-threat-noise"></div>
+            <div class="oai-threat-sweep"></div>
+            <div class="oai-threat-core">
+                <div class="oai-threat-kicker">${isError ? 'CRITICAL SYSTEM FAILURE' : 'ACCOUNT ENFORCEMENT PROTOCOL'}</div>
+                <div class="oai-threat-main">${isError ? 'ERROR 500' : 'BANNED'}</div>
+                <div class="oai-threat-sub">${isError ? 'Ядро СПО не найдено. Сеанс будет принудительно... почти.' : 'Аккаунт заблокирован. Доступ к кейсам и балансу будет изъят.'}</div>
+                <div class="oai-threat-reward"></div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        const rewardNode = overlay.querySelector('.oai-threat-reward');
+        setTimeout(() => {
+            try { balance = (Number(balance) || 0) + rewardAmount; } catch (e) {}
+            if (typeof updateBalance === 'function') updateBalance();
+            if (typeof saveGameData === 'function') saveGameData();
+            rewardNode.textContent = rewardText;
+            rewardNode.classList.add('show');
+        }, 1650);
+        setTimeout(() => overlay.classList.add('oai-closing'), 4300);
+        setTimeout(() => overlay.remove(), 4700);
+    }
+
+    const oldActivatePromocode = window.activatePromocode;
+    if (typeof oldActivatePromocode === 'function' && !window.__oaiPromoFakeoutWrapped) {
+        window.__oaiPromoFakeoutWrapped = true;
+        window.activatePromocode = function wrappedActivatePromocode(inputCode){
+            const input = document.getElementById('promocodeInput');
+            const rawCode = inputCode != null ? String(inputCode) : (input ? input.value : '');
+            const promocode = String(rawCode || '').trim().toUpperCase();
+            if (promocode === 'BANNED' || promocode === 'ERROR500') {
+                if (!promocode) {
+                    if (typeof showPromocodeMessage === 'function') showPromocodeMessage('Введите промокод!', 'error');
+                    return false;
+                }
+                if (!Array.isArray(usedPromocodes)) usedPromocodes = [];
+                if (usedPromocodes.includes(promocode)) {
+                    if (typeof showPromocodeMessage === 'function') showPromocodeMessage('Промокод уже был использован!', 'error');
+                    return false;
+                }
+                usedPromocodes.push(promocode);
+                if (input) input.value = '';
+                if (typeof closeProfileMenu === 'function') closeProfileMenu();
+                if (typeof saveGameData === 'function') saveGameData();
+                if (promocode === 'BANNED') {
+                    showScaryPromoFakeout('banned', 50, 'Ладно, это был рофл. Держи +50 ꙮ');
+                } else {
+                    showScaryPromoFakeout('error500', 133, 'Ладно, это был рофл. Держи +133 ꙮ');
+                }
+                return true;
+            }
+            return oldActivatePromocode.apply(this, arguments);
+        };
+        window.processPromocode = window.activatePromocode;
+    }
+})();
+</script>
+
+
+<script id="oai-final-promo-center-save-fix">
+(function(){
+    function injectFinalPromoStyles(){
+        if (document.getElementById('oai-final-promo-center-save-style')) return;
+        const style = document.createElement('style');
+        style.id = 'oai-final-promo-center-save-style';
+        style.textContent = `
+            #oai-ben-overlay {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                flex-direction: column !important;
+                text-align: center !important;
+            }
+            #oai-ben-overlay .oai-ben-title {
+                width: 100% !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                text-align: center !important;
+                display: block !important;
+                top: 14% !important;
+                margin: 0 auto !important;
+                padding: 0 24px !important;
+                box-sizing: border-box !important;
+            }
+            #oai-ben-overlay .oai-ben-main {
+                width: min(1200px, 92vw) !important;
+                margin: 0 auto !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                text-align: center !important;
+            }
+            #oai-ben-overlay .oai-ben-main .line {
+                width: 100% !important;
+                text-align: center !important;
+            }
+            #oai-ben-overlay .oai-ben-sub {
+                width: min(1100px, 86vw) !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                text-align: center !important;
+            }
+            #oai-ben-overlay .oai-ben-sub-small {
+                display: inline-block !important;
+                text-align: center !important;
+            }
+            @media (max-width: 768px) {
+                #oai-ben-overlay .oai-ben-title {
+                    top: 12% !important;
+                    letter-spacing: 5px !important;
+                    padding: 0 14px !important;
+                }
+                #oai-ben-overlay .oai-ben-sub {
+                    width: min(92vw, 92vw) !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function removePromoOverlays(){
+        document.querySelectorAll('#oai-ben-overlay, #oai-threat-overlay, #ben-cinematic-overlay').forEach(function(el){
+            try { el.remove(); } catch (e) {}
+        });
+    }
+
+    window.playBenCinematic = function(){
+        injectFinalPromoStyles();
+        removePromoOverlays();
+        const overlay = document.createElement('div');
+        overlay.id = 'oai-ben-overlay';
+        overlay.className = 'oai-promo-cinematic-overlay oai-ben-overlay';
+        overlay.innerHTML = `
+            <div class="oai-ben-sweep"></div>
+            <div class="oai-ben-title">CRITICAL RESPECT PROTOCOL</div>
+            <div class="oai-ben-main">
+                <span class="line">PRESS F</span>
+                <span class="line">BEN</span>
+                <div class="oai-ben-sub">СПО фиксирует максимальную степень респекта. Баланс раздут, долги списаны,<br><span class="oai-ben-sub-small">удача выкручена в потолок</span></div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        setTimeout(function(){ overlay.classList.add('oai-closing'); }, 4200);
+        setTimeout(function(){ try { overlay.remove(); } catch (e) {} }, 4700);
+    };
+
+    const originalShowPromoToast = typeof window.showPromoToast === 'function' ? window.showPromoToast : null;
+    const originalCloseProfileMenu = typeof window.closeProfileMenu === 'function' ? window.closeProfileMenu : function(){};
+
+    window.saveProfile = function() {
+        const nicknameInput = document.getElementById('nicknameInput');
+        const promocodeInput = document.getElementById('promocodeInput');
+        const newNickname = nicknameInput ? nicknameInput.value.trim() : '';
+        const pendingPromocode = promocodeInput ? promocodeInput.value.trim() : '';
+
+        if (!newNickname || newNickname.length <= 0) {
+            alert('Введите корректный никнейм!');
+            return;
+        }
+
+        userNickname = newNickname;
+        if (typeof saveGameData === 'function') saveGameData();
+
+        if (pendingPromocode) {
+            // ВАЖНО: вызываем точно так же, как жёлтая кнопка, без передачи options-объекта.
+            const promoApplied = typeof window.activatePromocode === 'function' ? window.activatePromocode() : false;
+            if (!promoApplied) {
+                if (originalShowPromoToast) {
+                    originalShowPromoToast('⚠️ Ник сохранён, но промокод не сработал.', 'warning');
+                }
+            }
+        } else {
+            if (originalShowPromoToast) {
+                originalShowPromoToast('✅ Профиль сохранён.', 'success');
+            }
+            originalCloseProfileMenu();
+        }
+    };
+
+    injectFinalPromoStyles();
+})();
+</script>
+
 </body>
 </html>
