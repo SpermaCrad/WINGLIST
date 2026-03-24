@@ -2813,7 +2813,7 @@
             <div class="inventory-grid" id="inventoryGrid">
                 <div class="inventory-item">
                     <div class="inventory-item-icon" style="background: #95a5a6;">🔧</div>
-                    <div>Стартовый предмет</div>
+                    <div>Стартовый кейс</div>
                 </div>
             </div>
         </div>
@@ -2884,7 +2884,7 @@
         let currentItem = null;
         let currentCasePrice = 120; // 🎨 Переменная для хранения цены текущего открываемого кейса
         let inventory = [
-            { name: 'Стартовый предмет', image: 'dropcase1_1', rarity: 'common', value: 10 }
+            { name: 'Стартовый кейс', image: 'casevoucher_100', rarity: 'legendary', value: 60, itemType: 'case_voucher', usableCaseType: 100, usableCaseName: 'Стартовый кейс', usableCasePrice: 60 }
         ];
         let userNickname = 'Игрок';
         let userAvatar = null; // Хранит base64 данные аватара
@@ -3023,7 +3023,7 @@
             return {
                 version: sanitizeInt(gameData.version, 1, 1, 999),
                 balance: sanitizeNumber(gameData.balance, 1000, 0, 99999999),
-                inventory: sanitizedInventory.length ? sanitizedInventory : [{ name: 'Стартовый предмет', image: 'dropcase1_1', rarity: 'common', value: 10 }],
+                inventory: sanitizedInventory.length ? sanitizedInventory : [{ name: 'Стартовый кейс', image: 'casevoucher_100', rarity: 'legendary', value: 60, itemType: 'case_voucher', usableCaseType: 100, usableCaseName: 'Стартовый кейс', usableCasePrice: 60 }],
                 userNickname: sanitizeText(gameData.userNickname, 'Игрок').slice(0, 20) || 'Игрок',
                 userAvatar: sanitizeAvatarValue(gameData.userAvatar),
                 usedPromocodes: Array.isArray(gameData.usedPromocodes)
@@ -7700,7 +7700,7 @@ function getPromoToastContainer() {
             if (confirm('🗑️ Сбросить ВСЁ? (кроме режима разработчика)')) {
                 // Сброс всего кроме режима разработчика
                 balance = 1000;
-                inventory = [{ name: 'Стартовый предмет', image: 'dropcase1_1', rarity: 'common', value: 10 }];
+                inventory = [{ name: 'Стартовый кейс', image: 'casevoucher_100', rarity: 'legendary', value: 60, itemType: 'case_voucher', usableCaseType: 100, usableCaseName: 'Стартовый кейс', usableCasePrice: 60 }];
                 usedPromocodes = ['RAZRAB']; // Сохраняем только RAZRAB
                 socialRating = 100;
                 bonusHintShown = false;
@@ -8864,7 +8864,7 @@ function repent() {
         debtAmount = 500;
         socialRating = 75;
         balance = 100;
-        inventory = [{ name: 'Стартовый предмет', image: 'dropcase1_1', rarity: 'common', value: 10 }];
+        inventory = [{ name: 'Стартовый кейс', image: 'casevoucher_100', rarity: 'legendary', value: 60, itemType: 'case_voucher', usableCaseType: 100, usableCaseName: 'Стартовый кейс', usableCasePrice: 60 }];
 
         updateBalance();
         updateInventory();
@@ -8964,7 +8964,14 @@ function repent() {
             return container;
         }
 
-        function showDebtMessage(message, type) {
+        
+        function showDebtPaymentMessage(paidAmount, oldDebtAmount, ratingGain) {
+            showDebtMessage(`✅ Госдолг погашен автоматически!
+💰 Списано: ${paidAmount} ꙮ
+📈 Рейтинг: +${ratingGain} (${socialRating})`, 'success');
+        }
+        
+function showDebtMessage(message, type) {
             const container = getDebtToastContainer();
             const messageEl = document.createElement('div');
 
@@ -12914,6 +12921,1086 @@ function repent() {
     } else {
         init();
     }
+})();
+</script>
+
+
+<script id="oai-starter-dev-cases-stable-patch">
+(function(){
+    const STARTER_CASE_TYPE = 100;
+    const SPECIAL_CASES = {"100": {"name": "Стартовый кейс", "price": 60, "closed": "casestart_closed.png", "open": "casestart_open.png", "dev": false, "drops": [{"name": "Ржавый жетон СПО", "image": "dropstarter_1", "rarity": "common", "value": 8, "chance": 23}, {"name": "Стертая гайка", "image": "dropstarter_2", "rarity": "common", "value": 12, "chance": 21}, {"name": "Пыльная аудиокассета", "image": "dropstarter_3", "rarity": "rare", "value": 28, "chance": 20}, {"name": "Сломанный фиолетовый брелок", "image": "dropstarter_4", "rarity": "rare", "value": 42, "chance": 16}, {"name": "Пустая банка", "image": "dropstarter_5", "rarity": "epic", "value": 75, "chance": 13}, {"name": "Смятая жестянка", "image": "dropstarter_6", "rarity": "legendary", "value": 120, "chance": 7}]}, "101": {"name": "Ночной билд", "price": 350, "closed": "casedev1_close.png", "open": "casedev1_open.png", "dev": true, "drops": [{"name": "Лог-файл", "image": "dropdev1_1", "rarity": "common", "value": 70, "chance": 18}, {"name": "Сломанный сканер", "image": "dropdev1_2", "rarity": "common", "value": 95, "chance": 16}, {"name": "Ночная лампа", "image": "dropdev1_3", "rarity": "rare", "value": 180, "chance": 18}, {"name": "Патч-плата", "image": "dropdev1_4", "rarity": "rare", "value": 260, "chance": 17}, {"name": "Сигнальный конус", "image": "dropdev1_5", "rarity": "epic", "value": 420, "chance": 13}, {"name": "Диагностический модуль", "image": "dropdev1_6", "rarity": "epic", "value": 620, "chance": 11}, {"name": "Прототип ядра", "image": "dropdev1_7", "rarity": "legendary", "value": 1300, "chance": 7}]}, "102": {"name": "Техноядро", "price": 520, "closed": "casedev2_close.png", "open": "casedev2_open.png", "dev": true, "drops": [{"name": "Импульсная шайба", "image": "dropdev2_1", "rarity": "common", "value": 95, "chance": 18}, {"name": "Сердечник", "image": "dropdev2_2", "rarity": "common", "value": 140, "chance": 16}, {"name": "Технокуб", "image": "dropdev2_3", "rarity": "rare", "value": 260, "chance": 18}, {"name": "Плата сопряжения", "image": "dropdev2_4", "rarity": "rare", "value": 360, "chance": 16}, {"name": "Реакторная катушка", "image": "dropdev2_5", "rarity": "epic", "value": 650, "chance": 13}, {"name": "Ядро сервопривода", "image": "dropdev2_6", "rarity": "epic", "value": 880, "chance": 11}, {"name": "Пульсарный модуль", "image": "dropdev2_7", "rarity": "legendary", "value": 1750, "chance": 8}]}, "103": {"name": "Фантомный протокол", "price": 760, "closed": "casedev3_close.png", "open": "casedev3_open.png", "dev": true, "drops": [{"name": "Тень-ключ", "image": "dropdev3_1", "rarity": "common", "value": 120, "chance": 18}, {"name": "Сбойная маска", "image": "dropdev3_2", "rarity": "common", "value": 170, "chance": 16}, {"name": "Фантомный диск", "image": "dropdev3_3", "rarity": "rare", "value": 320, "chance": 18}, {"name": "Паразитный чип", "image": "dropdev3_4", "rarity": "rare", "value": 440, "chance": 16}, {"name": "Протокол-капсула", "image": "dropdev3_5", "rarity": "epic", "value": 820, "chance": 13}, {"name": "Призрачный передатчик", "image": "dropdev3_6", "rarity": "epic", "value": 1120, "chance": 11}, {"name": "Узел стирания", "image": "dropdev3_7", "rarity": "legendary", "value": 2300, "chance": 8}]}, "104": {"name": "Байки от Шера", "price": 920, "closed": "casedev4_close.png", "open": "casedev4_open.png", "dev": true, "drops": [{"name": "Байка о топоре", "image": "dropdev4_1", "rarity": "common", "value": 150, "chance": 18}, {"name": "Байка о болоте", "image": "dropdev4_2", "rarity": "common", "value": 210, "chance": 16}, {"name": "Байка о базе", "image": "dropdev4_3", "rarity": "rare", "value": 380, "chance": 18}, {"name": "Байка про рейд", "image": "dropdev4_4", "rarity": "rare", "value": 520, "chance": 16}, {"name": "Байка про гниль", "image": "dropdev4_5", "rarity": "epic", "value": 960, "chance": 13}, {"name": "Байка про пропажу", "image": "dropdev4_6", "rarity": "epic", "value": 1240, "chance": 11}, {"name": "Байка про Шера", "image": "dropdev4_7", "rarity": "legendary", "value": 2500, "chance": 8}]}, "105": {"name": "Фиолетовый разлом", "price": 1100, "closed": "casedev5_close.png", "open": "casedev5_open.png", "dev": true, "drops": [{"name": "Осколок разлома", "image": "dropdev5_1", "rarity": "common", "value": 180, "chance": 18}, {"name": "Сгусток свечения", "image": "dropdev5_2", "rarity": "common", "value": 240, "chance": 16}, {"name": "Фиолетовый болт", "image": "dropdev5_3", "rarity": "rare", "value": 450, "chance": 18}, {"name": "Пустотный жетон", "image": "dropdev5_4", "rarity": "rare", "value": 620, "chance": 16}, {"name": "Разломный кристалл", "image": "dropdev5_5", "rarity": "epic", "value": 1100, "chance": 13}, {"name": "Узел аномалии", "image": "dropdev5_6", "rarity": "epic", "value": 1480, "chance": 11}, {"name": "Ядро разлома", "image": "dropdev5_7", "rarity": "legendary", "value": 2900, "chance": 8}]}, "106": {"name": "IVA STUDIO", "price": 1400, "closed": "casedev6_close.png", "open": "casedev6_open.png", "dev": true, "drops": [{"name": "Лого-брелок", "image": "dropdev6_1", "rarity": "common", "value": 220, "chance": 18}, {"name": "Монтажный диск", "image": "dropdev6_2", "rarity": "common", "value": 280, "chance": 16}, {"name": "Рендер-кассета", "image": "dropdev6_3", "rarity": "rare", "value": 520, "chance": 18}, {"name": "Студийная маска", "image": "dropdev6_4", "rarity": "rare", "value": 740, "chance": 16}, {"name": "Вайв-эмиттер", "image": "dropdev6_5", "rarity": "epic", "value": 1320, "chance": 13}, {"name": "Режиссёрский модуль", "image": "dropdev6_6", "rarity": "epic", "value": 1760, "chance": 11}, {"name": "Ядро IVA", "image": "dropdev6_7", "rarity": "legendary", "value": 3400, "chance": 8}]}};
+    const DEV_CASE_TYPES = Object.keys(SPECIAL_CASES).map(Number).filter(type => SPECIAL_CASES[type].dev);
+    const STARTER_STORAGE_KEY = 'winglistStarterCaseInitializedV2';
+
+    function specialMeta(type) {
+        return SPECIAL_CASES[Number(type)] || null;
+    }
+
+    function createSpecialVoucher(caseType) {
+        const meta = specialMeta(caseType);
+        if (!meta) return null;
+        if (typeof buildVoucher === 'function') return buildVoucher(caseType, meta.name, meta.price);
+        if (typeof buildCaseVoucherItem === 'function') return buildCaseVoucherItem(caseType, meta.name, meta.price);
+        return {
+            name: `🎁 ${meta.name}`,
+            image: `casevoucher_${Number(caseType)}`,
+            rarity: 'legendary',
+            value: meta.price,
+            itemType: 'case_voucher',
+            usableCaseType: Number(caseType),
+            usableCaseName: meta.name,
+            usableCasePrice: meta.price
+        };
+    }
+
+    function isStarterLegacyItem(item) {
+        if (!item || typeof item !== 'object') return false;
+        const name = String(item.name || '').trim();
+        return name === 'Стартовый предмет';
+    }
+
+    function normalizeSpecialVoucherItem(item) {
+        if (!item || typeof item !== 'object') return item;
+        if (isStarterLegacyItem(item)) return createSpecialVoucher(STARTER_CASE_TYPE);
+        const maybeType = Number(item.usableCaseType);
+        if (Number.isFinite(maybeType) && specialMeta(maybeType)) {
+            return {
+                ...item,
+                name: `🎁 ${specialMeta(maybeType).name}`,
+                image: `casevoucher_${maybeType}`,
+                rarity: 'legendary',
+                value: Number(item.value) || specialMeta(maybeType).price,
+                itemType: 'case_voucher',
+                usableCaseType: maybeType,
+                usableCaseName: specialMeta(maybeType).name,
+                usableCasePrice: Number(item.usableCasePrice) || specialMeta(maybeType).price
+            };
+        }
+        if (String(item.name || '').trim() === 'Стартовый кейс') {
+            return createSpecialVoucher(STARTER_CASE_TYPE);
+        }
+        return item;
+    }
+
+    function ensureSpecialData() {
+        if (typeof items === 'object' && items) {
+            Object.entries(SPECIAL_CASES).forEach(([type, meta]) => {
+                items[Number(type)] = meta.drops.map(drop => ({ ...drop }));
+            });
+        }
+        if (typeof caseImages === 'object' && caseImages) {
+            Object.entries(SPECIAL_CASES).forEach(([type, meta]) => {
+                caseImages[Number(type)] = { closed: meta.closed, open: meta.open };
+            });
+        }
+    }
+
+    const nativeGetCaseNameByType = typeof getCaseNameByType === 'function' ? getCaseNameByType : null;
+    const nativeGetCasePriceByType = typeof getCasePriceByType === 'function' ? getCasePriceByType : null;
+    const nativeGetCaseNameSafe = typeof getCaseNameSafe === 'function' ? getCaseNameSafe : null;
+    const nativeGetCasePriceSafe = typeof getCasePriceSafe === 'function' ? getCasePriceSafe : null;
+
+    window.getCaseNameByType = getCaseNameByType = function(caseType) {
+        const meta = specialMeta(caseType);
+        if (meta) return meta.name;
+        return nativeGetCaseNameByType ? nativeGetCaseNameByType(caseType) : `Кейс ${caseType}`;
+    };
+
+    window.getCasePriceByType = getCasePriceByType = function(caseType) {
+        const meta = specialMeta(caseType);
+        if (meta) return Number(meta.price) || 0;
+        return nativeGetCasePriceByType ? nativeGetCasePriceByType(caseType) : 0;
+    };
+
+    if (nativeGetCaseNameSafe) {
+        window.getCaseNameSafe = getCaseNameSafe = function(caseType) {
+            const meta = specialMeta(caseType);
+            if (meta) return meta.name;
+            return nativeGetCaseNameSafe(caseType);
+        };
+    }
+    if (nativeGetCasePriceSafe) {
+        window.getCasePriceSafe = getCasePriceSafe = function(caseType) {
+            const meta = specialMeta(caseType);
+            if (meta) return Number(meta.price) || 0;
+            return nativeGetCasePriceSafe(caseType);
+        };
+    }
+
+    function hasStarterVoucher() {
+        return Array.isArray(inventory) && inventory.some(item => item && Number(item.usableCaseType) === STARTER_CASE_TYPE && item.itemType === 'case_voucher');
+    }
+
+    function normalizeInventoryState(forceStarter = false) {
+        if (!Array.isArray(inventory)) inventory = [];
+        let changed = false;
+        inventory = inventory.map(item => {
+            const normalized = normalizeSpecialVoucherItem(item);
+            if (normalized !== item) changed = true;
+            return normalized;
+        }).filter(Boolean);
+
+        if ((forceStarter || !localStorage.getItem(STARTER_STORAGE_KEY)) && !hasStarterVoucher()) {
+            inventory.unshift(createSpecialVoucher(STARTER_CASE_TYPE));
+            changed = true;
+        }
+
+        if (hasStarterVoucher()) {
+            try { localStorage.setItem(STARTER_STORAGE_KEY, '1'); } catch (e) {}
+        }
+
+        if (changed) {
+            if (typeof updateInventory === 'function') updateInventory();
+            if (typeof saveGameData === 'function') saveGameData();
+        }
+    }
+
+    function buildAllCaseEntries() {
+        const publicCases = [...document.querySelectorAll('.case[data-case]')].map(caseEl => ({
+            type: Number(caseEl.dataset.case),
+            name: (caseEl.querySelector('.case-name')?.textContent || `Кейс ${caseEl.dataset.case}`).trim(),
+            price: Number(caseEl.dataset.price) || 0,
+            dev: false
+        })).filter(entry => Number.isFinite(entry.type));
+
+        const hiddenDev = DEV_CASE_TYPES.map(type => ({
+            type,
+            name: SPECIAL_CASES[type].name,
+            price: Number(SPECIAL_CASES[type].price) || 0,
+            dev: true
+        }));
+
+        return [...publicCases, ...hiddenDev];
+    }
+
+    function buildSelectWithGroups(cases, includeStarter = false) {
+        const select = document.createElement('select');
+        select.style.cssText = 'width:100%;padding:12px 14px;margin-bottom:12px;background:#0f1720;color:#fff;border:1px solid rgba(255,255,255,0.18);border-radius:10px;font-size:15px;';
+        const publicGroup = document.createElement('optgroup');
+        publicGroup.label = 'Обычные кейсы';
+
+        const publicEntries = cases.filter(entry => !entry.dev && Number(entry.type) !== STARTER_CASE_TYPE);
+        if (includeStarter && SPECIAL_CASES[STARTER_CASE_TYPE]) {
+            publicEntries.unshift({
+                type: STARTER_CASE_TYPE,
+                name: SPECIAL_CASES[STARTER_CASE_TYPE].name,
+                price: Number(SPECIAL_CASES[STARTER_CASE_TYPE].price) || 0,
+                dev: false
+            });
+        }
+
+        publicEntries.forEach(entry => {
+            const option = document.createElement('option');
+            option.value = String(entry.type);
+            option.textContent = `${entry.name} — ${entry.price} ꙮ`;
+            publicGroup.appendChild(option);
+        });
+        select.appendChild(publicGroup);
+
+        const devEntries = cases.filter(entry => entry.dev);
+        if (devEntries.length) {
+            const devGroup = document.createElement('optgroup');
+            devGroup.label = 'DEV-CASE';
+            devEntries.forEach(entry => {
+                const option = document.createElement('option');
+                option.value = String(entry.type);
+                option.textContent = `${entry.name} — ${entry.price} ꙮ`;
+                devGroup.appendChild(option);
+            });
+            select.appendChild(devGroup);
+        }
+        return select;
+    }
+
+    window.openDevGiveDropModal = function() {
+        if (!devModeActive) return;
+        const allCases = buildAllCaseEntries();
+        const { overlay, panel } = createPickerModal('🎁 Выдать дроп в инвентарь');
+        const caseSelect = buildSelectWithGroups(allCases, true);
+        const itemSelect = document.createElement('select');
+        itemSelect.style.cssText = 'width:100%;padding:12px 14px;margin-bottom:12px;background:#0f1720;color:#fff;border:1px solid rgba(255,255,255,0.18);border-radius:10px;font-size:15px;';
+
+        function refillItems() {
+            itemSelect.innerHTML = '';
+            const type = Number(caseSelect.value) || allCases[0]?.type || 1;
+            const list = Array.isArray(items?.[type]) ? items[type] : [];
+            list.forEach((item, index) => {
+                const option = document.createElement('option');
+                option.value = String(index);
+                option.textContent = `${item.name} — ${item.value} ꙮ (${item.rarity})`;
+                itemSelect.appendChild(option);
+            });
+        }
+        caseSelect.addEventListener('change', refillItems);
+        refillItems();
+
+        const controls = document.createElement('div');
+        controls.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap;';
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Отмена';
+        const confirmBtn = document.createElement('button');
+        confirmBtn.textContent = 'Выдать';
+        [cancelBtn, confirmBtn].forEach(btn => {
+            btn.style.cssText = 'padding:11px 18px;border:none;border-radius:10px;font-weight:800;cursor:pointer;';
+        });
+        cancelBtn.style.background = '#7f8c8d';
+        cancelBtn.style.color = '#fff';
+        confirmBtn.style.background = 'linear-gradient(135deg,#27ae60,#2ecc71)';
+        confirmBtn.style.color = '#fff';
+        cancelBtn.onclick = () => overlay.remove();
+        confirmBtn.onclick = () => {
+            const type = Number(caseSelect.value) || 1;
+            const index = Number(itemSelect.value) || 0;
+            const source = Array.isArray(items?.[type]) ? items[type][index] : null;
+            if (!source) return;
+            const granted = { ...source, casePrice: getCasePriceByType(type) || source.casePrice || 0 };
+            inventory.push(granted);
+            updateInventory();
+            saveGameData();
+            showDevToast(`Дроп добавлен: ${granted.name}`, 'DEV');
+            overlay.remove();
+        };
+
+        panel.appendChild(caseSelect);
+        panel.appendChild(itemSelect);
+        controls.appendChild(cancelBtn);
+        controls.appendChild(confirmBtn);
+        panel.appendChild(controls);
+    };
+
+    window.openDevGiveCaseModal = function() {
+        if (!devModeActive) return;
+        const allCases = buildAllCaseEntries();
+        const { overlay, panel } = createPickerModal('📦 Выдать бесплатный кейс');
+        const caseSelect = buildSelectWithGroups(allCases, true);
+        const controls = document.createElement('div');
+        controls.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap;';
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Отмена';
+        const confirmBtn = document.createElement('button');
+        confirmBtn.textContent = 'Выдать';
+        [cancelBtn, confirmBtn].forEach(btn => {
+            btn.style.cssText = 'padding:11px 18px;border:none;border-radius:10px;font-weight:800;cursor:pointer;';
+        });
+        cancelBtn.style.background = '#7f8c8d';
+        cancelBtn.style.color = '#fff';
+        confirmBtn.style.background = 'linear-gradient(135deg,#8e44ad,#9b59b6)';
+        confirmBtn.style.color = '#fff';
+        cancelBtn.onclick = () => overlay.remove();
+        confirmBtn.onclick = () => {
+            const type = Number(caseSelect.value) || 1;
+            const voucher = createSpecialVoucher(type) || (typeof buildVoucher === 'function' ? buildVoucher(type, getCaseNameByType(type), getCasePriceByType(type)) : buildCaseVoucherItem(type, getCaseNameByType(type), getCasePriceByType(type)));
+            inventory.push(voucher);
+            updateInventory();
+            saveGameData();
+            showDevToast(`Кейс добавлен: ${getCaseNameByType(type)}`, 'DEV');
+            overlay.remove();
+        };
+        panel.appendChild(caseSelect);
+        controls.appendChild(cancelBtn);
+        controls.appendChild(confirmBtn);
+        panel.appendChild(controls);
+    };
+
+    const nativeApplyVoucherVisual = typeof applyVoucherVisual === 'function' ? applyVoucherVisual : null;
+    if (nativeApplyVoucherVisual) {
+        window.applyVoucherVisual = applyVoucherVisual = function(targetEl, caseType, state) {
+            ensureSpecialData();
+            return nativeApplyVoucherVisual(targetEl, caseType, state);
+        };
+    }
+
+    const nativeOpenItemMenu = typeof window.openItemMenu === 'function' ? window.openItemMenu : null;
+    if (nativeOpenItemMenu) {
+        window.openItemMenu = function(index) {
+            nativeOpenItemMenu(index);
+            const item = inventory[index];
+            if (!item || item.itemType !== 'case_voucher') return;
+            const imageEl = document.getElementById('itemMenuImage');
+            if (imageEl && typeof applyVoucherVisual === 'function') {
+                imageEl.style.background = 'rgba(24, 10, 38, 0.5)';
+                imageEl.style.border = '3px solid rgba(173, 66, 255, 0.95)';
+                imageEl.style.boxShadow = '0 0 18px rgba(173, 66, 255, 0.45)';
+                imageEl.style.borderRadius = '14px';
+                applyVoucherVisual(imageEl, item.usableCaseType, 'open');
+            }
+        };
+    }
+
+    const nativeUpdateInventory = typeof window.updateInventory === 'function' ? window.updateInventory : null;
+    if (nativeUpdateInventory) {
+        window.updateInventory = function() {
+            const result = nativeUpdateInventory.apply(this, arguments);
+            if (typeof refreshVoucherInventoryVisuals === 'function') refreshVoucherInventoryVisuals();
+            return result;
+        };
+    }
+
+    const nativeLoadGameData = typeof window.loadGameData === 'function' ? window.loadGameData : null;
+    if (nativeLoadGameData) {
+        window.loadGameData = function() {
+            const result = nativeLoadGameData.apply(this, arguments);
+            ensureSpecialData();
+            normalizeInventoryState(false);
+            return result;
+        };
+    }
+
+    function wrapPostAction(name, forceStarter) {
+        const original = window[name];
+        if (typeof original !== 'function') return;
+        window[name] = function() {
+            const result = original.apply(this, arguments);
+            ensureSpecialData();
+            normalizeInventoryState(!!forceStarter);
+            return result;
+        };
+    }
+
+    wrapPostAction('devResetAll', true);
+    wrapPostAction('executeRepentance', true);
+
+    document.addEventListener('DOMContentLoaded', function() {
+        ensureSpecialData();
+        normalizeInventoryState(false);
+        if (typeof refreshVoucherInventoryVisuals === 'function') setTimeout(refreshVoucherInventoryVisuals, 50);
+    }, { once: true });
+})();
+</script>
+
+
+<script id="oai-starter-case-visible-category-fix">
+(function(){
+    const STARTER_CASE_TYPE = 100;
+    const DEV_CASE_TYPES = [101,102,103,104,105,106];
+    const CASE_VOUCHER_TYPE = 'case_voucher';
+
+    function getSpecialMeta(type){
+        try {
+            if (typeof SPECIAL_CASES !== 'undefined' && SPECIAL_CASES && SPECIAL_CASES[Number(type)]) return SPECIAL_CASES[Number(type)];
+        } catch (e) {}
+        return null;
+    }
+
+    function buildStarterVoucherSafe(){
+        if (typeof createSpecialVoucher === 'function') {
+            const built = createSpecialVoucher(STARTER_CASE_TYPE);
+            if (built) return built;
+        }
+        if (typeof buildVoucher === 'function') {
+            const meta = getSpecialMeta(STARTER_CASE_TYPE) || { name: 'Стартовый кейс', price: 60 };
+            return buildVoucher(STARTER_CASE_TYPE, meta.name, meta.price);
+        }
+        return {
+            name: '🎁 Стартовый кейс',
+            image: 'casevoucher_100',
+            rarity: 'legendary',
+            value: 60,
+            itemType: CASE_VOUCHER_TYPE,
+            usableCaseType: STARTER_CASE_TYPE,
+            usableCaseName: 'Стартовый кейс',
+            usableCasePrice: 60
+        };
+    }
+
+    function normalizeStarterVoucherHard(){
+        if (!Array.isArray(window.inventory)) return false;
+        let changed = false;
+        window.inventory = window.inventory.map(item => {
+            if (!item || typeof item !== 'object') return item;
+            const name = String(item.name || '').trim();
+            const itemType = String(item.itemType || '').trim();
+            const usableCaseType = Number(item.usableCaseType);
+            if (name === 'Стартовый предмет') {
+                changed = true;
+                return buildStarterVoucherSafe();
+            }
+            if (name === 'Стартовый кейс' || name === '🎁 Стартовый кейс' || usableCaseType === STARTER_CASE_TYPE) {
+                if (itemType !== CASE_VOUCHER_TYPE || usableCaseType !== STARTER_CASE_TYPE) {
+                    changed = true;
+                    return buildStarterVoucherSafe();
+                }
+            }
+            return item;
+        }).filter(Boolean);
+
+        const hasStarter = window.inventory.some(item => item && String(item.itemType || '') === CASE_VOUCHER_TYPE && Number(item.usableCaseType) === STARTER_CASE_TYPE);
+        if (!hasStarter) {
+            window.inventory.unshift(buildStarterVoucherSafe());
+            changed = true;
+        }
+
+        if (changed) {
+            try { if (typeof updateInventory === 'function') updateInventory(); } catch (e) {}
+            try { if (typeof saveGameData === 'function') saveGameData(); } catch (e) {}
+        }
+        return changed;
+    }
+
+    function hardApplyVoucherVisual(targetEl, caseType, state){
+        if (!targetEl) return;
+        if (typeof applyVoucherVisual === 'function') {
+            applyVoucherVisual(targetEl, caseType, state);
+            return;
+        }
+        const meta = getSpecialMeta(caseType);
+        let file = null;
+        if (meta) file = state === 'open' ? meta.open : meta.closed;
+        targetEl.innerHTML = '';
+        targetEl.textContent = '';
+        targetEl.style.backgroundImage = 'none';
+        targetEl.style.backgroundSize = 'contain';
+        targetEl.style.backgroundPosition = 'center';
+        targetEl.style.backgroundRepeat = 'no-repeat';
+        if (!file) {
+            targetEl.textContent = '🎁';
+            return;
+        }
+        const img = new Image();
+        img.onload = function(){
+            targetEl.innerHTML = '';
+            targetEl.textContent = '';
+            targetEl.style.backgroundImage = "url('" + file + "')";
+            targetEl.style.backgroundSize = 'contain';
+            targetEl.style.backgroundPosition = 'center';
+            targetEl.style.backgroundRepeat = 'no-repeat';
+            targetEl.style.backgroundColor = 'transparent';
+        };
+        img.onerror = function(){
+            targetEl.textContent = '🎁';
+        };
+        img.src = file;
+    }
+
+    function refreshVoucherVisualsHard(){
+        const grid = document.getElementById('inventoryGrid');
+        if (!grid || !Array.isArray(window.inventory)) return;
+        const cards = grid.querySelectorAll('.inventory-item');
+        cards.forEach((card, index) => {
+            const item = window.inventory[index];
+            if (!item || String(item.itemType || '') !== CASE_VOUCHER_TYPE || !Number.isFinite(Number(item.usableCaseType))) return;
+            const icon = card.querySelector('.inventory-item-icon');
+            if (!icon) return;
+            icon.style.position = 'relative';
+            icon.style.overflow = 'hidden';
+            icon.style.borderRadius = '10px';
+            icon.style.backgroundColor = 'rgba(24, 10, 38, 0.55)';
+            icon.style.border = '3px solid rgba(173, 66, 255, 0.95)';
+            icon.style.boxShadow = '0 0 16px rgba(173, 66, 255, 0.38)';
+            hardApplyVoucherVisual(icon, Number(item.usableCaseType), 'closed');
+        });
+    }
+
+    function patchOpenItemMenuHard(){
+        const native = window.openItemMenu;
+        if (typeof native !== 'function' || native.__starterHardPatched) return;
+        const wrapped = function(index){
+            native.apply(this, arguments);
+            const item = Array.isArray(window.inventory) ? window.inventory[index] : null;
+            if (!item || String(item.itemType || '') !== CASE_VOUCHER_TYPE || !Number.isFinite(Number(item.usableCaseType))) return;
+            const imageEl = document.getElementById('itemMenuImage');
+            const nameEl = document.getElementById('itemMenuName');
+            const valueEl = document.getElementById('itemMenuValue');
+            const itemMenuModal = document.getElementById('itemMenuModal');
+            const sellButton = itemMenuModal ? itemMenuModal.querySelector('.btn.btn-warning') : null;
+            const openVoucherBtn = document.getElementById('openCaseVoucherBtn');
+            if (imageEl) {
+                imageEl.style.background = 'rgba(24, 10, 38, 0.5)';
+                imageEl.style.border = '3px solid rgba(173, 66, 255, 0.95)';
+                imageEl.style.boxShadow = '0 0 18px rgba(173, 66, 255, 0.45)';
+                imageEl.style.borderRadius = '14px';
+                hardApplyVoucherVisual(imageEl, Number(item.usableCaseType), 'open');
+            }
+            if (nameEl) nameEl.textContent = `Бесплатный кейс: ${item.usableCaseName || 'Кейс'}`;
+            if (valueEl) valueEl.textContent = `Запуск без оплаты • обычная цена ${item.usableCasePrice || item.value || 0} ꙮ`;
+            if (sellButton) sellButton.style.display = 'none';
+            if (openVoucherBtn) openVoucherBtn.style.display = 'inline-flex';
+        };
+        wrapped.__starterHardPatched = true;
+        window.openItemMenu = wrapped;
+    }
+
+    function patchUpdateInventoryHard(){
+        const native = window.updateInventory;
+        if (typeof native !== 'function' || native.__starterHardPatched) return;
+        const wrapped = function(){
+            const result = native.apply(this, arguments);
+            refreshVoucherVisualsHard();
+            return result;
+        };
+        wrapped.__starterHardPatched = true;
+        window.updateInventory = wrapped;
+    }
+
+    function getVisibleCasePools(includeStarter){
+        const publicCases = [...document.querySelectorAll('.case[data-case]')].map(caseEl => ({
+            type: Number(caseEl.dataset.case),
+            name: (caseEl.querySelector('.case-name')?.textContent || `Кейс ${caseEl.dataset.case}`).trim(),
+            price: Number(caseEl.dataset.price) || 0,
+            dev: false
+        })).filter(entry => Number.isFinite(entry.type));
+        if (includeStarter) {
+            const meta = getSpecialMeta(STARTER_CASE_TYPE) || { name: 'Стартовый кейс', price: 60 };
+            publicCases.unshift({ type: STARTER_CASE_TYPE, name: meta.name, price: Number(meta.price) || 60, dev: false });
+        }
+        const devCases = DEV_CASE_TYPES.map(type => ({
+            type,
+            name: (getSpecialMeta(type) || {}).name || `DEV ${type}`,
+            price: Number((getSpecialMeta(type) || {}).price) || 0,
+            dev: true
+        })).filter(entry => Number.isFinite(entry.type));
+        return { publicCases, devCases };
+    }
+
+    function styleDevSelect(select){
+        select.style.cssText = 'width:100%;padding:12px 14px;margin-bottom:12px;background:#0f1720;color:#fff;border:1px solid rgba(255,255,255,0.18);border-radius:10px;font-size:15px;';
+        return select;
+    }
+
+    function buildCategorySelect(){
+        const select = styleDevSelect(document.createElement('select'));
+        const opt1 = document.createElement('option');
+        opt1.value = 'public';
+        opt1.textContent = 'Обычные кейсы';
+        const opt2 = document.createElement('option');
+        opt2.value = 'dev';
+        opt2.textContent = 'DEV-CASE';
+        select.append(opt1, opt2);
+        return select;
+    }
+
+    function refillCaseSelect(caseSelect, categoryValue, includeStarter){
+        const pools = getVisibleCasePools(includeStarter);
+        const list = categoryValue === 'dev' ? pools.devCases : pools.publicCases;
+        caseSelect.innerHTML = '';
+        list.forEach(entry => {
+            const option = document.createElement('option');
+            option.value = String(entry.type);
+            option.textContent = `${entry.name} — ${entry.price} ꙮ`;
+            caseSelect.appendChild(option);
+        });
+        return list;
+    }
+
+    function getDropsForType(type){
+        try {
+            if (typeof items !== 'undefined' && items && Array.isArray(items[Number(type)])) return items[Number(type)];
+        } catch (e) {}
+        const meta = getSpecialMeta(type);
+        return meta && Array.isArray(meta.drops) ? meta.drops : [];
+    }
+
+    function createControlButtons(overlay, confirmHandler, confirmGradient){
+        const controls = document.createElement('div');
+        controls.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap;';
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Отмена';
+        const confirmBtn = document.createElement('button');
+        confirmBtn.textContent = 'Выдать';
+        [cancelBtn, confirmBtn].forEach(btn => {
+            btn.style.cssText = 'padding:11px 18px;border:none;border-radius:10px;font-weight:800;cursor:pointer;';
+        });
+        cancelBtn.style.background = '#7f8c8d';
+        cancelBtn.style.color = '#fff';
+        confirmBtn.style.background = confirmGradient;
+        confirmBtn.style.color = '#fff';
+        cancelBtn.onclick = () => overlay.remove();
+        confirmBtn.onclick = confirmHandler;
+        controls.append(cancelBtn, confirmBtn);
+        return controls;
+    }
+
+    window.openDevGiveCaseModal = function(){
+        if (!window.devModeActive || typeof createPickerModal !== 'function') return;
+        const overlayPanel = createPickerModal('📦 Выдать бесплатный кейс');
+        const overlay = overlayPanel.overlay;
+        const panel = overlayPanel.panel;
+        const categorySelect = buildCategorySelect();
+        const caseSelect = styleDevSelect(document.createElement('select'));
+        function refill(){ refillCaseSelect(caseSelect, categorySelect.value, true); }
+        categorySelect.addEventListener('change', refill);
+        refill();
+        panel.appendChild(categorySelect);
+        panel.appendChild(caseSelect);
+        panel.appendChild(createControlButtons(overlay, function(){
+            const type = Number(caseSelect.value);
+            const meta = getSpecialMeta(type);
+            const caseName = meta ? meta.name : (typeof getCaseNameByType === 'function' ? getCaseNameByType(type) : `Кейс ${type}`);
+            const casePrice = meta ? Number(meta.price) : (typeof getCasePriceByType === 'function' ? getCasePriceByType(type) : 0);
+            const voucher = (typeof createSpecialVoucher === 'function' ? createSpecialVoucher(type) : null)
+                || (typeof buildVoucher === 'function' ? buildVoucher(type, caseName, casePrice) : null)
+                || (typeof buildCaseVoucherItem === 'function' ? buildCaseVoucherItem(type, caseName, casePrice) : null);
+            if (!voucher) return;
+            window.inventory.push(voucher);
+            if (typeof updateInventory === 'function') updateInventory();
+            if (typeof saveGameData === 'function') saveGameData();
+            if (typeof showDevToast === 'function') showDevToast(`Кейс добавлен: ${caseName}`, 'DEV');
+            overlay.remove();
+        }, 'linear-gradient(135deg,#8e44ad,#9b59b6)'));
+    };
+
+    window.openDevGiveDropModal = function(){
+        if (!window.devModeActive || typeof createPickerModal !== 'function') return;
+        const overlayPanel = createPickerModal('🎁 Выдать дроп в инвентарь');
+        const overlay = overlayPanel.overlay;
+        const panel = overlayPanel.panel;
+        const categorySelect = buildCategorySelect();
+        const caseSelect = styleDevSelect(document.createElement('select'));
+        const itemSelect = styleDevSelect(document.createElement('select'));
+        function refillCases(){
+            refillCaseSelect(caseSelect, categorySelect.value, true);
+            refillItems();
+        }
+        function refillItems(){
+            itemSelect.innerHTML = '';
+            const type = Number(caseSelect.value);
+            const list = getDropsForType(type);
+            list.forEach((item, index) => {
+                const option = document.createElement('option');
+                option.value = String(index);
+                option.textContent = `${item.name} — ${item.value} ꙮ (${item.rarity})`;
+                itemSelect.appendChild(option);
+            });
+        }
+        categorySelect.addEventListener('change', refillCases);
+        caseSelect.addEventListener('change', refillItems);
+        refillCases();
+        panel.append(categorySelect, caseSelect, itemSelect);
+        panel.appendChild(createControlButtons(overlay, function(){
+            const type = Number(caseSelect.value);
+            const index = Number(itemSelect.value) || 0;
+            const source = getDropsForType(type)[index];
+            if (!source) return;
+            const meta = getSpecialMeta(type);
+            const casePrice = (meta ? Number(meta.price) : (typeof getCasePriceByType === 'function' ? getCasePriceByType(type) : 0)) || source.casePrice || 0;
+            const granted = { ...source, casePrice };
+            window.inventory.push(granted);
+            if (typeof updateInventory === 'function') updateInventory();
+            if (typeof saveGameData === 'function') saveGameData();
+            if (typeof showDevToast === 'function') showDevToast(`Дроп добавлен: ${granted.name}`, 'DEV');
+            overlay.remove();
+        }, 'linear-gradient(135deg,#27ae60,#2ecc71)'));
+    };
+
+    function rebindDevButtonsLatest(){
+        const giveCaseBtn = document.getElementById('dev-give-case-btn');
+        const giveDropBtn = document.getElementById('dev-give-drop-btn');
+        if (giveCaseBtn) {
+            const clone = giveCaseBtn.cloneNode(true);
+            giveCaseBtn.replaceWith(clone);
+            clone.addEventListener('click', function(){ window.openDevGiveCaseModal(); });
+        }
+        if (giveDropBtn) {
+            const clone = giveDropBtn.cloneNode(true);
+            giveDropBtn.replaceWith(clone);
+            clone.addEventListener('click', function(){ window.openDevGiveDropModal(); });
+        }
+    }
+
+    function initHardFixes(){
+        try { if (typeof ensureSpecialData === 'function') ensureSpecialData(); } catch (e) {}
+        normalizeStarterVoucherHard();
+        patchUpdateInventoryHard();
+        patchOpenItemMenuHard();
+        try { if (typeof updateInventory === 'function') updateInventory(); } catch (e) {}
+        setTimeout(refreshVoucherVisualsHard, 50);
+        setTimeout(rebindDevButtonsLatest, 50);
+    }
+
+    const nativeLoadGameData = window.loadGameData;
+    if (typeof nativeLoadGameData === 'function' && !nativeLoadGameData.__starterFixWrapped) {
+        const wrappedLoad = function(){
+            const result = nativeLoadGameData.apply(this, arguments);
+            setTimeout(initHardFixes, 0);
+            return result;
+        };
+        wrappedLoad.__starterFixWrapped = true;
+        window.loadGameData = wrappedLoad;
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initHardFixes, { once: true });
+    } else {
+        initHardFixes();
+    }
+})();
+</script>
+
+
+
+<script id="oai-dev-give-buttons-actual-fix">
+(function(){
+    const STARTER_CASE_TYPE = 100;
+    const DEV_CASE_TYPES = [101,102,103,104,105,106];
+
+    function isDevActive(){
+        try {
+            if (typeof devModeActive !== 'undefined') return !!devModeActive;
+        } catch (e) {}
+        return !!window.devModeActive;
+    }
+
+    function getInv(){
+        try {
+            if (typeof inventory !== 'undefined' && Array.isArray(inventory)) return inventory;
+        } catch (e) {}
+        if (!Array.isArray(window.inventory)) window.inventory = [];
+        return window.inventory;
+    }
+
+    function getSpecialMeta(type){
+        try {
+            if (typeof SPECIAL_CASES !== 'undefined' && SPECIAL_CASES && SPECIAL_CASES[Number(type)]) return SPECIAL_CASES[Number(type)];
+        } catch (e) {}
+        return null;
+    }
+
+    function getPublicCases(){
+        return [...document.querySelectorAll('.case[data-case]')].map(caseEl => ({
+            type: Number(caseEl.dataset.case),
+            name: (caseEl.querySelector('.case-name')?.textContent || `Кейс ${caseEl.dataset.case}`).trim(),
+            price: Number(caseEl.dataset.price) || 0,
+            dev: false
+        })).filter(entry => Number.isFinite(entry.type));
+    }
+
+    function getAllCaseEntries(includeStarter=true){
+        const publicCases = getPublicCases();
+        const out = []
+        for (const c of publicCases) {
+            if (Number(c.type) === STARTER_CASE_TYPE) continue;
+            out.push(c);
+        }
+        if (includeStarter) {
+            const starter = getSpecialMeta(STARTER_CASE_TYPE) || { name: 'Стартовый кейс', price: 60 };
+            out.unshift({ type: STARTER_CASE_TYPE, name: starter.name, price: Number(starter.price)||60, dev: false, starter: true });
+        }
+        for (const type of DEV_CASE_TYPES) {
+            const meta = getSpecialMeta(type);
+            if (!meta) continue;
+            out.push({ type, name: meta.name, price: Number(meta.price)||0, dev: true });
+        }
+        return out;
+    }
+
+    function ensurePickerFactory(){
+        if (typeof createPickerModal === 'function') return createPickerModal;
+        return function(title){
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.82);display:flex;align-items:center;justify-content:center;padding:18px;z-index:10060;';
+            const panel = document.createElement('div');
+            panel.style.cssText = 'width:min(94vw,560px);max-height:min(84vh,760px);overflow:auto;background:linear-gradient(135deg,#141c29,#1d2734);border:2px solid rgba(255,215,0,0.5);border-radius:16px;padding:18px;box-shadow:0 20px 50px rgba(0,0,0,0.55);';
+            const titleEl = document.createElement('div');
+            titleEl.textContent = title;
+            titleEl.style.cssText = 'font-size:22px;font-weight:800;color:#ffd700;text-align:center;margin-bottom:16px;';
+            panel.appendChild(titleEl);
+            overlay.appendChild(panel);
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+            document.body.appendChild(overlay);
+            return { overlay, panel };
+        }
+    }
+
+    function makeSelect(){
+        const el = document.createElement('select');
+        el.style.cssText = 'width:100%;padding:12px 14px;margin-bottom:12px;background:#0f1720;color:#fff;border:1px solid rgba(255,255,255,0.18);border-radius:10px;font-size:15px;';
+        return el;
+    }
+
+    function refillCaseSelect(caseSelect, category){
+        const all = getAllCaseEntries(true);
+        const filtered = all.filter(entry => category === 'dev' ? entry.dev : !entry.dev);
+        caseSelect.innerHTML = '';
+        filtered.forEach(entry => {
+            const option = document.createElement('option');
+            option.value = String(entry.type);
+            option.textContent = `${entry.name} — ${entry.price} ꙮ`;
+            caseSelect.appendChild(option);
+        });
+        return filtered;
+    }
+
+    function getDropsForType(type){
+        try {
+            if (typeof items !== 'undefined' && Array.isArray(items?.[type])) return items[type];
+        } catch (e) {}
+        return [];
+    }
+
+    function toast(msg){
+        try {
+            if (typeof showDevToast === 'function') { showDevToast(msg, 'DEV'); return; }
+            if (typeof showNotification === 'function') { showNotification(msg, 'success'); return; }
+        } catch (e) {}
+    }
+
+    window.openDevGiveCaseModal = function(){
+        if (!isDevActive()) return;
+        const createModal = ensurePickerFactory();
+        const { overlay, panel } = createModal('📦 Выдать бесплатный кейс');
+        const categorySelect = makeSelect();
+        [{v:'public',t:'Обычные кейсы'},{v:'dev',t:'DEV-CASE'}].forEach(x => { const o=document.createElement('option'); o.value=x.v; o.textContent=x.t; categorySelect.appendChild(o); });
+        const caseSelect = makeSelect();
+        const refill = () => refillCaseSelect(caseSelect, categorySelect.value);
+        categorySelect.addEventListener('change', refill);
+        refill();
+        const controls = document.createElement('div');
+        controls.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap;';
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Отмена';
+        const confirmBtn = document.createElement('button');
+        confirmBtn.textContent = 'Выдать';
+        [cancelBtn, confirmBtn].forEach(btn => btn.style.cssText = 'padding:11px 18px;border:none;border-radius:10px;font-weight:800;cursor:pointer;');
+        cancelBtn.style.background = '#7f8c8d'; cancelBtn.style.color = '#fff';
+        confirmBtn.style.background = 'linear-gradient(135deg,#8e44ad,#9b59b6)'; confirmBtn.style.color = '#fff';
+        cancelBtn.onclick = () => overlay.remove();
+        confirmBtn.onclick = () => {
+            const type = Number(caseSelect.value);
+            const meta = getSpecialMeta(type);
+            const caseName = meta ? meta.name : (typeof getCaseNameByType === 'function' ? getCaseNameByType(type) : `Кейс ${type}`);
+            const casePrice = meta ? Number(meta.price)||0 : (typeof getCasePriceByType === 'function' ? getCasePriceByType(type) : 0);
+            const voucher = (typeof createSpecialVoucher === 'function' ? createSpecialVoucher(type) : null)
+                || (typeof buildVoucher === 'function' ? buildVoucher(type, caseName, casePrice) : null)
+                || (typeof buildCaseVoucherItem === 'function' ? buildCaseVoucherItem(type, caseName, casePrice) : null)
+                || { name: `🎁 ${caseName}`, value: 0, itemType:'case_voucher', usableCaseType:type, usableCaseName:caseName, usableCasePrice:casePrice, image:`casevoucher_${type}`, rarity:'legendary'};
+            const inv = getInv();
+            inv.push(voucher);
+            try { if (typeof updateInventory === 'function') updateInventory(); } catch (e) {}
+            try { if (typeof saveGameData === 'function') saveGameData(); } catch (e) {}
+            toast(`Кейс добавлен: ${caseName}`);
+            overlay.remove();
+        };
+        panel.append(categorySelect, caseSelect);
+        controls.append(cancelBtn, confirmBtn);
+        panel.appendChild(controls);
+    };
+
+    window.openDevGiveDropModal = function(){
+        if (!isDevActive()) return;
+        const createModal = ensurePickerFactory();
+        const { overlay, panel } = createModal('🎁 Выдать дроп в инвентарь');
+        const categorySelect = makeSelect();
+        [{v:'public',t:'Обычные кейсы'},{v:'dev',t:'DEV-CASE'}].forEach(x => { const o=document.createElement('option'); o.value=x.v; o.textContent=x.t; categorySelect.appendChild(o); });
+        const caseSelect = makeSelect();
+        const itemSelect = makeSelect();
+        const refillItems = () => {
+            itemSelect.innerHTML = '';
+            const type = Number(caseSelect.value);
+            const list = getDropsForType(type);
+            list.forEach((item, index) => {
+                const option = document.createElement('option');
+                option.value = String(index);
+                option.textContent = `${item.name} — ${item.value} ꙮ (${item.rarity})`;
+                itemSelect.appendChild(option);
+            });
+        };
+        const refillCases = () => { refillCaseSelect(caseSelect, categorySelect.value); refillItems(); };
+        categorySelect.addEventListener('change', refillCases);
+        caseSelect.addEventListener('change', refillItems);
+        refillCases();
+        const controls = document.createElement('div');
+        controls.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap;';
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Отмена';
+        const confirmBtn = document.createElement('button');
+        confirmBtn.textContent = 'Выдать';
+        [cancelBtn, confirmBtn].forEach(btn => btn.style.cssText = 'padding:11px 18px;border:none;border-radius:10px;font-weight:800;cursor:pointer;');
+        cancelBtn.style.background = '#7f8c8d'; cancelBtn.style.color = '#fff';
+        confirmBtn.style.background = 'linear-gradient(135deg,#27ae60,#2ecc71)'; confirmBtn.style.color = '#fff';
+        cancelBtn.onclick = () => overlay.remove();
+        confirmBtn.onclick = () => {
+            const type = Number(caseSelect.value);
+            const index = Number(itemSelect.value)||0;
+            const source = getDropsForType(type)[index];
+            if (!source) return;
+            const meta = getSpecialMeta(type);
+            const casePrice = (meta ? Number(meta.price)||0 : (typeof getCasePriceByType === 'function' ? getCasePriceByType(type) : 0)) || source.casePrice || 0;
+            const granted = { ...source, casePrice };
+            const inv = getInv();
+            inv.push(granted);
+            try { if (typeof updateInventory === 'function') updateInventory(); } catch (e) {}
+            try { if (typeof saveGameData === 'function') saveGameData(); } catch (e) {}
+            toast(`Дроп добавлен: ${granted.name}`);
+            overlay.remove();
+        };
+        panel.append(categorySelect, caseSelect, itemSelect);
+        controls.append(cancelBtn, confirmBtn);
+        panel.appendChild(controls);
+    };
+
+    function bindDevButton(id, handlerName){
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        const clone = btn.cloneNode(true);
+        btn.replaceWith(clone);
+        clone.addEventListener('click', function(ev){
+            ev.preventDefault();
+            ev.stopPropagation();
+            if (typeof window[handlerName] === 'function') window[handlerName]();
+        });
+    }
+
+    function ensureBind(){
+        bindDevButton('dev-give-case-btn', 'openDevGiveCaseModal');
+        bindDevButton('dev-give-drop-btn', 'openDevGiveDropModal');
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function(){ setTimeout(ensureBind, 100); }, { once: true });
+    } else {
+        setTimeout(ensureBind, 100);
+    }
+    setTimeout(ensureBind, 500);
+})();
+</script>
+
+<script id="oai-dev-give-final-fix">
+(function(){
+    const STARTER_TYPE = 100;
+    const DEV_CASES = {
+        101:{name:'Ночной билд', price:350},
+        102:{name:'Техноядро', price:520},
+        103:{name:'Фантомный протокол', price:760},
+        104:{name:'Байки от Шера', price:920},
+        105:{name:'Фиолетовый разлом', price:1100},
+        106:{name:'IVA STUDIO', price:1400}
+    };
+    const STARTER_META = {name:'Стартовый кейс', price:60};
+
+    function isDevOn(){
+        try { return typeof devModeActive !== 'undefined' ? !!devModeActive : !!window.devModeActive; } catch(e){ return !!window.devModeActive; }
+    }
+    function getInventoryRef(){
+        try {
+            if (typeof inventory !== 'undefined' && Array.isArray(inventory)) return inventory;
+        } catch(e){}
+        if (!Array.isArray(window.inventory)) window.inventory = [];
+        return window.inventory;
+    }
+    function toast(msg){
+        try { if (typeof showDevToast === 'function') return showDevToast(msg, 'DEV'); } catch(e){}
+        try { if (typeof showNotification === 'function') return showNotification(msg, 'success'); } catch(e){}
+    }
+    function createModal(title){
+        if (typeof createPickerModal === 'function') return createPickerModal(title);
+        const overlay = document.createElement('div');
+        overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.82);display:flex;align-items:center;justify-content:center;padding:18px;z-index:10060;';
+        const panel = document.createElement('div');
+        panel.style.cssText='width:min(94vw,560px);max-height:min(84vh,760px);overflow:auto;background:linear-gradient(135deg,#141c29,#1d2734);border:2px solid rgba(255,215,0,0.5);border-radius:16px;padding:18px;box-shadow:0 20px 50px rgba(0,0,0,0.55);';
+        const ttl=document.createElement('div'); ttl.textContent=title; ttl.style.cssText='font-size:22px;font-weight:800;color:#ffd700;text-align:center;margin-bottom:16px;';
+        panel.appendChild(ttl); overlay.appendChild(panel); document.body.appendChild(overlay);
+        overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+        return {overlay, panel};
+    }
+    function mkSelect(){
+        const el=document.createElement('select');
+        el.style.cssText='width:100%;padding:12px 14px;margin-bottom:12px;background:#0f1720;color:#fff;border:1px solid rgba(255,255,255,0.18);border-radius:10px;font-size:15px;';
+        return el;
+    }
+    function mkControls(overlay, onConfirm, color){
+        const wrap=document.createElement('div');
+        wrap.style.cssText='display:flex;gap:10px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap;';
+        const cancel=document.createElement('button'); cancel.textContent='Отмена';
+        const ok=document.createElement('button'); ok.textContent='Выдать';
+        [cancel,ok].forEach(btn=>btn.style.cssText='padding:11px 18px;border:none;border-radius:10px;font-weight:800;cursor:pointer;');
+        cancel.style.background='#7f8c8d'; cancel.style.color='#fff';
+        ok.style.background=color; ok.style.color='#fff';
+        cancel.onclick=()=>overlay.remove(); ok.onclick=onConfirm;
+        wrap.append(cancel,ok); return wrap;
+    }
+    function getNormalCases(){
+        const seen=new Set();
+        const list=[{type:STARTER_TYPE, name:STARTER_META.name, price:STARTER_META.price}];
+        document.querySelectorAll('.case[data-case]').forEach(el=>{
+            const type=Number(el.dataset.case); if(!Number.isFinite(type)||seen.has(type)) return; seen.add(type);
+            const name=(el.querySelector('.case-name')?.textContent || `Кейс ${type}`).trim();
+            const price=Number(el.dataset.price)||0;
+            list.push({type,name,price});
+        });
+        return list;
+    }
+    function getDevCases(){
+        return Object.entries(DEV_CASES).map(([type,meta])=>({type:Number(type), name:meta.name, price:meta.price}));
+    }
+    function refillCases(select, category){
+        const list = category==='dev' ? getDevCases() : getNormalCases();
+        select.innerHTML='';
+        list.forEach(entry=>{ const o=document.createElement('option'); o.value=String(entry.type); o.textContent=`${entry.name} — ${entry.price} ꙮ`; select.appendChild(o); });
+        return list;
+    }
+    function getDrops(type){
+        try { if (typeof items !== 'undefined' && items && Array.isArray(items[Number(type)])) return items[Number(type)]; } catch(e){}
+        return [];
+    }
+    function makeVoucher(type, caseName, casePrice){
+        try { if (typeof createSpecialVoucher === 'function') { const v=createSpecialVoucher(type); if(v) return v; } } catch(e){}
+        try { if (typeof buildVoucher === 'function') return buildVoucher(type, caseName, casePrice); } catch(e){}
+        try { if (typeof buildCaseVoucherItem === 'function') return buildCaseVoucherItem(type, caseName, casePrice); } catch(e){}
+        return { name:`🎁 ${caseName}`, value:casePrice||0, itemType:'case_voucher', usableCaseType:type, usableCaseName:caseName, usableCasePrice:casePrice||0, image:`casevoucher_${type}`, rarity:'legendary' };
+    }
+
+    window.openDevGiveCaseModal=function(){
+        if(!isDevOn()) return;
+        const {overlay,panel}=createModal('📦 Выдать бесплатный кейс');
+        const cat=mkSelect();
+        [{v:'public',t:'Обычные кейсы'},{v:'dev',t:'DEV-CASE'}].forEach(x=>{ const o=document.createElement('option'); o.value=x.v; o.textContent=x.t; cat.appendChild(o); });
+        const caseSel=mkSelect();
+        const refill=()=>refillCases(caseSel, cat.value);
+        cat.addEventListener('change', refill);
+        refill();
+        panel.append(cat, caseSel);
+        panel.appendChild(mkControls(overlay, ()=>{
+            const type=Number(caseSel.value);
+            const meta = type===STARTER_TYPE ? STARTER_META : DEV_CASES[type] || null;
+            const caseName = meta ? meta.name : (typeof getCaseNameByType==='function' ? getCaseNameByType(type) : `Кейс ${type}`);
+            const casePrice = meta ? Number(meta.price)||0 : (typeof getCasePriceByType==='function' ? getCasePriceByType(type) : 0);
+            const voucher=makeVoucher(type, caseName, casePrice);
+            getInventoryRef().push(voucher);
+            try{ if(typeof updateInventory==='function') updateInventory(); }catch(e){}
+            try{ if(typeof saveGameData==='function') saveGameData(); }catch(e){}
+            toast(`Кейс добавлен: ${caseName}`);
+            overlay.remove();
+        }, 'linear-gradient(135deg,#8e44ad,#9b59b6)'));
+    };
+
+    window.openDevGiveDropModal=function(){
+        if(!isDevOn()) return;
+        const {overlay,panel}=createModal('🎁 Выдать дроп в инвентарь');
+        const cat=mkSelect();
+        [{v:'public',t:'Обычные кейсы'},{v:'dev',t:'DEV-CASE'}].forEach(x=>{ const o=document.createElement('option'); o.value=x.v; o.textContent=x.t; cat.appendChild(o); });
+        const caseSel=mkSelect();
+        const itemSel=mkSelect();
+        function refillItems(){
+            itemSel.innerHTML='';
+            const type=Number(caseSel.value);
+            const list=getDrops(type);
+            list.forEach((item,index)=>{ const o=document.createElement('option'); o.value=String(index); o.textContent=`${item.name} — ${item.value} ꙮ (${item.rarity})`; itemSel.appendChild(o); });
+        }
+        function refillAll(){ refillCases(caseSel, cat.value); refillItems(); }
+        cat.addEventListener('change', refillAll);
+        caseSel.addEventListener('change', refillItems);
+        refillAll();
+        panel.append(cat, caseSel, itemSel);
+        panel.appendChild(mkControls(overlay, ()=>{
+            const type=Number(caseSel.value), index=Number(itemSel.value)||0;
+            const source=getDrops(type)[index]; if(!source) return;
+            const casePrice = (type===STARTER_TYPE ? STARTER_META.price : (DEV_CASES[type]?.price || (typeof getCasePriceByType==='function' ? getCasePriceByType(type) : 0) || source.casePrice || 0));
+            getInventoryRef().push({...source, casePrice});
+            try{ if(typeof updateInventory==='function') updateInventory(); }catch(e){}
+            try{ if(typeof saveGameData==='function') saveGameData(); }catch(e){}
+            toast(`Дроп добавлен: ${source.name}`);
+            overlay.remove();
+        }, 'linear-gradient(135deg,#27ae60,#2ecc71)'));
+    };
+
+    function bind(id, fn){
+        const btn=document.getElementById(id); if(!btn) return;
+        const clone=btn.cloneNode(true); btn.replaceWith(clone);
+        clone.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); fn(); });
+    }
+    function rebind(){ bind('dev-give-case-btn', ()=>window.openDevGiveCaseModal()); bind('dev-give-drop-btn', ()=>window.openDevGiveDropModal()); }
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', ()=>setTimeout(rebind,50), {once:true}); else setTimeout(rebind,50);
+    setTimeout(rebind,300);
 })();
 </script>
 
