@@ -3080,7 +3080,7 @@
             updateForcedDropIndicator();
             saveGameData();
             if (showNotice) {
-                alert('🎯 Подкрутка следующего дропа сброшена.');
+                showDevToast('Подкрутка дропа сброшена.', 'ТЕХ');
             }
         }
 
@@ -3315,7 +3315,7 @@
 
             const caseTypes = Object.keys(items).map(Number).filter(caseType => Array.isArray(items[caseType]) && items[caseType].length > 0);
             if (!caseTypes.length) {
-                alert('Нет доступных кейсов для подкрутки дропа.');
+                showDevToast('Нет кейсов для подкрутки.', 'ТЕХ');
                 return;
             }
 
@@ -3384,7 +3384,7 @@
                 const selectedItemName = sanitizeText(itemSelect.value);
                 const selectedItem = items[activeCaseType]?.find(item => item.name === selectedItemName);
                 if (!selectedItem) {
-                    alert('Не удалось найти выбранный дроп.');
+                    showDevToast('Не удалось найти выбранный дроп.', 'ТЕХ');
                     return;
                 }
 
@@ -3396,7 +3396,7 @@
                 updateForcedDropIndicator();
                 saveGameData();
                 document.body.removeChild(overlay);
-                alert(`🎬 Следующий дроп для кейса «${getCaseDisplayName(activeCaseType)}» зафиксирован: ${selectedItem.name}`);
+                showDevToast(`Подкрутка: ${getCaseDisplayName(activeCaseType)} → ${selectedItem.name}`, 'DEV');
             };
 
             const cancelBtn = document.createElement('button');
@@ -7646,6 +7646,7 @@ function getPromoToastContainer() {
             updateBalance();
             saveGameData();
             console.log('🛠️ DEV: Добавлено 1000 ꙮ');
+            showDevToast('+1000 ꙮ на баланс.', 'DEV');
         };
         
         window.devSetBalance = function() {
@@ -7655,6 +7656,7 @@ function getPromoToastContainer() {
                 updateBalance();
                 saveGameData();
                 console.log(`🛠️ DEV: Баланс изменён на ${balance} ꙮ`);
+                showDevToast(`Баланс: ${balance} ꙮ`, 'DEV');
             });
         };
         
@@ -7665,7 +7667,7 @@ function getPromoToastContainer() {
             pendingBonusHint = false;
             saveGameData();
             console.log('🛠️ DEV: Промокоды сброшены (кроме RAZRAB)');
-            alert('✅ Промокоды сброшены!');
+            showDevToast('Промокоды сброшены.', 'ТЕХ');
         };
         
         window.devResetRating = function() {
@@ -7681,7 +7683,7 @@ function getPromoToastContainer() {
             hideBlockBanner();
             saveGameData();
             console.log('🛠️ DEV: Социальный рейтинг сброшен');
-            alert('✅ Социальный рейтинг восстановлен!');
+            showDevToast('Рейтинг восстановлен.', 'ТЕХ');
         };
         
         // 🚫 НОВАЯ ФУНКЦИЯ СБРОСА ИСТОРИИ ДРОПОВ
@@ -7690,7 +7692,7 @@ function getPromoToastContainer() {
             recentDrops = []; // Очищаем глобальную историю дропов
             saveGameData();
             console.log('🛠️ DEV: История дропов сброшена');
-            alert('🚫 История дропов очищена! Антиповторы сброшены.');
+            showDevToast('История дропов очищена.', 'ТЕХ');
         };
         
         window.devResetAll = function() {
@@ -7736,7 +7738,7 @@ function getPromoToastContainer() {
                 saveGameData();
                 
                 console.log('🛠️ DEV: Полный сброс выполнен + экономика + история дропов сброшены');
-                alert('🗑️ Полный сброс выполнен!');
+                showDevToast('Полный сброс выполнен.', 'ТЕХ');
             }
         };
         
@@ -10663,6 +10665,102 @@ function repent() {
         }, durationMs);
     };
 
+
+    function getDevToastContainer() {
+        let container = document.getElementById('dev-toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'dev-toast-container';
+            container.style.cssText = `
+                position: fixed;
+                right: 18px;
+                bottom: 18px;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 10px;
+                z-index: 10085;
+                pointer-events: none;
+                width: min(320px, calc(100vw - 24px));
+            `;
+            document.body.appendChild(container);
+        }
+        return container;
+    }
+
+    window.showDevToast = function(message, label = 'DEV', durationMs = 2600) {
+        const container = getDevToastContainer();
+        const toastEl = document.createElement('div');
+        toastEl.style.cssText = `
+            display:flex;
+            align-items:center;
+            gap:10px;
+            width:100%;
+            box-sizing:border-box;
+            padding: 11px 13px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(76, 29, 149, 0.98), rgba(109, 40, 217, 0.96));
+            border: 1px solid rgba(216, 180, 254, 0.42);
+            box-shadow: 0 10px 26px rgba(49, 12, 92, 0.45), 0 0 18px rgba(168, 85, 247, 0.20);
+            color: #f5ecff;
+            font-size: 13px;
+            line-height: 1.3;
+            font-weight: 700;
+            pointer-events: none;
+            animation: devToastIn 0.22s ease-out;
+        `;
+        const badge = document.createElement('span');
+        badge.textContent = String(label || 'DEV').toUpperCase();
+        badge.style.cssText = `
+            flex: 0 0 auto;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            min-width: 42px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.96), rgba(251, 191, 36, 0.96));
+            color: #241200;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.45px;
+            box-shadow: 0 0 12px rgba(250, 204, 21, 0.28);
+        `;
+        const textNode = document.createElement('div');
+        textNode.textContent = message;
+        textNode.style.cssText = 'min-width:0;flex:1 1 auto;word-break:break-word;';
+        toastEl.appendChild(badge);
+        toastEl.appendChild(textNode);
+
+        if (!document.getElementById('dev-toast-style')) {
+            const style = document.createElement('style');
+            style.id = 'dev-toast-style';
+            style.textContent = `
+                @keyframes devToastIn {
+                    0% { transform: translateY(12px) scale(0.98); opacity: 0; }
+                    100% { transform: translateY(0) scale(1); opacity: 1; }
+                }
+                @keyframes devToastOut {
+                    0% { transform: translateY(0) scale(1); opacity: 1; }
+                    100% { transform: translateY(10px) scale(0.98); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        container.appendChild(toastEl);
+        setTimeout(() => {
+            if (toastEl.parentNode) {
+                toastEl.style.animation = 'devToastOut 0.2s ease-in forwards';
+                setTimeout(() => {
+                    if (toastEl.parentNode) {
+                        toastEl.parentNode.removeChild(toastEl);
+                    }
+                }, 200);
+            }
+        }, Math.max(1400, durationMs));
+    };
+
     window.showPromocodeMessage = function(message, type = 'info', durationMs = DEFAULT_PROMO_TOAST_DURATION) {
         const promocodeMessage = document.getElementById('promocodeMessage');
         if (promocodeMessage) {
@@ -11762,7 +11860,7 @@ function repent() {
             inventory.push(granted);
             updateInventory();
             saveGameData();
-            showPromoToast(`🎁 DEV: в инвентарь добавлен дроп «${granted.name}».`, 'success', 5200);
+            showDevToast(`Дроп добавлен: ${granted.name}`, 'DEV');
             overlay.remove();
         };
 
@@ -11806,7 +11904,7 @@ function repent() {
             inventory.push(voucher);
             updateInventory();
             saveGameData();
-            showPromoToast(`📦 DEV: бесплатный кейс «${caseName}» добавлен в инвентарь.`, 'success', 5200);
+            showDevToast(`Кейс добавлен: ${caseName}`, 'DEV');
             overlay.remove();
         };
         panel.appendChild(caseSelect);
@@ -12252,6 +12350,570 @@ function repent() {
     };
 
     injectFinalPromoStyles();
+})();
+</script>
+
+
+<script id="oai-dev-promo-library">
+(function(){
+    if (window.__oaiDevPromoLibraryLoaded) return;
+    window.__oaiDevPromoLibraryLoaded = true;
+
+    const DEV_PROMO_CATALOG = [
+        { code: 'GLISTOK', category: 'Баланс', title: 'GLISTOK', description: '+500 ꙮ на баланс.' },
+        { code: 'MEOFEN', category: 'Баланс', title: 'MEOFEN', description: '+300 ꙮ на баланс.' },
+        { code: 'IVA STUDIO', category: 'Имба', title: 'IVA STUDIO', description: '+15000 ꙮ, снимает долг и блокировку, ставит рейтинг 100, даёт 2x LUCKY, CASEBACK и бесплатный кейс «Глист».' },
+        { code: 'BONUS', category: 'Баланс', title: 'BONUS', description: '+200 ꙮ на баланс.' },
+        { code: 'START', category: 'Баланс', title: 'START', description: '+100 ꙮ на баланс.' },
+        { code: 'GLIST', category: 'Спец', title: 'GLIST', description: 'Запускает скример Глиста.' },
+        { code: 'GOSHA', category: 'Имба', title: 'GOSHA', description: '+7000 ꙮ, списывает долги и чуть поднимает рейтинг.' },
+        { code: 'GOMOSEK', category: 'Имба', title: 'GOMOSEK', description: '+7000 ꙮ, списывает долги и чуть поднимает рейтинг.' },
+        { code: 'BEN', category: 'Имба', title: 'BEN', description: '+20000 ꙮ, снимает долг и блокировку, ставит рейтинг 100, даёт 3x LUCKY, CASEBACK и запускает PRESS F BEN.' },
+        { code: 'PROTOKOL', category: 'Баланс', title: 'PROTOKOL', description: '+404 ꙮ по протоколу СПО.' },
+        { code: 'GOSDOLG', category: 'Рофл', title: 'GOSDOLG', description: '+3000 ꙮ, но оформляет льготный долг.' },
+        { code: 'SPO', category: 'Баланс', title: 'SPO', description: '+666 ꙮ от СПО.' },
+        { code: 'MINIGLIST', category: 'Спец', title: 'MINIGLIST', description: 'Подключает Мини Глиста в поддержку и добавляет мерзкую реплику.' },
+        { code: 'BANNED', category: 'Рофл', title: 'BANNED', description: 'Пугает фейковым баном, потом даёт +50 ꙮ.' },
+        { code: 'CASEBACK', category: 'Спец', title: 'CASEBACK', description: 'Следующий открытый кейс полностью возвращает свою стоимость.' },
+        { code: 'LUCKY', category: 'Спец', title: 'LUCKY', description: 'Даёт 1 заряд усиления на следующее открытие: дорогие дропы становятся заметно вероятнее.' },
+        { code: 'ERROR500', category: 'Рофл', title: 'ERROR500', description: 'Пугает фейковой системной ошибкой, потом даёт +133 ꙮ.' },
+        { code: 'AMNISTIA', category: 'Спец', title: 'AMNISTIA', description: 'Полностью прощает долги и снимает блокировку.' },
+        { code: 'OTKUP', category: 'Спец', title: 'OTKUP', description: 'Срезает долг примерно пополам и снимает блокировку. Если долга нет — даёт +200 ꙮ.' },
+        { code: 'POKAYANIE', category: 'Спец', title: 'POKAYANIE', description: 'Поднимает рейтинг и ослабляет долг. Если долга нет — даёт +111 ꙮ.' },
+        { code: 'SERIYA3', category: 'Баланс', title: 'SERIYA3', description: '+333 ꙮ в честь 3-й серии.' },
+        { code: 'ZRITEL', category: 'Баланс', title: 'ZRITEL', description: '+250 ꙮ зрительского бонуса.' },
+        { code: 'SPERMACRAD', category: 'Баланс', title: 'SPERMACRAD', description: '+777 ꙮ на баланс.' },
+        { code: 'LIM', category: 'Спец', title: 'LIM', description: 'Даёт бесплатный кейс ЧВК в инвентарь.' }
+    ];
+
+    function injectStyles(){
+        if (document.getElementById('oai-dev-promo-library-style')) return;
+        const style = document.createElement('style');
+        style.id = 'oai-dev-promo-library-style';
+        style.textContent = `
+            .dev-btn.promo-library {
+                background: linear-gradient(145deg, #8e44ad, #6c3483);
+            }
+            #devPromoLibraryModal {
+                position: fixed;
+                inset: 0;
+                z-index: 10070;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                background: rgba(4, 7, 17, 0.82);
+                backdrop-filter: blur(8px);
+                padding: 18px;
+                box-sizing: border-box;
+            }
+            #devPromoLibraryModal.is-open { display: flex; }
+            #devPromoLibraryModal .dev-promo-panel {
+                width: min(980px, 96vw);
+                max-height: min(88vh, 900px);
+                background: linear-gradient(180deg, rgba(19, 25, 47, 0.96), rgba(10, 16, 30, 0.98));
+                border: 2px solid rgba(255, 215, 0, 0.35);
+                border-radius: 22px;
+                box-shadow: 0 18px 60px rgba(0,0,0,0.55), 0 0 35px rgba(142, 68, 173, 0.18);
+                overflow: hidden;
+                display: grid;
+                grid-template-columns: minmax(260px, 340px) 1fr;
+            }
+            #devPromoLibraryModal .dev-promo-sidebar {
+                background: linear-gradient(180deg, rgba(31, 48, 12, 0.85), rgba(16, 26, 8, 0.95));
+                border-right: 1px solid rgba(255,255,255,0.08);
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+                height: 100%;
+            }
+            #devPromoLibraryModal .dev-promo-sidebar-head,
+            #devPromoLibraryModal .dev-promo-content-head {
+                padding: 18px 18px 14px;
+                border-bottom: 1px solid rgba(255,255,255,0.08);
+            }
+            #devPromoLibraryModal .dev-promo-sidebar-head h3,
+            #devPromoLibraryModal .dev-promo-content-head h3 {
+                margin: 0 0 6px;
+                color: #ffd700;
+                font-size: 22px;
+                line-height: 1.1;
+            }
+            #devPromoLibraryModal .dev-promo-sidebar-head p,
+            #devPromoLibraryModal .dev-promo-content-head p {
+                margin: 0;
+                color: #d7e4c2;
+                font-size: 13px;
+                line-height: 1.35;
+            }
+            #devPromoLibraryModal .dev-promo-list {
+                flex: 1 1 auto;
+                min-height: 0;
+                padding: 12px;
+                overflow-y: auto;
+                overflow-x: hidden;
+                overscroll-behavior: contain;
+                -webkit-overflow-scrolling: touch;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(138px, 1fr));
+                gap: 9px;
+                align-content: start;
+                scrollbar-width: thin;
+                scrollbar-color: rgba(255, 215, 0, 0.55) rgba(255,255,255,0.06);
+            }
+            #devPromoLibraryModal .dev-promo-list::-webkit-scrollbar {
+                width: 10px;
+            }
+            #devPromoLibraryModal .dev-promo-list::-webkit-scrollbar-track {
+                background: rgba(255,255,255,0.05);
+                border-radius: 999px;
+            }
+            #devPromoLibraryModal .dev-promo-list::-webkit-scrollbar-thumb {
+                background: linear-gradient(180deg, rgba(255, 215, 0, 0.85), rgba(241, 196, 15, 0.65));
+                border-radius: 999px;
+                border: 2px solid rgba(0,0,0,0.15);
+            }
+            #devPromoLibraryModal .dev-promo-item {
+                width: 100%;
+                min-height: 82px;
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 14px;
+                background: rgba(10, 20, 10, 0.28);
+                color: #fff;
+                text-align: left;
+                padding: 12px 13px;
+                cursor: pointer;
+                transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+            #devPromoLibraryModal .dev-promo-item:hover,
+            #devPromoLibraryModal .dev-promo-item.is-active {
+                transform: translateY(-1px);
+                border-color: rgba(255, 215, 0, 0.45);
+                box-shadow: 0 8px 18px rgba(0,0,0,0.22);
+            }
+            #devPromoLibraryModal .dev-promo-item-code {
+                font-weight: 800;
+                font-size: 15px;
+                color: #ffe680;
+                letter-spacing: 0.4px;
+                display: block;
+                margin-bottom: 5px;
+            }
+            #devPromoLibraryModal .dev-promo-item-desc {
+                display: block;
+                color: #d5ddc8;
+                font-size: 11px;
+                line-height: 1.25;
+                opacity: 0.78;
+                max-height: 28px;
+                overflow: hidden;
+            }
+            #devPromoLibraryModal .dev-promo-count {
+                margin-top: 8px;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 12px;
+                font-weight: 700;
+                color: #ffe680;
+                background: rgba(255,215,0,0.10);
+                border: 1px solid rgba(255,215,0,0.18);
+                border-radius: 999px;
+                padding: 6px 10px;
+            }
+            #devPromoLibraryModal .dev-promo-item-meta {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                margin-top: 8px;
+            }
+            #devPromoLibraryModal .dev-promo-item-used {
+                font-size: 10px;
+                font-weight: 800;
+                color: #9fe69f;
+                letter-spacing: 0.35px;
+                opacity: 0.9;
+            }
+            #devPromoLibraryModal .dev-promo-item-tag {
+                display: inline-block;
+                margin-top: 8px;
+                font-size: 11px;
+                font-weight: 800;
+                letter-spacing: 0.4px;
+                color: #13230a;
+                background: linear-gradient(145deg, #ffe066, #f1c40f);
+                border-radius: 999px;
+                padding: 4px 8px;
+            }
+            #devPromoLibraryModal .dev-promo-content {
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+            }
+            #devPromoLibraryModal .dev-promo-content-body {
+                padding: 18px;
+                overflow: auto;
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+            }
+            #devPromoLibraryModal .dev-promo-card {
+                background: rgba(255,255,255,0.035);
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 18px;
+                padding: 18px;
+                box-shadow: inset 0 0 0 1px rgba(255,255,255,0.025);
+            }
+            #devPromoLibraryModal .dev-promo-title {
+                margin: 0 0 8px;
+                color: #ffd700;
+                font-size: clamp(24px, 3.4vw, 34px);
+                line-height: 1.05;
+                letter-spacing: 0.8px;
+            }
+            #devPromoLibraryModal .dev-promo-desc {
+                color: #eef3ff;
+                font-size: 15px;
+                line-height: 1.55;
+                margin: 0;
+            }
+            #devPromoLibraryModal .dev-promo-note {
+                color: #aebfd5;
+                font-size: 13px;
+                line-height: 1.45;
+                margin-top: 12px;
+            }
+            #devPromoLibraryModal .dev-promo-status {
+                min-height: 42px;
+                border-radius: 12px;
+                padding: 10px 12px;
+                font-size: 13px;
+                line-height: 1.4;
+                color: #ecf0f1;
+                background: rgba(255,255,255,0.04);
+                border: 1px solid rgba(255,255,255,0.06);
+                white-space: pre-line;
+            }
+            #devPromoLibraryModal .dev-promo-status.success {
+                background: rgba(39, 174, 96, 0.14);
+                border-color: rgba(39, 174, 96, 0.35);
+            }
+            #devPromoLibraryModal .dev-promo-status.error {
+                background: rgba(231, 76, 60, 0.14);
+                border-color: rgba(231, 76, 60, 0.35);
+            }
+            #devPromoLibraryModal .dev-promo-actions {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            #devPromoLibraryModal .dev-promo-action-btn {
+                border: none;
+                border-radius: 12px;
+                padding: 12px 16px;
+                font-weight: 800;
+                cursor: pointer;
+                color: #fff;
+                transition: transform 0.15s ease, opacity 0.15s ease;
+            }
+            #devPromoLibraryModal .dev-promo-action-btn:hover {
+                transform: translateY(-1px);
+            }
+            #devPromoLibraryModal .dev-promo-action-btn.apply {
+                background: linear-gradient(145deg, #27ae60, #229954);
+                box-shadow: 0 8px 18px rgba(39, 174, 96, 0.22);
+            }
+            #devPromoLibraryModal .dev-promo-action-btn.back {
+                background: linear-gradient(145deg, #7f8c8d, #616a6b);
+            }
+            #devPromoLibraryModal .dev-promo-action-btn.close {
+                background: linear-gradient(145deg, #e74c3c, #c0392b);
+                margin-left: auto;
+            }
+            #devPromoLibraryModal .dev-promo-close-x {
+                position: absolute;
+                top: 16px;
+                right: 16px;
+                width: 40px;
+                height: 40px;
+                border: none;
+                border-radius: 999px;
+                background: rgba(255,255,255,0.08);
+                color: #fff;
+                cursor: pointer;
+                font-size: 20px;
+            }
+            #devPromoLibraryModal .dev-promo-panel-wrap {
+                position: relative;
+                width: 100%;
+                display: flex;
+                justify-content: center;
+            }
+            @media (max-width: 860px) {
+                #devPromoLibraryModal .dev-promo-panel {
+                    grid-template-columns: 1fr;
+                    max-height: 92vh;
+                }
+                #devPromoLibraryModal .dev-promo-sidebar {
+                    max-height: 42vh;
+                }
+                #devPromoLibraryModal .dev-promo-list {
+                    grid-template-columns: 1fr;
+                }
+                #devPromoLibraryModal .dev-promo-action-btn.close {
+                    margin-left: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function ensureButton(){
+        const controls = document.querySelector('#dev-mode-banner .dev-mode-controls');
+        if (!controls) return;
+        if (document.getElementById('dev-promo-library-btn')) return;
+        const btn = document.createElement('button');
+        btn.id = 'dev-promo-library-btn';
+        btn.className = 'dev-btn promo-library';
+        btn.type = 'button';
+        btn.textContent = '📜 Все промо';
+        btn.addEventListener('click', openDevPromoLibrary);
+        controls.appendChild(btn);
+    }
+
+    function ensureModal(){
+        if (document.getElementById('devPromoLibraryModal')) return document.getElementById('devPromoLibraryModal');
+
+        const modal = document.createElement('div');
+        modal.id = 'devPromoLibraryModal';
+        modal.innerHTML = `
+            <div class="dev-promo-panel-wrap">
+                <div class="dev-promo-panel" role="dialog" aria-modal="true" aria-labelledby="devPromoLibraryTitle">
+                    <button class="dev-promo-close-x" type="button" aria-label="Закрыть список промо">✕</button>
+                    <div class="dev-promo-sidebar">
+                        <div class="dev-promo-sidebar-head">
+                            <h3 id="devPromoLibraryTitle">📜 Все промо</h3>
+                            <p>Dev-список для тестов. Здесь собраны все промо сайта, кроме RAZRAB. Любой код можно переактивировать — перед применением он сам убирается из списка использованных.</p>
+                        </div>
+                        <div class="dev-promo-list" id="devPromoLibraryList"></div>
+                    </div>
+                    <div class="dev-promo-content">
+                        <div class="dev-promo-content-head">
+                            <h3>Описание промо</h3>
+                            <p>Нажми по коду слева, посмотри описание и жми «Применить», чтобы запустить текущую промо-логику сайта заново.</p>
+                        </div>
+                        <div class="dev-promo-content-body">
+                            <div class="dev-promo-card">
+                                <h4 class="dev-promo-title" id="devPromoLibraryCode">—</h4>
+                                <p class="dev-promo-desc" id="devPromoLibraryDesc">Выбери промокод слева.</p>
+                                <div class="dev-promo-note" id="devPromoLibraryNote">Через dev-режим код можно жать сколько угодно раз — перед применением его использование сбрасывается.</div>
+                            </div>
+                            <div class="dev-promo-status" id="devPromoLibraryStatus">Выбери промокод, чтобы увидеть детали и сразу понять: новый он или уже использованный.</div>
+                            <div class="dev-promo-actions">
+                                <button type="button" class="dev-promo-action-btn back" id="devPromoLibraryBack">← Назад к списку</button>
+                                <button type="button" class="dev-promo-action-btn apply" id="devPromoLibraryApply">Применить</button>
+                                <button type="button" class="dev-promo-action-btn close" id="devPromoLibraryClose">Закрыть</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        modal.addEventListener('click', function(event){
+            if (event.target === modal) closeDevPromoLibrary();
+        });
+        modal.querySelector('.dev-promo-close-x').addEventListener('click', closeDevPromoLibrary);
+        modal.querySelector('#devPromoLibraryClose').addEventListener('click', closeDevPromoLibrary);
+        modal.querySelector('#devPromoLibraryBack').addEventListener('click', function(){
+            focusPromoList();
+        });
+        modal.querySelector('#devPromoLibraryApply').addEventListener('click', function(){
+            applySelectedDevPromo();
+        });
+
+        return modal;
+    }
+
+    function normalizeCode(code){
+        return String(code || '').trim().toUpperCase();
+    }
+
+    function getSelectedPromo(){
+        const code = window.__oaiSelectedDevPromoCode || '';
+        return DEV_PROMO_CATALOG.find(item => normalizeCode(item.code) === normalizeCode(code)) || DEV_PROMO_CATALOG[0];
+    }
+
+    function setStatus(text, kind){
+        const node = document.getElementById('devPromoLibraryStatus');
+        if (!node) return;
+        node.textContent = text;
+        node.className = 'dev-promo-status' + (kind ? ' ' + kind : '');
+    }
+
+    function isPromoAlreadyUsed(code){
+        const normalized = normalizeCode(code);
+        return Array.isArray(window.usedPromocodes) && window.usedPromocodes.some(function(item){
+            return normalizeCode(item) === normalized;
+        });
+    }
+
+    function updateApplyButtonState(code){
+        const btn = document.getElementById('devPromoLibraryApply');
+        if (!btn) return;
+        const alreadyUsed = isPromoAlreadyUsed(code);
+        btn.textContent = alreadyUsed ? '⚡ Применить заново' : 'Применить';
+        btn.dataset.mode = alreadyUsed ? 'reapply' : 'apply';
+    }
+
+    function renderPromoDetail(code){
+        const promo = DEV_PROMO_CATALOG.find(item => normalizeCode(item.code) === normalizeCode(code));
+        if (!promo) return;
+        window.__oaiSelectedDevPromoCode = promo.code;
+
+        const codeNode = document.getElementById('devPromoLibraryCode');
+        const descNode = document.getElementById('devPromoLibraryDesc');
+        const noteNode = document.getElementById('devPromoLibraryNote');
+        const alreadyUsed = isPromoAlreadyUsed(promo.code);
+
+        if (codeNode) codeNode.textContent = promo.title;
+        if (descNode) descNode.textContent = promo.description;
+        if (noteNode) {
+            noteNode.textContent = 'Категория: ' + promo.category + '. Dev-режим запускает этот код через текущую activatePromocode(). '
+                + (alreadyUsed
+                    ? 'Этот промо уже применялся раньше, поэтому кнопка даёт повторный запуск.'
+                    : 'Этот промо ещё не применялся — можно запустить его как первый раз.');
+        }
+
+        document.querySelectorAll('#devPromoLibraryList .dev-promo-item').forEach(function(btn){
+            btn.classList.toggle('is-active', normalizeCode(btn.dataset.code) === normalizeCode(promo.code));
+        });
+
+        updateApplyButtonState(promo.code);
+        setStatus((alreadyUsed ? 'Готово к повторному применению: ' : 'Готово к применению: ') + promo.title, alreadyUsed ? 'success' : '');
+    }
+
+    function renderPromoList(){
+        const list = document.getElementById('devPromoLibraryList');
+        if (!list) return;
+        list.innerHTML = '';
+        const countNode = document.getElementById('devPromoLibraryCount');
+        if (countNode) {
+            countNode.textContent = `Всего промо: ${DEV_PROMO_CATALOG.length} · список прокручивается`;
+        }
+        DEV_PROMO_CATALOG.forEach(function(promo){
+            const alreadyUsed = isPromoAlreadyUsed(promo.code);
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'dev-promo-item';
+            btn.dataset.code = promo.code;
+            btn.innerHTML = `
+                <span class="dev-promo-item-code">${promo.title}</span>
+                <span class="dev-promo-item-desc">${promo.description}</span>
+                <div class="dev-promo-item-meta">
+                    <span class="dev-promo-item-tag">${promo.category}</span>
+                    ${alreadyUsed ? '<span class="dev-promo-item-used">ИСПОЛЬЗОВАН</span>' : ''}
+                </div>
+            `;
+            btn.addEventListener('click', function(){
+                renderPromoDetail(promo.code);
+            });
+            list.appendChild(btn);
+        });
+    }
+
+    function focusPromoList(){
+        const selected = getSelectedPromo();
+        renderPromoDetail(selected.code);
+        const activeBtn = document.querySelector('#devPromoLibraryList .dev-promo-item.is-active');
+        if (activeBtn && typeof activeBtn.scrollIntoView === 'function') {
+            activeBtn.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+    }
+
+    function removePromoUsage(code){
+        const normalized = normalizeCode(code);
+        if (!Array.isArray(window.usedPromocodes)) {
+            window.usedPromocodes = [];
+        }
+        usedPromocodes = usedPromocodes.filter(function(item){
+            return normalizeCode(item) !== normalized;
+        });
+        if (typeof saveGameData === 'function') {
+            saveGameData();
+        }
+    }
+
+    function applySelectedDevPromo(){
+        const promo = getSelectedPromo();
+        if (!promo) return;
+        const input = document.getElementById('promocodeInput');
+        if (!input || typeof window.activatePromocode !== 'function') {
+            setStatus('Не нашёл promocodeInput или activatePromocode(). Проверь текущую сборку.', 'error');
+            return;
+        }
+
+        const alreadyUsed = isPromoAlreadyUsed(promo.code);
+        removePromoUsage(promo.code);
+        input.value = promo.code;
+        setStatus((alreadyUsed ? 'Применяю заново ' : 'Применяю ') + promo.title + ' через текущую activatePromocode()...', '');
+
+        let result = false;
+        try {
+            result = window.activatePromocode();
+        } catch (error) {
+            console.error('Dev promo apply failed:', error);
+            setStatus('Ошибка при применении: ' + (error && error.message ? error.message : 'неизвестная ошибка'), 'error');
+            return;
+        }
+
+        if (result) {
+            renderPromoList();
+            updateApplyButtonState(promo.code);
+            setStatus('✅ ' + promo.title + (alreadyUsed ? ' снова применён.' : ' применён.') + ' Использование было сброшено перед запуском.', 'success');
+            showDevToast((alreadyUsed ? 'Промо заново: ' : 'Промо: ') + promo.title, 'DEV');
+            renderPromoDetail(promo.code);
+        } else {
+            updateApplyButtonState(promo.code);
+            setStatus('⚠️ ' + promo.title + ' не сработал. Проверь условия самого промо или текущую логику.', 'error');
+            showDevToast('Промо не сработал: ' + promo.title, 'ТЕХ');
+        }
+    }
+
+    window.openDevPromoLibrary = function(){
+        injectStyles();
+        ensureButton();
+        const modal = ensureModal();
+        renderPromoList();
+        if (!window.__oaiSelectedDevPromoCode) {
+            window.__oaiSelectedDevPromoCode = DEV_PROMO_CATALOG[0].code;
+        }
+        focusPromoList();
+        modal.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+    };
+
+    window.closeDevPromoLibrary = function(){
+        const modal = document.getElementById('devPromoLibraryModal');
+        if (modal) modal.classList.remove('is-open');
+        document.body.style.overflow = '';
+    };
+
+    function init(){
+        injectStyles();
+        ensureButton();
+        ensureModal();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init, { once: true });
+    } else {
+        init();
+    }
 })();
 </script>
 
